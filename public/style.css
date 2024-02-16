@@ -1,0 +1,21 @@
+/* 
+*
+*   STYLEEEEE
+*
+*/
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+canvas {
+  display: block;
+} 
+
+/* .sliders {
+  width: '40px';
+} */
+
+/* .labels {
+  font-color: red;
+} */
