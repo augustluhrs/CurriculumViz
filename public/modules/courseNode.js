@@ -1,8 +1,14 @@
-class CourseNode {
+class CNode { //courseNode
   constructor(data, pos){
     //data from table
     [this.name, this.short, this.long, this.professor, this.area, this.keywords, this.skills, this.credits, this.core, this.offered, this.image] = data;
     
+    //css element
+    this.button = createButton(this.name).class("cNode");
+    this.button.elt.style.width = nodeSize;
+    this.button.elt.style.height = nodeSize;
+    this.button.mousePressed(this.click.bind(this));
+
     //display info
     this.col = nodeCol;
     this.ske = nodeStroke; //stroke, idk
@@ -15,8 +21,6 @@ class CourseNode {
     this.vel = createVector(random(-5, 5), random(-5, 5)); //start with random direction
     this.maxSpeed = 1; //speed of movement
     this.maxForce = 0.1; //speed of change to movement
-
-
     
   }
   
@@ -53,6 +57,14 @@ class CourseNode {
     this.pos.add(this.vel); //move the node
     
   }
+
+  show(){
+    this.button.position(this.pos.x, this.pos.y);
+  }
+
+  click(){
+    console.log(this.name)
+  }
   
   // showLines(){
   //   //lines?
@@ -62,6 +74,7 @@ class CourseNode {
   //   pop();
   // }
   
+  /*
   show(){
     push();
     strokeWeight(this.skw);
@@ -76,4 +89,5 @@ class CourseNode {
     text(this.name, this.pos.x, this.pos.y);
     pop();
   }
+  */
 }

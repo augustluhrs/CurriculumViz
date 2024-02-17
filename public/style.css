@@ -12,10 +12,27 @@ canvas {
   display: block;
 } 
 
-/* .sliders {
-  width: '40px';
-} */
+.cNode {
+  border-radius: 50%;
+  border: none;
+  /* width: 7%; */
+  /* height: 7%; */
+  /* padding: 3% 1%; */
+  text-align: center;
+  /* line-height: 200%; */
+  display: inline-block;
+  margin: auto;
+  font-family: Verdana;
+  background-color: palevioletred;
+}
 
-/* .labels {
-  font-color: red;
-} */
+.cNode:hover {
+  background-color: #156064;
+}
+
+/* https://dev.to/ashwamegh/how-to-hide-scrollbar-from-any-html-element-dae */
+/* https://www.w3schools.com/css/css_pseudo_elements.asp */
+.scroll-hide::-webkit-scrollbar { 
+  width: 0 !important;
+  display: none; 
+}

@@ -2,54 +2,50 @@
 
 ## ROADMAP
 
-### v0
-
-Class info-gathering and table complete, information accessible on AirTable
-
-### v1
-
-A testable prototype in p5, basic UI, mobile view but not optimized for mobile
-
-### v2
-
-More visual options, connections, filters, brand identity
-
-### v3
-
-Linked suggestions / recommended classes
-
-### v4
-
-Semester course selection / class schedule builder / email form
-
-### v5
-
-Saved student history via cookies, 4 year plan
+- v0
+  - Class info-gathering and table complete, information accessible on AirTable
+- v1
+  - A testable prototype in p5, basic UI, mobile view but not optimized for mobile
+- v2
+  - More visual options, connections, filters, brand identity
+- v3
+  - Linked suggestions / recommended classes
+- v4
+  - Semester course selection / class schedule builder / email form
+- v5
+  - Saved student history via cookies, 4 year plan
 
 ## TODO
 
 - [ ] Project Setup
   - [X] git init
-  - [ ] glitch clone
+  - [X] glitch clone
   - [X] gitignore
   - [X] git lfs
   - [ ] final csv upload
 - [ ] Style // Elements
   - [ ] courseNode css class
-    - [ ] colors
-    - [ ] stroke/border
+    - [ ] colors (area)
+    - [ ] stroke/border (semester)
     - [ ] title formatting (use ":" delimiter for two lines?)
-    - [ ] size
-    - [ ] shape (not circle? weirder sculpy kind of shape)
+    - [ ] title font/color
+    - [X] size
+    - [X] basic shape
+    - [X] button template
   - [ ] default web bubbles
   - [ ] mobile scaling
   - [ ] info sidepanel (desktop)
   - [ ] info sidepanel (mobile)
   - [ ] page title
   - [ ] default font
-  - [ ] buttons css class
 - [ ] Core UI
-  - [ ] clickable cNodes
+  - [X] clickable cNodes
+  - [ ] desktop navigation
+    - [ ] scroll to zoom
+    - [ ] click and drag off-node to move window
+  - [ ] mobile navigation
+    - [ ] pinch zoom
+    - [ ] click and drag off-node to move window
   - [ ] sidepanel UI
     - [ ] related links
     - [ ] hide chevron
@@ -96,21 +92,35 @@ Saved student history via cookies, 4 year plan
   - [ ] landing page
     - [ ] different entry points depending on user type
   - [ ] fun stuff
+    - [ ] weird sculpy node shape instead of circle
+    - [X] alpha paint mode
     - [ ] hidden easter egg keyboard combos
       - [ ] rainbow mode
       - [ ] august's classes
       - [ ] nodes are now animals (goat?)
       - [ ] ithai dancing gif
+    - [ ] replace cursor
+      - [ ] goat
+      - [ ] ithai face
+    - [ ] 3D/AR version?
+  - [ ] CA Account
+    - [ ] CA github
+    - [ ] CA glitch or CA VM
+    - [ ] CA notion
 
 ## Changelog
 
 ### v0.0.2
+
+*3 hrs*
 
 - git repo init
 - file structure/lfs setup
 - glitch project init
 
 ### v0.0.1
+
+*1 hr*
 
 - basic p5 template
 - testing airtable csv load
