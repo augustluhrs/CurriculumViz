@@ -23,7 +23,7 @@ canvas {
   display: inline-block;
   margin: auto;
   font-family: Verdana;
-  background-color: palevioletred;
+  /* background-color: palevioletred; */
 }
 
 .cNode:hover {

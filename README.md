@@ -110,6 +110,13 @@
 
 ## Changelog
 
+### v0.0.3
+
+*30 mins*
+
+- updated table with areas, adjusted titles that were too long
+- placeholder area color palette
+
 ### v0.0.2
 
 *3 hrs*

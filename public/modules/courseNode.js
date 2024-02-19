@@ -9,10 +9,42 @@ class CNode { //courseNode
     this.button.elt.style.height = nodeSize;
     this.button.mousePressed(this.click.bind(this));
 
-    //display info
-    this.col = nodeCol;
-    this.ske = nodeStroke; //stroke, idk
-    this.skw = 5; //stroke weight
+    //colors by area (later display option toggle TODO)
+    // https://coolors.co/aaef74-89608e-428722-5792c3-fac9b8
+    if (!this.area) { this.col = nodeCol }
+    else {
+      switch(this.area){
+        case "Image":
+          this.col = color("#14BDEB"); //aero blue
+        break;
+        case "Performance":
+          this.col = color("#89608E"); //pomp and power (dark lilac)
+        break;
+        case "Music/Sound":
+          this.col = color("#F08700"); //tangerine
+        break;
+        case "Emerging Media & Tech":
+          this.col = color("#428722"); //forest green
+        break;
+        case "Text":
+          this.col = color("#5792C3"); //celestial blue
+        break;
+        case "Visual Art":
+          this.col = color("#FB3640"); // imperial red
+        break;
+        case "Studies (Research)":
+          this.col = color("#fac9b8"); //pale dogwood (pink)
+        break;
+        case "Core":
+          this.col = color("#DB7093"); //thulian pink (palevioletred css)
+        break;
+      }
+    }
+    this.button.elt.style.background = this.col;
+    
+    //other display info
+    // this.ske = nodeStroke; //stroke, idk
+    // this.skw = 5; //stroke weight
     this.size = 50;
     this.pos = pos;
     

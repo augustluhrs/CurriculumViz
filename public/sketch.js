@@ -7,7 +7,8 @@
 */
 
 //design/UI variables
-let bg, nodeCol, nodeStroke, titleCol;
+let bg;
+// let nodeCol, nodeStroke, titleCol;
 let nodeSize, nodeScale;
 // let cNodeTemplate;
 
@@ -43,9 +44,9 @@ function setup() {
   // rectMode(CENTER);
   // bg = color("#616708"); //olive
   bg = color("#aaef74"); //light pale green
-  nodeCol = color("#f3a9b0");
-  nodeStroke = color("#f0c5c4");
-  titleCol = color("#00fffa");
+  // nodeCol = color("#f3a9b0");
+  // nodeStroke = color("#f0c5c4");
+  // titleCol = color("#00fffa");
   if(options.isAlphaPaint){
     bg.setAlpha(3);
   }
