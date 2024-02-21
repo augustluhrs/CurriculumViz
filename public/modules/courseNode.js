@@ -5,8 +5,8 @@ class CNode { //courseNode
     
     //css element
     this.button = createButton(this.name).class("cNode");
-    this.button.elt.style.width = nodeSize;
-    this.button.elt.style.height = nodeSize;
+    this.button.elt.style.width = nodeSize_px;
+    this.button.elt.style.height = nodeSize_px;
     this.button.mousePressed(this.click.bind(this));
 
     //colors by area (later display option toggle TODO)
@@ -51,7 +51,7 @@ class CNode { //courseNode
     //physics
     this.acc = createVector(0, 0); //acceleration
     this.vel = createVector(random(-5, 5), random(-5, 5)); //start with random direction
-    this.maxSpeed = 1; //speed of movement
+    this.maxSpeed = random(.5, 1.5); //speed of movement
     this.maxForce = 0.1; //speed of change to movement
     
   }

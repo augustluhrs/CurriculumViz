@@ -1,6 +1,6 @@
 /*
     CA Curriculum Visualization
-    Prototype 0.0.1
+    Prototype v0
     
     testing node generation from airtable csv
     August Luhrs and Despina Papadopolous
@@ -9,20 +9,23 @@
 //design/UI variables
 let bg;
 // let nodeCol, nodeStroke, titleCol;
-let nodeSize, nodeScale;
-// let cNodeTemplate;
+let nodeSize, nodeSize_px;
+let nodeScale = 0.09; // 9% of shorter side of window
 
 //csv variables
 let airtable;
-let courses = [];
+let courses = []; //stores the cNodes
+let clusters = []; //stores the vector locations of the web clusters by area
 
 //options/filters/visuals
 let options = {
+  isWeb: false,
   isMoving: false,
   isDraggable: false,
   isGravity: false,
   isAlphaPaint: false,
 };
+options.isWeb = true;
 options.isMoving = true;
 // options.isAlphaPaint = true;
 
@@ -41,7 +44,8 @@ function setup() {
   createCanvas(windowWidth, windowHeight);//stretches to fit whatever windowSize the user has
   textAlign(CENTER, CENTER);
   ellipseMode(CENTER);
-  // rectMode(CENTER);
+  rectMode(CENTER);
+  angleMode(DEGREES); //just for 360/7 areas
   // bg = color("#616708"); //olive
   bg = color("#aaef74"); //light pale green
   // nodeCol = color("#f3a9b0");
@@ -53,23 +57,33 @@ function setup() {
 
   //setup the css element properties
   //get the relative node size
-  nodeScale = .08; //5% of shorter side of window
+  // nodeScale = .08; //5% of shorter side of window
   if (width > height) { 
     nodeSize = height * nodeScale; 
   } else {
     nodeSize = width * nodeScale;
   }
   //turn to string for css
-  nodeSize = nodeSize.toString();
-  nodeSize += 'px';
-  console.log(nodeSize)
-  // cNodeTemplate = createElement("cNodeBlock").id("cNodeBlock");
-  // cNodeTemplate.elt.style.width = nodeSize;
-  // cNodeTemplate.elt.style.height = nodeSize;
+  nodeSize_px = nodeSize.toString();
+  nodeSize_px += 'px';
+
+  //get the web cluster locations per area
+  push();
+  translate(width/2, height/2);
+  //needs to be relative to node scale (shorter side) or else will be off screen
+  let angle = 360/7;
+  for (let i = 0; i < 7; i++){
+    // rotate(angle);
+    let clusterPos = rotationCoords(-nodeSize * 4, 0, angle)
+    console.log(clusterPos);
+    clusters.push(clusterPos);
+    angle += 360/7;
+    // rect(-nodeSize * 4, 0, 100);
+  }
+  pop();
 
   //cycle through the table to generate the CNodes
   for (let r = 0; r < airtable.getRowCount(); r++){
-    // console.log(airtable.rows[r].arr);
     let newCourse = new CNode(airtable.rows[r].arr, createVector(random(0, width), random(0, height)));
     courses.push(newCourse);
   }
@@ -84,6 +98,18 @@ function setup() {
 function draw() {
   background(bg);
 
+  //web test
+  if (options.isWeb){
+    push();
+    translate(width/2, height/2);
+    noStroke();
+    fill(50, 205, 100);
+    rect(0, 0, 200);
+    for (let i = 0; i < 7; i++){
+      rect(clusters[i].x, clusters[i].y, 100);
+    }
+    pop();
+  }
 
   //cNode display
   if (options.isMoving) {
@@ -99,4 +125,13 @@ function draw() {
     node.show();
   }
   
+}
+
+
+function rotationCoords(x, y, angle){
+  //getting vector from rotation around center
+  //thanks chat-gpt
+  let newX = x * cos(angle) - y * sin(angle);
+  let newY = x * sin(angle) + y * cos(angle);
+  return createVector(newX, newY);
 }

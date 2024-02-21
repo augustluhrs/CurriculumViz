@@ -23,6 +23,7 @@ canvas {
   display: inline-block;
   margin: auto;
   font-family: Verdana;
+  transform: translate(-50%, -50%); /*center button */
   /* background-color: palevioletred; */
 }
 

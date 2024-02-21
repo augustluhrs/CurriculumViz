@@ -33,6 +33,7 @@
     - [X] basic shape
     - [X] button template
   - [ ] default web bubbles
+    - [X] cluster positions
   - [ ] mobile scaling
   - [ ] info sidepanel (desktop)
   - [ ] info sidepanel (mobile)
@@ -110,16 +111,22 @@
 
 ## Changelog
 
+### v0.0.4
+*2/21/24: 45 mins*
+
+- drafting the web positions of each cluster of areas
+- centered buttons and adjusted scale slightly (0.09)
+
 ### v0.0.3
 
-*30 mins*
+*2/19/24: 30 mins*
 
 - updated table with areas, adjusted titles that were too long
 - placeholder area color palette
 
 ### v0.0.2
 
-*3 hrs*
+*2/16/24: 3 hrs*
 
 - git repo init
 - file structure/lfs setup
@@ -127,7 +134,7 @@
 
 ### v0.0.1
 
-*1 hr*
+*2/13/24: 1 hr*
 
 - basic p5 template
 - testing airtable csv load
