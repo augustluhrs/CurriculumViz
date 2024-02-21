@@ -112,10 +112,14 @@
 ## Changelog
 
 ### v0.0.4
-*2/21/24: 45 mins*
+
+*2/21/24: 2.5 hrs*
 
 - drafting the web positions of each cluster of areas
 - centered buttons and adjusted scale slightly (0.09)
+- cluster position formation
+- area labels and text wrapping
+- physics mode for auto spacing of nodes (desired dist from node and cluster, friction)
 
 ### v0.0.3
 

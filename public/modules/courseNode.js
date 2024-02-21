@@ -1,5 +1,6 @@
 class CNode { //courseNode
-  constructor(data, pos){
+  // constructor(data, pos){
+  constructor(data){
     //data from table
     [this.name, this.short, this.long, this.professor, this.area, this.keywords, this.skills, this.credits, this.core, this.offered, this.image] = data;
     
@@ -9,88 +10,143 @@ class CNode { //courseNode
     this.button.elt.style.height = nodeSize_px;
     this.button.mousePressed(this.click.bind(this));
 
-    //colors by area (later display option toggle TODO)
+    // cluster position and colors by area (later display option toggle TODO)
     // https://coolors.co/aaef74-89608e-428722-5792c3-fac9b8
     if (!this.area) { this.col = nodeCol }
     else {
       switch(this.area){
         case "Image":
           this.col = color("#14BDEB"); //aero blue
+          this.cluster = clusters[1];
+          this.cluster.count ++;
         break;
         case "Performance":
           this.col = color("#89608E"); //pomp and power (dark lilac)
+          this.cluster = clusters[2];
+          this.cluster.count ++;
         break;
         case "Music/Sound":
           this.col = color("#F08700"); //tangerine
+          this.cluster = clusters[3];
+          this.cluster.count ++;
         break;
         case "Emerging Media & Tech":
           this.col = color("#428722"); //forest green
+          this.cluster = clusters[4];
+          this.cluster.count ++;
         break;
         case "Text":
           this.col = color("#5792C3"); //celestial blue
+          this.cluster = clusters[5];
+          this.cluster.count ++;
         break;
         case "Visual Art":
           this.col = color("#FB3640"); // imperial red
+          this.cluster = clusters[6];
+          this.cluster.count ++;
         break;
         case "Studies (Research)":
           this.col = color("#fac9b8"); //pale dogwood (pink)
+          this.cluster = clusters[7];
+          this.cluster.count ++;
         break;
         case "Core":
           this.col = color("#DB7093"); //thulian pink (palevioletred css)
+          this.cluster = clusters[0];
+          this.cluster.count ++;
         break;
       }
     }
     this.button.elt.style.background = this.col;
+
+    //cluster position info
     
     //other display info
     // this.ske = nodeStroke; //stroke, idk
     // this.skw = 5; //stroke weight
-    this.size = 50;
-    this.pos = pos;
+    this.size = nodeSize;
+    // this.pos = pos;
+    this.pos = createVector(this.cluster.pos.x, this.cluster.pos.y);
+    
+
     
     //physics
     this.acc = createVector(0, 0); //acceleration
-    this.vel = createVector(random(-5, 5), random(-5, 5)); //start with random direction
-    this.maxSpeed = random(.5, 1.5); //speed of movement
-    this.maxForce = 0.1; //speed of change to movement
+    // this.vel = createVector(random(-5, 5), random(-5, 5)); //start with random direction
+    this.vel = createVector(0,0); //no movement unless too close or aquarium mode
+    this.maxSpeed = .3; //speed of movement
+    this.maxForce = 0.2; //speed of change to movement
+    this.friction = 0.95; //drags to stop
     
   }
+
+  getClusterOffset(){ // use cluster count to create vector offset -- need method after construction
+    push();
+    let angle = (360/this.cluster.count) * this.cluster.currentIndex;
+    translate(this.cluster.pos.x, this.cluster.pos.y);
+    let nodePos = rotationCoords(clusterOffset, 0, angle);
+    nodePos.x += this.cluster.pos.x;
+    nodePos.y += this.cluster.pos.y;
+    this.pos = nodePos;
+    this.cluster.currentIndex ++;
+    pop();
+  }
   
-  check(){
+  checkDist(){
     //check the current pos of other nodes 
     //so we can calculate our distance and create an offset
     //that is the difference of our actual distance to our desired distance (the ranking relationship)
-    /*
-    for (let node of group){
-      if (node.name !== this.name) {
-        let offset = p5.Vector.sub(node.pos, this.pos);
-        let distMag = offset.mag()
+    for (let cNode of courses) {
+      if (cNode.name !== this.name) {
+        let offset = p5.Vector.sub(cNode.pos, this.pos);
+        let distMag = offset.mag();
         
-        let desiredMag = distMag - this.relationships[node.name];
-        offset.setMag(desiredMag);
-        this.acc.add(offset);
-        
+        if (distMag <= idealSeparation) {
+          // let desiredMag = distMag + idealSeparation;
+          // offset.setMag(desiredMag);
+          offset.setMag(-idealSeparation);
+          this.acc.add(offset);
+        }
       }
     }
-    */
     
+    //also try to stay in "home" cluster (area)
+    let offset = p5.Vector.sub(this.pos, this.cluster.pos);
+    let distMag = offset.mag();
+
+    if (distMag > idealSeparation) {
+      offset.setMag(-idealSeparation * .1); //weaker so they aren't too attracted to center
+      this.acc.add(offset);
+    }
+  }
+  
+  checkBounds() {
     //make sure it's staying in bounds
-    if (this.pos.x > width - (this.size*2)) {this.acc.add(createVector(-1, 0))}
-    if (this.pos.x < (this.size*2)) {this.acc.add(createVector(1, 0))}
-    if (this.pos.y > height - (this.size*2)) {this.acc.add(createVector(0, -1))}
-    if (this.pos.y < (this.size*2)) {this.acc.add(createVector(0, 1))}
+    if (this.pos.x > width - (this.size)) {this.acc.add(createVector(-1, 0))}
+    if (this.pos.x < (this.size)) {this.acc.add(createVector(1, 0))}
+    if (this.pos.y > height - (this.size)) {this.acc.add(createVector(0, -1))}
+    if (this.pos.y < (this.size)) {this.acc.add(createVector(0, 1))}
     
   }
   
   update(){
     this.vel.add(this.acc); //add the current forces to velocity
     this.vel.limit(this.maxSpeed); //make sure we're not going too fast
+    this.vel.mult(this.friction);
     this.acc.mult(0); //reset the forces for the next loop
     this.pos.add(this.vel); //move the node
     
   }
 
   show(){
+    //for alpha paint trails
+    if (options.isAlphaPaint) {
+      push();
+      noStroke();
+      fill(this.col);
+      ellipse(this.pos.x, this.pos.y, this.size);
+      pop();
+    }
     this.button.position(this.pos.x, this.pos.y);
   }
 
