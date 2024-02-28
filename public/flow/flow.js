@@ -6,109 +6,210 @@
  * 
  */
 
-document.addEventListener('DOMContentLoaded', function() {
-  const chart = Highcharts.chart('container', {
-    title: {
-        text: 'CollabArts Curriculum Visualization'
+//create node links
+let airtable;
+let courseLinks = [];
+let courseNodes = [
+    {
+        id: 'Core',
+        color: '#DB7093',
+        // offset: -110
     },
-    subtitle: {
-        text:
-      'v. 0.1.0'
+    {
+        id: 'Performance',
+        color: '#89608E'
     },
-    accessibility: {
-        point: {
-            valueDescriptionFormat: '{index}. {point.from} to {point.to}, {point.weight}.'
+    {
+        id: 'Image',
+        color: '#14BDEB'
+    },
+    {
+        id: 'Visual Art',
+        color: '#FB3640'
+    },
+    {
+        id: 'Emerging Media & Tech',
+        color: '#428722'
+    },
+    {
+        id: 'Music/Sound',
+        color: '#F08700'
+    },
+    {
+        id: 'Studies (Research)',
+        color: '#fac9b8'
+    },
+    {
+        id: 'Text',
+        color: '#5792C3'
+    },
+];
+function preload() {
+    airtable = loadTable("../data/table.csv", "csv", "header");
+}
+function setup(){
+    //cycle through the table to generate the CNodes
+    for (let r = 0; r < airtable.getRowCount(); r++){
+        let arr = airtable.rows[r].arr
+        let credits = 3;
+        if (arr[7] !== ""){
+            credits = arr[7];
+        } else {
+            console.log(arr[0] + " is missing credits");
         }
-    },
-    tooltip: {
-        headerFormat: null,
-        pointFormat:
-      '{point.fromNode.name} \u2192 {point.toNode.name}: {point.weight:.2f} quads',
-        nodeFormat: '{point.name}: {point.sum:.2f} quads'
-    },
-    series: [{
-        keys: ['from', 'to', 'weight'],
+        let courseLink = [arr[4].toString(), arr[0].toString(), credits.toString()]
+        courseLinks.push(courseLink);
 
-        nodes: [
-            {
-                id: 'Electricity & Heat',
-                color: '#ffa500',
-                offset: -110
-            },
-            {
-                id: 'Residential',
-                color: '#74ffe7',
-                column: 2,
-                offset: 50
-            },
-            {
-                id: 'Commercial',
-                color: '#8cff74',
-                column: 2,
-                offset: 50
-            },
-            {
-                id: 'Industrial',
-                color: '#ff8da1',
-                column: 2,
-                offset: 50
-            },
-            {
-                id: 'Transportation',
-                color: '#f4c0ff',
-                column: 2,
-                offset: 50
-            },
-            {
-                id: 'Rejected Energy',
-                color: '#e6e6e6',
-                column: 3,
-                offset: -30
-            },
-            {
-                id: 'Energy Services',
-                color: '#F9E79F',
-                column: 3
-            },
-            {
-                id: 'Solar',
-                color: '#009c00'
-            },
-            {
-                id: 'Nuclear',
-                color: '#1a8dff'
-            },
-            {
-                id: 'Hydro',
-                color: '#009c00'
-            },
-            {
-                id: 'Wind',
-                color: '#009c00'
-            },
-            {
-                id: 'Geothermal',
-                color: '#009c00'
-            },
-            {
-                id: 'Natural Gas',
-                color: '#1a8dff'
-            },
-            {
-                id: 'Biomass',
-                color: '#009c00'
-            },
-            {
-                id: 'Coal',
-                color: '#989898'
-            },
-            {
-                id: 'Petroleum',
-                color: '#989898',
-                offset: -1
-            }
-        ],
+        let courseNode = {
+            id: arr[0],
+            color: "#888888",
+            column: 2
+        }
+        courseNodes.push(courseNode);
+    }
 
+    document.addEventListener('DOMContentLoaded', function() {
+        const chart = Highcharts.chart('container', {
+          title: {
+              text: 'CollabArts Curriculum Visualization'
+          },
+          subtitle: {
+              text:
+            'v. 0.1.0'
+          },
+          accessibility: {
+              point: {
+                  valueDescriptionFormat: '{index}. {point.from} to {point.to}, {point.weight}.'
+              }
+          },
+          tooltip: {
+              headerFormat: null,
+              pointFormat:
+            '{point.fromNode.name} \u2192 {point.toNode.name}: {point.weight:.2f} quads',
+              nodeFormat: '{point.name}: {point.sum:.2f} quads'
+          },
+          series: [{
+              keys: ['from', 'to', 'weight'],
+      
+              nodes: courseNodes,
+              data: courseLinks,
+
+              type: 'sankey',
+            name: 'Sankey demo series'
+            }]
+
+        });
+    });
+}
+
+// function draw(){
+
+// }
+
+// document.addEventListener('DOMContentLoaded', function() {
+//   const chart = Highcharts.chart('container', {
+//     title: {
+//         text: 'CollabArts Curriculum Visualization'
+//     },
+//     subtitle: {
+//         text:
+//       'v. 0.1.0'
+//     },
+//     accessibility: {
+//         point: {
+//             valueDescriptionFormat: '{index}. {point.from} to {point.to}, {point.weight}.'
+//         }
+//     },
+//     tooltip: {
+//         headerFormat: null,
+//         pointFormat:
+//       '{point.fromNode.name} \u2192 {point.toNode.name}: {point.weight:.2f} quads',
+//         nodeFormat: '{point.name}: {point.sum:.2f} quads'
+//     },
+//     series: [{
+//         keys: ['from', 'to', 'weight'],
+
+//         nodes: courseNodes,
+        //[
+            //areas
+            /*
+            {
+                id: 'Core',
+                color: '#DB7093',
+                // offset: -110
+            },
+            {
+                id: 'Performance',
+                color: '#89608E'
+            },
+            {
+                id: 'Image',
+                color: '#14BDEB'
+            },
+            {
+                id: 'Visual Art',
+                color: '#FB3640'
+            },
+            {
+                id: 'Emerging Media & Tech',
+                color: '#428722'
+            },
+            {
+                id: 'Music/Sound',
+                color: '#F08700'
+            },
+            {
+                id: 'Studies (Research)',
+                color: '#fac9b8'
+            },
+            {
+                id: 'Text',
+                color: '#5792C3'
+            },
+            */
+            // {
+            //     id: '',
+            //     color: '#74ffe7',
+            //     column: 2,
+            //     offset: 50
+            // },
+            // {
+            //     id: 'Image',
+            //     color: '#8cff74',
+            //     column: 2,
+            //     offset: 50
+            // },
+            // {
+            //     id: 'Industrial',
+            //     color: '#ff8da1',
+            //     column: 2,
+            //     offset: 50
+            // },
+            // {
+            //     id: 'Transportation',
+            //     color: '#f4c0ff',
+            //     column: 2,
+            //     offset: 50
+            // },
+            // {
+            //     id: 'Rejected Energy',
+            //     color: '#e6e6e6',
+            //     column: 3,
+            //     offset: -30
+            // },
+            // {
+            //     id: 'Energy Services',
+            //     color: '#F9E79F',
+            //     column: 3
+            // },
+            // {
+            //     id: 'Petroleum',
+            //     color: '#989898',
+            //     offset: -1
+            // }
+        // ],
+        // data: courseLinks,
+        /*
         data: [
             ['Solar', 'Electricity & Heat', 0.48],
             ['Nuclear', 'Electricity & Heat', 8.42],
@@ -159,9 +260,10 @@ document.addEventListener('DOMContentLoaded', function() {
             ['Industrial', 'Energy Services', 12.4],
             ['Transportation', 'Energy Services', 5.91]
         ],
-        type: 'sankey',
-        name: 'Sankey demo series'
-    }]
+        */
+//         type: 'sankey',
+//         name: 'Sankey demo series'
+//     }]
 
-  });
-});
+//   });
+// });

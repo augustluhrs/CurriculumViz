@@ -117,9 +117,10 @@
 
 ### v0.1.0
 
-*2/28/24: 30 mins*
+*2/28/24:  1.5 hrs*
 
 - added sankey chart / alluvial diagram placeholder via highcharts api
+- started to add course nodes to sankey
 
 ### v0.0.4
 
