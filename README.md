@@ -87,6 +87,10 @@
   - [ ] balanced semester
   - [ ] 4 year plan
   - [ ] course blocks (time overlap, etc. -- though would assume only taking CA classes, maybe not useful)
+- [ ] Alluvial Chart
+  - [X] find api
+  - [X] test page
+  - [ ] keyword placeholders
 - [ ] Misc
   - [ ] more dimensional alignment of nodes closer to related areas
   - [ ] react?
@@ -110,6 +114,12 @@
     - [ ] CA notion
 
 ## Changelog
+
+### v0.1.0
+
+*2/28/24: 30 mins*
+
+- added sankey chart / alluvial diagram placeholder via highcharts api
 
 ### v0.0.4
 
