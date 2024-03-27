@@ -115,6 +115,13 @@
 
 ## Changelog
 
+### v0.1.1
+
+*3/26/24: 1.5 hrs*
+
+- formatting responses csv
+- keyword tally scraping script
+
 ### v0.1.0
 
 *2/28/24:  1.5 hrs*
