@@ -124,17 +124,19 @@ class CNode { //courseNode
     let mouseDistMag = mouseDist.mag();
 
     if (mouseDistMag < mouseRepel) {
-      mouseDist.setMag(-mouseRepel * (mouseRepel - mouseDistMag) * 10)
+      // mouseDist.setMag(-mouseRepel * (mouseRepel - mouseDistMag) * 10);
+      let mf = mouseRepel - (mouseRepel - mouseDistMag);
+      mouseDist.setMag(-(mf * mf));
       this.acc.add(mouseDist)
     }
   }
   
   checkBounds() {
     //make sure it's staying in bounds
-    if (this.pos.x > width - (this.size)) {this.acc.add(createVector(-1, 0))}
-    if (this.pos.x < (this.size)) {this.acc.add(createVector(1, 0))}
-    if (this.pos.y > height - (this.size)) {this.acc.add(createVector(0, -1))}
-    if (this.pos.y < (this.size)) {this.acc.add(createVector(0, 1))}
+    if (this.pos.x > width - (this.size / 2)) {this.acc.add(createVector(-boundaryForce, 0))}
+    if (this.pos.x < (this.size / 2)) {this.acc.add(createVector(boundaryForce, 0))}
+    if (this.pos.y > height - (this.size / 2)) {this.acc.add(createVector(0, -boundaryForce))}
+    if (this.pos.y < (this.size / 2)) {this.acc.add(createVector(0, boundaryForce))}
     
   }
   

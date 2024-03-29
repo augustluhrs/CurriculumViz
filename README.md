@@ -115,6 +115,12 @@
 
 ## Changelog
 
+### v0.1.5
+
+*3/29/24 20 mins*
+
+- updated forces in node map to fix boundary issues
+
 ### v0.1.4
 
 *3/29/24: 1 hr*

@@ -11,7 +11,7 @@ let bg;
 // let nodeCol, nodeStroke, titleCol;
 let nodeSize, nodeSize_px;
 let nodeScale = 0.09; // 9% of shorter side of window
-let webOffset, clusterOffset, idealSeparation, mouseRepel;
+let webOffset, clusterOffset, idealSeparation, mouseRepel, boundaryForce;
 let mousePos;
 let speedSlider;
 
@@ -89,6 +89,7 @@ function setup() {
   clusterOffset = (-nodeSize * 1.3);
   idealSeparation = nodeSize;
   mouseRepel = idealSeparation * 2;
+  boundaryForce = 100;
 
   //get the web cluster locations per area
   push();
