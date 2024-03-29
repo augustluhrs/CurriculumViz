@@ -115,6 +115,20 @@
 
 ## Changelog
 
+### v0.1.3
+
+*3/28/24: 2 hrs*
+
+- sankey demo display bug fixes
+- form adjustments for alluvial data structure processing
+
+### v0.1.2
+
+*3/27/24: 2 hrs*
+
+- updated keyword script to lump together similar fields and remove punctuation differences
+- started alluvial chart updates with initial keywords
+
 ### v0.1.1
 
 *3/26/24: 1.5 hrs*
