@@ -115,6 +115,13 @@
 
 ## Changelog
 
+### v0.1.4
+
+*3/29/24: 1 hr*
+
+- fixed node map name mislabelling
+- added mouse push and speed slider
+
 ### v0.1.3
 
 *3/28/24: 2 hrs*

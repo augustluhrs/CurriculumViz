@@ -11,12 +11,14 @@ let bg;
 // let nodeCol, nodeStroke, titleCol;
 let nodeSize, nodeSize_px;
 let nodeScale = 0.09; // 9% of shorter side of window
-let webOffset, clusterOffset, idealSeparation;
+let webOffset, clusterOffset, idealSeparation, mouseRepel;
+let mousePos;
+let speedSlider;
 
 //csv variables
 let airtable;
 let courses = []; //stores the cNodes
-let areas = ["CORE", "IMAGE", "PERFORMANCE", "MUSIC & SOUND", "EMERGING MEDIA & TECH", "VISUAL ART", "STUDIES (RESEARCH)", "TEXT"];
+let areas = ["CORE", "IMAGE", "PERFORMANCE", "MUSIC & SOUND", "EMERGING MEDIA & TECH", "TEXT", "VISUAL ART", "STUDIES (RESEARCH)"];
 let clusters = []; //stores the vector locations of the web clusters by area
 
 //options/filters/visuals
@@ -62,6 +64,13 @@ function setup() {
     bg.setAlpha(4);
   }
 
+  //control UI
+  speedSlider = createSlider(0.2, 10, 1, 0.1).changed(()=>{
+    for (let cNode of courses) {
+      cNode.maxSpeed = speedSlider.value();
+    }
+  });
+
   //setup the css element properties
   //get the relative node size
   // nodeScale = .08; //5% of shorter side of window
@@ -79,6 +88,7 @@ function setup() {
   webOffset = (-nodeSize * 4);
   clusterOffset = (-nodeSize * 1.3);
   idealSeparation = nodeSize;
+  mouseRepel = idealSeparation * 2;
 
   //get the web cluster locations per area
   push();
@@ -121,6 +131,9 @@ function setup() {
   for (let cNode of courses) {
     cNode.getClusterOffset();
   }
+
+  //set up mousePos variable
+  mousePos = createVector(0, 0);
 }
 
 /**
@@ -149,8 +162,10 @@ function draw() {
   //cNode display
   if (options.isMoving) {
     if (options.isPhysics) {
+      mousePos.x = mouseX;
+      mousePos.y = mouseY;
       for (let cNode of courses) {
-        cNode.checkDist();
+        cNode.checkDist(mousePos);
       }
     }
     for (let cNode of courses){

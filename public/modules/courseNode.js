@@ -74,7 +74,7 @@ class CNode { //courseNode
     this.acc = createVector(0, 0); //acceleration
     // this.vel = createVector(random(-5, 5), random(-5, 5)); //start with random direction
     this.vel = createVector(0,0); //no movement unless too close or aquarium mode
-    this.maxSpeed = .3; //speed of movement
+    this.maxSpeed = 1; //speed of movement
     this.maxForce = 0.2; //speed of change to movement
     this.friction = 0.95; //drags to stop
     
@@ -92,7 +92,7 @@ class CNode { //courseNode
     pop();
   }
   
-  checkDist(){
+  checkDist(mousePos){
     //check the current pos of other nodes 
     //so we can calculate our distance and create an offset
     //that is the difference of our actual distance to our desired distance (the ranking relationship)
@@ -117,6 +117,15 @@ class CNode { //courseNode
     if (distMag > idealSeparation) {
       offset.setMag(-idealSeparation * .1); //weaker so they aren't too attracted to center
       this.acc.add(offset);
+    }
+
+    //avoid mouse if too close
+    let mouseDist = p5.Vector.sub(mousePos, this.pos);
+    let mouseDistMag = mouseDist.mag();
+
+    if (mouseDistMag < mouseRepel) {
+      mouseDist.setMag(-mouseRepel * (mouseRepel - mouseDistMag) * 10)
+      this.acc.add(mouseDist)
     }
   }
   
