@@ -37,7 +37,7 @@ options.isPhysics = true;
 options.isAlphaPaint = true;
 
 function preload(){
-  airtable = loadTable("data/table.csv", "csv", "header");
+  airtable = loadTable("data/table_3-29.csv", "csv", "header");
 }
 
 /**

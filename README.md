@@ -115,11 +115,17 @@
 
 ## Changelog
 
+### v0.1.6
+
+*3/29/24 20 mins*
+
+- new fall courses to node map
+
 ### v0.1.5
 
 *3/29/24 20 mins*
 
-- updated forces in node map to fix boundary issues
+- updated forces in node map to fix boundary issues u
 
 ### v0.1.4
 
