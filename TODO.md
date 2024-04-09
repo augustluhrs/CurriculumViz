@@ -1,0 +1,171 @@
+# TODO
+
+## v0.1
+
+- [ ] new master sheet with formatted csv
+  - [ ] main keywords
+  - [X] updated titles
+  - [ ] new areas
+  - [ ] unknowns
+    - [ ] credits
+    - [ ] semesters
+    - [ ] professors
+    - [ ] keywords (extended)
+    - [ ] skills/tech
+- [ ] node map
+  - [ ] keyword weighted links
+    - [ ] lines for keyword links
+    - [ ] weight sorting
+      - [ ] distinction between main vs secondary keywords
+    - [ ] click to show sibling classes
+    - [ ] sibling and cousin topological lines
+    - [ ] animation
+      - [ ] fade all non-related classes
+      - [ ] bring siblings/cousins close
+        - [ ] accelerated force/bouncy before settling
+  - [ ] UI panel
+    - [ ] click to show (mobile)
+    - [ ] click to show (desktop)
+    - [ ] basic info
+      - [ ] class name
+      - [ ] short description
+      - [ ] professor
+    - [ ] mid stage
+      - [ ] example media (one photo)
+      - [ ] click for more info
+        - [ ] long descrip.
+        - [ ] keywords
+        - [ ] skills/tech
+        - [ ] area
+        - [ ] time/semester
+        - [ ] credits
+        - [ ] main space
+    - [ ] advanced
+      - [ ] media cycle through on click
+    - [ ] media load async callback
+  - [ ] new area bubbles
+    - [ ] repel so can see title
+    - [ ] new colors
+    - [ ] desktop distribution for 8 areas
+    - [ ] core classes sorted by area
+      - [ ] 4 core as stars not bubbles
+  - [ ] mobile optimzation
+    - [ ] draggable
+    - [ ] fontsize
+    - [ ] node map alt distribution (3,3,3)
+  - [ ] misc
+    - [ ] new font
+    - [ ] default to no shake on slider
+- [ ] alluvial chart
+  - [ ] process new csv for keywords
+  - [ ] colors
+- [ ] AgGrid
+  - [ ] setup page and install library
+  - [ ] test create blocks
+- [ ] alt modes
+  - [ ] rhizome
+  - [ ] tree
+  - [ ] topological time view
+  - [ ] check Atlas Nomic
+- [ ] Admin
+  - [ ] go through form comments/questions
+  - [ ] proofread descriptions
+  - [ ] format media and reupload/relink
+
+## v0 init
+
+- [ ] Project Setup
+  - [X] git init
+  - [X] glitch clone
+  - [X] gitignore
+  - [X] git lfs
+  - [ ] final csv upload
+- [ ] Style // Elements
+  - [ ] courseNode css class
+    - [ ] colors (area)
+    - [ ] stroke/border (semester)
+    - [ ] title formatting (use ":" delimiter for two lines?)
+    - [ ] title font/color
+    - [X] size
+    - [X] basic shape
+    - [X] button template
+  - [ ] default web bubbles
+    - [X] cluster positions
+  - [ ] mobile scaling
+  - [ ] info sidepanel (desktop)
+  - [ ] info sidepanel (mobile)
+  - [ ] page title
+  - [ ] default font
+- [ ] Core UI
+  - [X] clickable cNodes
+  - [ ] desktop navigation
+    - [ ] scroll to zoom
+    - [ ] click and drag off-node to move window
+  - [ ] mobile navigation
+    - [ ] pinch zoom
+    - [ ] click and drag off-node to move window
+  - [ ] sidepanel UI
+    - [ ] related links
+    - [ ] hide chevron
+    - [ ] more info button
+  - [ ] search bar for class titles
+  - [ ] dropdown widget
+    - [ ] desktop/mobile footer
+    - [ ] hide chevron to retract/show
+  - [ ] dropdown for keywords
+  - [ ] dropdown for skills/software
+  - [ ] dropdown for instructors
+- [ ] Advanced UI / Animation
+  - [ ] draggable cNodes
+  - [ ] chevron show/hide animation
+  - [ ] physics-based relationships
+    - [ ] gravity where most relevant is at top
+    - [ ] attraction where related have a pull towards selected
+  - [ ] Filter Menu
+- [ ] Visual Components
+  - [ ] cNode highlight/dim for filters
+  - [ ] size of cNode relative to credits
+  - [ ] connected lines for keywords
+  - [ ] connected lines for skills/software
+  - [ ] asset preview on hover (desktop)
+  - [ ] asset preview (static) on default
+- [ ] Filters
+  - [ ] colors for area vs default colors
+  - [ ] colors/stroke for semesters offered
+  - [ ] credit size vs all one size
+  - [ ] related classes
+  - [ ] semester recommendations
+  - [ ] basic view vs asset preview
+  - [ ] physics mode toggle
+  - [ ] select year/semester
+- [ ] Output
+  - [ ] course selection list
+- [ ] Recommendations
+  - [ ] balanced semester
+  - [ ] 4 year plan
+  - [ ] course blocks (time overlap, etc. -- though would assume only taking CA classes, maybe not useful)
+- [ ] Alluvial Chart
+  - [X] find api
+  - [X] test page
+  - [ ] keyword placeholders
+- [ ] Misc
+  - [ ] more dimensional alignment of nodes closer to related areas
+  - [ ] react?
+  - [ ] landing page
+    - [ ] different entry points depending on user type
+  - [ ] fun stuff
+    - [ ] weird sculpy node shape instead of circle
+    - [X] alpha paint mode
+    - [ ] hidden easter egg keyboard combos
+      - [ ] rainbow mode
+      - [ ] august's classes
+      - [ ] nodes are now animals (goat?)
+      - [ ] ithai dancing gif
+    - [ ] replace cursor
+      - [ ] goat
+      - [ ] ithai face
+    - [ ] 3D/AR version?
+  - [ ] CA Account
+    - [ ] CA github
+    - [ ] CA glitch or CA VM
+    - [ ] CA notion
