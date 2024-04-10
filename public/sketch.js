@@ -21,7 +21,7 @@ let title, titleSize, titleRatio; //ca title logo
 let masterSheet;
 let courses = []; //stores the cNodes
 // let areas = ["CORE", "SOUL", "IMAGE", "MOVEMENT", "ACTING", "SOUND", "TECHNOLOGY", "WRITING", "VISUAL ART", "STUDIES"];
-let areas;
+// let areas; //now in modules
 let clusters = {}; //stores the vector locations of the web clusters by area
 
 //options/filters/visuals
@@ -74,18 +74,18 @@ function setup() {
   titleSize = width/8;
   titleRatio = title.height / title.width;
 
-  areas = [
-    ["CORE", color("#DB7093")], //thulian pink (palevioletred css)
-    ["SOUL", color("#eeeeff")], //whiteblue
-    ["IMAGE", color("#14BDEB")], //aero blue
-    ["ACTING", color("#f5dc23")], //goldenrod
-    ["MOVEMENT", color("#89608E")], //pomp and power (dark lilac)
-    ["SOUND", color("#F08700")], //tangerine
-    ["TECHNOLOGY", color("#428722")], //forest green
-    ["WRITING", color("#5792C3")], //celestial blue
-    ["VISUAL ART", color("#FB3640")], // imperial red
-    ["STUDIES", color("#fac9b8")], //pale dogwood (pink)
-  ]
+  // areas = [
+  //   ["CORE", color("#DB7093")], //thulian pink (palevioletred css)
+  //   ["SOUL", color("#eeeeff")], //whiteblue
+  //   ["IMAGE", color("#14BDEB")], //aero blue
+  //   ["ACTING", color("#f5dc23")], //goldenrod
+  //   ["MOVEMENT", color("#89608E")], //pomp and power (dark lilac)
+  //   ["SOUND", color("#F08700")], //tangerine
+  //   ["TECHNOLOGY", color("#428722")], //forest green
+  //   ["WRITING", color("#5792C3")], //celestial blue
+  //   ["VISUAL ART", color("#FB3640")], // imperial red
+  //   ["STUDIES", color("#fac9b8")], //pale dogwood (pink)
+  // ]
 
   //setup the css element properties
   //get the relative node size
@@ -111,13 +111,13 @@ function setup() {
   push();
   translate(width/2, height/2);
   clusters["CORE"] = {
-    color: areas[0][1],
+    color: color(areas[0][1]),
     pos: createVector(width/2, height/2),
     count: 0,
     currentIndex: 0,
   };
   clusters["SOUL"] = {
-    color: areas[1][1],
+    color: color(areas[1][1]),
     pos: createVector(width/2, height/2),
     count: 0,
     currentIndex: 0,
@@ -132,7 +132,7 @@ function setup() {
     clusterPos.x += width/2; //so we don't have to translate anymore
     clusterPos.y += height/2;
     clusters[areas[i][0]] = {
-      color: areas[i][1],
+      color: color(areas[i][1]),
       pos: clusterPos,
       count: 0,
       currentIndex: 0, //for offset counting

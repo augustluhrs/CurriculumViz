@@ -55,15 +55,21 @@
   - [ ] mobile optimzation
     - [ ] draggable
     - [ ] fontsize
-    - [ ] node map alt distribution (3,3,3)
+    - [ ] node map alt distribution (3,3,3) (or make the clusters autosort same as nodes?)
+    - [ ] fix text being blue
   - [ ] misc
     - [X] new font
     - [X] default to no shake on slider
+    - [ ] set up asset hosting so don't have to upload to glitch
+    - [ ] learn react...
   - [ ] bugs
     - [X] nodes stacking if offset = 0
 - [ ] alluvial chart
   - [ ] process new csv for keywords
-  - [ ] colors
+  - [ ] area to course weight is credits
+  - [ ] course to keyword weight is ???
+  - [ ] colors for links
+  - [ ] colors for keywords
 - [ ] AgGrid
   - [ ] setup page and install library
   - [ ] test create blocks
