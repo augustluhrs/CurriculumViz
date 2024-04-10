@@ -16,6 +16,7 @@ let webOffset, clusterOffset, idealSeparation, mouseRepel, boundaryForce;
 let mousePos;
 let physicsButton, speedSlider, forceSlider, frictionSlider;
 let title, titleSize, titleRatio; //ca title logo
+let warningText = "";
 
 //csv variables
 let masterSheet;
@@ -68,6 +69,11 @@ function setup() {
   // titleCol = color("#00fffa");
   if(options.isAlphaPaint){
     bg.setAlpha(4);
+  }
+  
+  //mobile warning
+  if (width < height){
+    warningText = "NOT READY FOR MOBILE, PLEASE CHECK THIS OUT ON A COMPUTER";
   }
 
   //title logo
@@ -221,7 +227,11 @@ function setup() {
 function draw() {
   background(bg);
   image(title, 10, 10, titleSize, titleSize * titleRatio);
-
+  
+  push();
+  textSize(nodeSize / 3);
+  text(warningText, width/2, height/10);
+  pop();
   //web test
   if (options.isWeb){
     push();
