@@ -2,6 +2,16 @@
 
 ## v0
 
+### v0.1.8
+
+*4/9/24 1.33 hrs*
+
+- node map changes
+  - loading from new masterSheet csv
+  - 8 areas, added soul color
+  - area clusters colored and repelling nodes that get too close to center
+  - fixed bug where some nodes would be on top of each other if offsetMag = 0
+
 ### v0.1.7
 
 *4/9/24 3.5 hrs*

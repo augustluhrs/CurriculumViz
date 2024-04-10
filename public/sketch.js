@@ -1,8 +1,8 @@
 /*
     CA Curriculum Visualization
-    Prototype v0
+    Prototype v1
     
-    testing node generation from airtable csv
+    node map generation from masterSheet csv
     August Luhrs and Despina Papadopolous
 */
 
@@ -14,11 +14,13 @@ let nodeScale = 0.09; // 9% of shorter side of window
 let webOffset, clusterOffset, idealSeparation, mouseRepel, boundaryForce;
 let mousePos;
 let speedSlider;
+let title, titleSize, titleRatio; //ca title logo
 
 //csv variables
-let airtable;
+let masterSheet;
 let courses = []; //stores the cNodes
-let areas = ["CORE", "IMAGE", "PERFORMANCE", "MUSIC & SOUND", "EMERGING MEDIA & TECH", "TEXT", "VISUAL ART", "STUDIES (RESEARCH)"];
+// let areas = ["CORE", "SOUL", "IMAGE", "MOVEMENT", "ACTING", "SOUND", "TECHNOLOGY", "WRITING", "VISUAL ART", "STUDIES"];
+let areas;
 let clusters = []; //stores the vector locations of the web clusters by area
 
 //options/filters/visuals
@@ -37,7 +39,8 @@ options.isPhysics = true;
 options.isAlphaPaint = true;
 
 function preload(){
-  airtable = loadTable("data/table_3-29.csv", "csv", "header");
+  masterSheet = loadTable("data/master_4-8.csv", "csv", "header");
+  title = loadImage("assets/brand/ca_title.png");
 }
 
 /**
@@ -64,12 +67,29 @@ function setup() {
     bg.setAlpha(4);
   }
 
+  //title logo
+  titleSize = width/8;
+  titleRatio = title.height / title.width;
+
   //control UI
-  speedSlider = createSlider(0.2, 10, 1, 0.1).changed(()=>{
+  speedSlider = createSlider(0.2, 10, 0, 0.1).changed(()=>{
     for (let cNode of courses) {
       cNode.maxSpeed = speedSlider.value();
     }
   });
+
+  areas = [
+    ["CORE", color("#DB7093")], //thulian pink (palevioletred css)
+    ["SOUL", color("#eeeeff")], //whiteblue
+    ["IMAGE", color("#14BDEB")], //aero blue
+    ["ACTING", color("#f5dc23")], //goldenrod
+    ["MOVEMENT", color("#89608E")], //pomp and power (dark lilac)
+    ["SOUND", color("#F08700")], //tangerine
+    ["TECHNOLOGY", color("#428722")], //forest green
+    ["WRITING", color("#5792C3")], //celestial blue
+    ["VISUAL ART", color("#FB3640")], // imperial red
+    ["STUDIES", color("#fac9b8")], //pale dogwood (pink)
+  ]
 
   //setup the css element properties
   //get the relative node size
@@ -91,18 +111,26 @@ function setup() {
   mouseRepel = idealSeparation * 2;
   boundaryForce = 100;
 
-  //get the web cluster locations per area
+  //get the web cluster locations per area -- this is dumb TODO refactor
   push();
   translate(width/2, height/2);
   clusters.push({
-    name: "CORE",
+    area: "CORE",
+    color: areas[0][1],
+    pos: createVector(width/2, height/2),
+    count: 0,
+    currentIndex: 0,
+  });
+  clusters.push({
+    area: "SOUL",
+    color: areas[1][1],
     pos: createVector(width/2, height/2),
     count: 0,
     currentIndex: 0,
   });
   //needs to be relative to node scale (shorter side) or else will be off screen
-  let angle = 360/7;
-  for (let i = 0; i < 7; i++){
+  let angle = 360/8;
+  for (let i = 2; i < 10; i++){ //skipping core and soul
     // rotate(angle);
     // let clusterPos = rotationCoords(-nodeSize * 4, 0, angle);
     let clusterPos = rotationCoords(webOffset, 0, angle);
@@ -110,21 +138,38 @@ function setup() {
     clusterPos.x += width/2; //so we don't have to translate anymore
     clusterPos.y += height/2;
     clusters.push({
-      name: areas[i+1],
+      area: areas[i][0],
+      color: areas[i][1],
       pos: clusterPos,
       count: 0,
       currentIndex: 0, //for offset counting
     });
     // console.log(clusterPos);
 
-    angle += 360/7;
+    angle += 360/8;
     // rect(-nodeSize * 4, 0, 100);
   }
   pop();
-
+  // console.log(clusters);
   //cycle through the table to generate the CNodes
-  for (let r = 0; r < airtable.getRowCount(); r++){
-    let newCourse = new CNode(airtable.rows[r].arr, createVector(random(0, width), random(0, height)));
+  for (let r = 0; r < masterSheet.getRowCount(); r++){
+    let rowArr = masterSheet.rows[r].arr;
+    let courseInfo = { //Course,Professor,Area,Credits,Semester,Keywords,Short,Long,Media,Credit,Media,Credit,Media,Credit
+      course: rowArr[0],
+      professor: rowArr[1],
+      area: rowArr[2],
+      credits: rowArr[3],
+      semester: rowArr[4],
+      keywords: rowArr[5],
+      short: rowArr[6],
+      long: rowArr[7],
+      media: [
+        [rowArr[8], rowArr[9]],
+        [rowArr[10], rowArr[11]],
+        [rowArr[12], rowArr[13]]
+      ]
+    }
+    let newCourse = new CNode(courseInfo);
     courses.push(newCourse);
   }
 
@@ -145,17 +190,23 @@ function setup() {
 
 function draw() {
   background(bg);
+  image(title, 10, 10, titleSize, titleSize * titleRatio);
 
   //web test
   if (options.isWeb){
     push();
     noStroke();
-    fill(50, 205, 100);
-    for (let i = 0; i < 8; i++){
-      fill(50, 205, 100);
-      rect(clusters[i].pos.x, clusters[i].pos.y, nodeSize);
+    // fill(50, 205, 100);
+    // for (let i = 0; i < 8; i++){
+    for (let cluster of clusters){
+      if (cluster.area == "SOUL") {continue;}
+      stroke(255);
+      strokeWeight(4);
+      fill(cluster.color);
+      rect(cluster.pos.x, cluster.pos.y, nodeSize);
+      noStroke();
       fill(0);
-      text(clusters[i].name, clusters[i].pos.x, clusters[i].pos.y, nodeSize);
+      text(cluster.area, cluster.pos.x, cluster.pos.y, nodeSize);
     }
     pop();
   }

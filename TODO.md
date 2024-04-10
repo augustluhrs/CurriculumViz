@@ -3,9 +3,9 @@
 ## v0.1
 
 - [ ] new master sheet with formatted csv
-  - [ ] main keywords
+  - [X] main keywords
   - [X] updated titles
-  - [ ] new areas
+  - [X] new areas
   - [ ] unknowns
     - [ ] credits
     - [ ] semesters
@@ -13,6 +13,7 @@
     - [ ] keywords (extended)
     - [ ] skills/tech
 - [ ] node map
+  - [X] update CNode data
   - [ ] keyword weighted links
     - [ ] lines for keyword links
     - [ ] weight sorting
@@ -55,7 +56,9 @@
     - [ ] node map alt distribution (3,3,3)
   - [ ] misc
     - [ ] new font
-    - [ ] default to no shake on slider
+    - [X] default to no shake on slider
+  - [ ] bugs
+    - [X] nodes stacking if offset = 0
 - [ ] alluvial chart
   - [ ] process new csv for keywords
   - [ ] colors

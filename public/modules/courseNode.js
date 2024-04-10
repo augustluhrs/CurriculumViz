@@ -1,11 +1,20 @@
 class CNode { //courseNode
   // constructor(data, pos){
   constructor(data){
-    //data from table
-    [this.name, this.short, this.long, this.professor, this.area, this.keywords, this.skills, this.credits, this.core, this.offered, this.image] = data;
-    
+    //data from table: Course,Professor,Area,Credits,Semester,Keywords,Short,Long,Media,Credit,Media,Credit,Media,Credit
+    this.course = data.course;
+    this.professor = data.professor;
+    this.area = data.area;
+    this.credits = data.credits;
+    this.semester = data.semester;
+    this.keywords = data.keywords;
+    this.short = data.short;
+    this.long = data.long; 
+    this.media = data.media;
+    //this.skills,
+
     //css element
-    this.button = createButton(this.name).class("cNode");
+    this.button = createButton(this.course).class("cNode");
     this.button.elt.style.width = nodeSize_px;
     this.button.elt.style.height = nodeSize_px;
     this.button.mousePressed(this.click.bind(this));
@@ -15,44 +24,54 @@ class CNode { //courseNode
     if (!this.area) { this.col = nodeCol }
     else {
       switch(this.area){
-        case "Image":
-          this.col = color("#14BDEB"); //aero blue
-          this.cluster = clusters[1];
-          this.cluster.count ++;
-        break;
-        case "Performance":
-          this.col = color("#89608E"); //pomp and power (dark lilac)
-          this.cluster = clusters[2];
-          this.cluster.count ++;
-        break;
-        case "Music/Sound":
-          this.col = color("#F08700"); //tangerine
-          this.cluster = clusters[3];
-          this.cluster.count ++;
-        break;
-        case "Emerging Media & Tech":
-          this.col = color("#428722"); //forest green
-          this.cluster = clusters[4];
-          this.cluster.count ++;
-        break;
-        case "Text":
-          this.col = color("#5792C3"); //celestial blue
-          this.cluster = clusters[5];
-          this.cluster.count ++;
-        break;
-        case "Visual Art":
-          this.col = color("#FB3640"); // imperial red
-          this.cluster = clusters[6];
-          this.cluster.count ++;
-        break;
-        case "Studies (Research)":
-          this.col = color("#fac9b8"); //pale dogwood (pink)
-          this.cluster = clusters[7];
-          this.cluster.count ++;
-        break;
-        case "Core":
-          this.col = color("#DB7093"); //thulian pink (palevioletred css)
+        case "CORE":
           this.cluster = clusters[0];
+          this.col = this.cluster.color;
+          this.cluster.count ++;
+        break;
+        case "SOUL":
+          this.cluster = clusters[1];
+          this.col = this.cluster.color;
+          this.cluster.count ++;
+        break;
+        case "IMAGE":
+          this.cluster = clusters[2];
+          this.col = this.cluster.color;
+          this.cluster.count ++;
+        break;
+        case "ACTING":
+          this.cluster = clusters[4];
+          this.col = this.cluster.color;
+          this.cluster.count ++;
+        break;
+        case "MOVEMENT":
+          this.cluster = clusters[3];
+          this.col = this.cluster.color;
+          this.cluster.count ++;
+        break;
+        case "SOUND":
+          this.cluster = clusters[5];
+          this.col = this.cluster.color;
+          this.cluster.count ++;
+        break;
+        case "TECHNOLOGY":
+          this.cluster = clusters[6];
+          this.col = this.cluster.color;
+          this.cluster.count ++;
+        break;
+        case "WRITING":
+          this.cluster = clusters[7];
+          this.col = this.cluster.color;
+          this.cluster.count ++;
+        break;
+        case "VISUAL ART":
+          this.cluster = clusters[8];
+          this.col = this.cluster.color;
+          this.cluster.count ++;
+        break;
+        case "STUDIES":
+          this.cluster = clusters[9];
+          this.col = this.cluster.color;
           this.cluster.count ++;
         break;
       }
@@ -65,10 +84,7 @@ class CNode { //courseNode
     // this.ske = nodeStroke; //stroke, idk
     // this.skw = 5; //stroke weight
     this.size = nodeSize;
-    // this.pos = pos;
     this.pos = createVector(this.cluster.pos.x, this.cluster.pos.y);
-    
-
     
     //physics
     this.acc = createVector(0, 0); //acceleration
@@ -97,10 +113,12 @@ class CNode { //courseNode
     //so we can calculate our distance and create an offset
     //that is the difference of our actual distance to our desired distance (the ranking relationship)
     for (let cNode of courses) {
-      if (cNode.name !== this.name) {
+      if (cNode.course !== this.course) {
         let offset = p5.Vector.sub(cNode.pos, this.pos);
         let distMag = offset.mag();
-        
+        if (distMag == 0) {
+          offset = createVector(random(-0.1, 0.1), random(-0.1, 0.1));
+        }
         if (distMag <= idealSeparation) {
           // let desiredMag = distMag + idealSeparation;
           // offset.setMag(desiredMag);
@@ -117,6 +135,9 @@ class CNode { //courseNode
     if (distMag > idealSeparation) {
       offset.setMag(-idealSeparation * .1); //weaker so they aren't too attracted to center
       this.acc.add(offset);
+    } else { //but also be repelled by center...
+      offset.setMag(idealSeparation);
+      this.acc.add(offset);
     }
 
     //avoid mouse if too close
@@ -127,7 +148,7 @@ class CNode { //courseNode
       // mouseDist.setMag(-mouseRepel * (mouseRepel - mouseDistMag) * 10);
       let mf = mouseRepel - (mouseRepel - mouseDistMag);
       mouseDist.setMag(-(mf * mf));
-      this.acc.add(mouseDist)
+      this.acc.add(mouseDist);
     }
   }
   
@@ -162,7 +183,7 @@ class CNode { //courseNode
   }
 
   click(){
-    console.log(this.name)
+    console.log(this.course)
   }
   
   // showLines(){
@@ -172,21 +193,4 @@ class CNode { //courseNode
   //   strokeWeight(1);
   //   pop();
   // }
-  
-  /*
-  show(){
-    push();
-    strokeWeight(this.skw);
-    fill(this.col);
-    stroke(this.ske);
-    ellipse(this.pos.x, this.pos.y, this.size);
-    pop();
-    push();
-    textSize(15);
-    // fill(0, 150, 255);
-    fill(titleCol);
-    text(this.name, this.pos.x, this.pos.y);
-    pop();
-  }
-  */
 }
