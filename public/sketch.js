@@ -41,8 +41,8 @@ options.isAlphaPaint = true;
 
 function preload(){
   masterSheet = loadTable("data/master_4-8.csv", "csv", "header");
-  title = loadImage("assets/brand/ca_title.png");
-  font = loadFont("assets/fonts/tiltneon.ttf");
+  title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
+  font = loadFont("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662");
 }
 
 /**
