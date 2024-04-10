@@ -14,6 +14,8 @@
     - [ ] skills/tech
 - [ ] node map
   - [X] update CNode data
+  - [ ] mode tools
+    - [X] button to toggle physics
   - [ ] keyword weighted links
     - [ ] lines for keyword links
     - [ ] weight sorting
@@ -44,18 +46,18 @@
     - [ ] advanced
       - [ ] media cycle through on click
     - [ ] media load async callback
-  - [ ] new area bubbles
-    - [ ] repel so can see title
-    - [ ] new colors
-    - [ ] desktop distribution for 8 areas
-    - [ ] core classes sorted by area
-      - [ ] 4 core as stars not bubbles
+  - [X] new area bubbles
+    - [X] repel so can see title
+    - [X] new colors
+    - [X] desktop distribution for 8 areas
+    - [X] core classes sorted by area
+      - [X] radial gradients
   - [ ] mobile optimzation
     - [ ] draggable
     - [ ] fontsize
     - [ ] node map alt distribution (3,3,3)
   - [ ] misc
-    - [ ] new font
+    - [X] new font
     - [X] default to no shake on slider
   - [ ] bugs
     - [X] nodes stacking if offset = 0

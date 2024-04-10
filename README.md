@@ -7,6 +7,12 @@
 - [TODO](./TODO.md)
 - [CHANGELOG](./CHANGELOG.md)
 
+## Credits
+
+### Fonts
+
+- [TiltNeon](https://fonts.google.com/specimen/Tilt+Neon)
+
 ## ROADMAP
 
 - v0

@@ -9,11 +9,12 @@
 //design/UI variables
 let bg;
 // let nodeCol, nodeStroke, titleCol;
+let font;
 let nodeSize, nodeSize_px;
 let nodeScale = 0.09; // 9% of shorter side of window
 let webOffset, clusterOffset, idealSeparation, mouseRepel, boundaryForce;
 let mousePos;
-let speedSlider;
+let physicsButton, speedSlider, forceSlider, frictionSlider;
 let title, titleSize, titleRatio; //ca title logo
 
 //csv variables
@@ -21,7 +22,7 @@ let masterSheet;
 let courses = []; //stores the cNodes
 // let areas = ["CORE", "SOUL", "IMAGE", "MOVEMENT", "ACTING", "SOUND", "TECHNOLOGY", "WRITING", "VISUAL ART", "STUDIES"];
 let areas;
-let clusters = []; //stores the vector locations of the web clusters by area
+let clusters = {}; //stores the vector locations of the web clusters by area
 
 //options/filters/visuals
 let options = {
@@ -41,6 +42,7 @@ options.isAlphaPaint = true;
 function preload(){
   masterSheet = loadTable("data/master_4-8.csv", "csv", "header");
   title = loadImage("assets/brand/ca_title.png");
+  font = loadFont("assets/fonts/tiltneon.ttf");
 }
 
 /**
@@ -54,6 +56,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);//stretches to fit whatever windowSize the user has
   textAlign(CENTER, CENTER);
   textWrap(WORD);
+  textFont(font);
   ellipseMode(CENTER);
   rectMode(CENTER);
   angleMode(DEGREES); //just for 360/7 areas
@@ -70,13 +73,6 @@ function setup() {
   //title logo
   titleSize = width/8;
   titleRatio = title.height / title.width;
-
-  //control UI
-  speedSlider = createSlider(0.2, 10, 0, 0.1).changed(()=>{
-    for (let cNode of courses) {
-      cNode.maxSpeed = speedSlider.value();
-    }
-  });
 
   areas = [
     ["CORE", color("#DB7093")], //thulian pink (palevioletred css)
@@ -102,32 +98,30 @@ function setup() {
   //turn to string for css
   nodeSize_px = nodeSize.toString();
   nodeSize_px += 'px';
-  textSize(nodeSize / 9);
+  textSize(nodeSize / 7);
 
   //distances from clusters to center of web and nodes to clusters
   webOffset = (-nodeSize * 4);
   clusterOffset = (-nodeSize * 1.3);
   idealSeparation = nodeSize;
-  mouseRepel = idealSeparation * 2;
+  mouseRepel = idealSeparation * 4;
   boundaryForce = 100;
 
   //get the web cluster locations per area -- this is dumb TODO refactor
   push();
   translate(width/2, height/2);
-  clusters.push({
-    area: "CORE",
+  clusters["CORE"] = {
     color: areas[0][1],
     pos: createVector(width/2, height/2),
     count: 0,
     currentIndex: 0,
-  });
-  clusters.push({
-    area: "SOUL",
+  };
+  clusters["SOUL"] = {
     color: areas[1][1],
     pos: createVector(width/2, height/2),
     count: 0,
     currentIndex: 0,
-  });
+  };
   //needs to be relative to node scale (shorter side) or else will be off screen
   let angle = 360/8;
   for (let i = 2; i < 10; i++){ //skipping core and soul
@@ -137,14 +131,12 @@ function setup() {
     // console.log(clusterPos);
     clusterPos.x += width/2; //so we don't have to translate anymore
     clusterPos.y += height/2;
-    clusters.push({
-      area: areas[i][0],
+    clusters[areas[i][0]] = {
       color: areas[i][1],
       pos: clusterPos,
       count: 0,
       currentIndex: 0, //for offset counting
-    });
-    // console.log(clusterPos);
+    };
 
     angle += 360/8;
     // rect(-nodeSize * 4, 0, 100);
@@ -180,6 +172,44 @@ function setup() {
 
   //set up mousePos variable
   mousePos = createVector(0, 0);
+
+  //control UI
+  physicsButton = createButton("TURN PHYSICS OFF").class("buttons").position(20, height - 50).mousePressed(()=>{
+    options.isPhysics = !options.isPhysics;
+    if (options.isPhysics) {
+      physicsButton.html("TURN PHYSICS OFF");
+    } else {
+      physicsButton.html("TURN PHYSICS ON");
+    }
+  });
+  speedSlider = createSlider(0, 10, 6, 0.1).changed(()=>{
+    for (let cNode of courses) {
+      cNode.maxSpeed = speedSlider.value();
+    }
+  });
+  forceSlider = createSlider(0.1, 10, .4, 0.1).changed(()=>{
+    for (let cNode of courses) {
+      cNode.maxForce = forceSlider.value();
+    }
+  });
+  frictionSlider = createSlider(0, 1, 0.93, 0.01).changed(()=>{
+    for (let cNode of courses) {
+      cNode.friction = frictionSlider.value();
+    }
+  });
+  // let velocityBufferSlider = createSlider(0, 2, 0.2, .05).changed(()=>{
+  //   console.log(velocityBufferSlider.value());
+  //   for (let cNode of courses) {
+  //     cNode.velocityBuffer = velocityBufferSlider.value();
+  //   }
+  // });
+  //set all CNode physics variables here based on slider defaults
+  for (let cNode of courses){
+    cNode.maxSpeed = speedSlider.value();
+    cNode.maxForce = forceSlider.value();
+    cNode.friction = frictionSlider.value();
+    // cNode.velocityBuffer = velocityBufferSlider.value();
+  }
 }
 
 /**
@@ -198,15 +228,16 @@ function draw() {
     noStroke();
     // fill(50, 205, 100);
     // for (let i = 0; i < 8; i++){
-    for (let cluster of clusters){
-      if (cluster.area == "SOUL") {continue;}
+    // for (let cluster of clusters){
+    for (let cluster of Object.keys(clusters)){
+      if (cluster == "SOUL") {continue;}
       stroke(255);
       strokeWeight(4);
-      fill(cluster.color);
-      rect(cluster.pos.x, cluster.pos.y, nodeSize);
+      fill(clusters[cluster].color);
+      rect(clusters[cluster].pos.x, clusters[cluster].pos.y, nodeSize);
       noStroke();
       fill(0);
-      text(cluster.area, cluster.pos.x, cluster.pos.y, nodeSize);
+      text(cluster, clusters[cluster].pos.x, clusters[cluster].pos.y, nodeSize);
     }
     pop();
   }

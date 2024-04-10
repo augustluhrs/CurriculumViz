@@ -2,6 +2,16 @@
 
 ## v0
 
+## v0.1.9
+
+*4/9/24 3.25 hrs*
+
+- added radial gradient for core/soul classes
+- core classes seek out their outer area (hard, then balanced out)
+- adjusted forces to make the nodes move snappier and reduce vibration when still
+- added physics toggle button
+- changed font from Verdana to TiltNeon and increased textSize
+
 ### v0.1.8
 
 *4/9/24 1.33 hrs*

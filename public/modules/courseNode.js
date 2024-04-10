@@ -25,52 +25,52 @@ class CNode { //courseNode
     else {
       switch(this.area){
         case "CORE":
-          this.cluster = clusters[0];
+          this.cluster = clusters["CORE"];
           this.col = this.cluster.color;
           this.cluster.count ++;
         break;
         case "SOUL":
-          this.cluster = clusters[1];
+          this.cluster = clusters["SOUL"];
           this.col = this.cluster.color;
           this.cluster.count ++;
         break;
         case "IMAGE":
-          this.cluster = clusters[2];
+          this.cluster = clusters["IMAGE"];
           this.col = this.cluster.color;
           this.cluster.count ++;
         break;
         case "ACTING":
-          this.cluster = clusters[4];
+          this.cluster = clusters["ACTING"];
           this.col = this.cluster.color;
           this.cluster.count ++;
         break;
         case "MOVEMENT":
-          this.cluster = clusters[3];
+          this.cluster = clusters["MOVEMENT"];
           this.col = this.cluster.color;
           this.cluster.count ++;
         break;
         case "SOUND":
-          this.cluster = clusters[5];
+          this.cluster = clusters["SOUND"];
           this.col = this.cluster.color;
           this.cluster.count ++;
         break;
         case "TECHNOLOGY":
-          this.cluster = clusters[6];
+          this.cluster = clusters["TECHNOLOGY"];
           this.col = this.cluster.color;
           this.cluster.count ++;
         break;
         case "WRITING":
-          this.cluster = clusters[7];
+          this.cluster = clusters["WRITING"];
           this.col = this.cluster.color;
           this.cluster.count ++;
         break;
         case "VISUAL ART":
-          this.cluster = clusters[8];
+          this.cluster = clusters["VISUAL ART"];
           this.col = this.cluster.color;
           this.cluster.count ++;
         break;
         case "STUDIES":
-          this.cluster = clusters[9];
+          this.cluster = clusters["STUDIES"];
           this.col = this.cluster.color;
           this.cluster.count ++;
         break;
@@ -79,6 +79,30 @@ class CNode { //courseNode
     this.button.elt.style.background = this.col;
 
     //cluster position info
+    //core classes have dual cluster homes
+    if (this.area == "CORE"){
+      this.secondForce = 20; //so they go towards second cluster hard, then balance
+      if (this.course == "Making a Scene (Screenwriting)" || this.course == "Making a Scene (Playwriting)" || this.course == "Words and Ideas") {
+        this.secondCluster = clusters["WRITING"];
+      } else if (this.course == "Cinematic Narratives") {
+        this.secondCluster = clusters["IMAGE"];
+      } else if (this.course == "Tech in Action") {
+        this.secondCluster = clusters["TECHNOLOGY"];
+      } else if (this.course == "Music for Media") {
+        this.secondCluster = clusters["SOUND"];
+      } else if (this.course == "Tech in Action") {
+        this.secondCluster = clusters["TECHNOLOGY"];
+      } else if (this.course == "Performance: Body / Movement") {
+        this.secondCluster = clusters["MOVEMENT"];
+      } else if (this.course == "Performance: Voice / Text") {
+        this.secondCluster = clusters["ACTING"];
+      } else if (this.course == "Studio Art") {
+        this.secondCluster = clusters["VISUAL ART"];
+      }
+      this.button.elt.style.background = `radial-gradient(${clusters["CORE"].color} 25%, ${this.secondCluster.color}, ${clusters["CORE"].color})`;
+    } else if (this.area == "SOUL") {
+      this.button.elt.style.background = `radial-gradient(${clusters["SOUL"].color} 25%, ${clusters["CORE"].color}, ${clusters["SOUL"].color})`;
+    }
     
     //other display info
     // this.ske = nodeStroke; //stroke, idk
@@ -90,9 +114,11 @@ class CNode { //courseNode
     this.acc = createVector(0, 0); //acceleration
     // this.vel = createVector(random(-5, 5), random(-5, 5)); //start with random direction
     this.vel = createVector(0,0); //no movement unless too close or aquarium mode
+
+    //overwritten immediately by slider defaults
     this.maxSpeed = 1; //speed of movement
-    this.maxForce = 0.2; //speed of change to movement
-    this.friction = 0.95; //drags to stop
+    this.maxForce = .2; //speed of change to movement
+    this.friction = 0.9; //drags to stop
     
   }
 
@@ -123,6 +149,7 @@ class CNode { //courseNode
           // let desiredMag = distMag + idealSeparation;
           // offset.setMag(desiredMag);
           offset.setMag(-idealSeparation);
+          // offset.mult(0.9);
           this.acc.add(offset);
         }
       }
@@ -133,21 +160,46 @@ class CNode { //courseNode
     let distMag = offset.mag();
 
     if (distMag > idealSeparation) {
-      offset.setMag(-idealSeparation * .1); //weaker so they aren't too attracted to center
+      if (this.area == "SOUL") {
+        offset.setMag(-idealSeparation * .5);
+      }
+      else {
+        offset.setMag(-idealSeparation * .2);//weaker so they aren't too attracted to center
+      }
+      // offset.setMag(-idealSeparation * .2); 
       this.acc.add(offset);
     } else { //but also be repelled by center...
       offset.setMag(idealSeparation);
       this.acc.add(offset);
     }
 
+    //the core classes should stay close to their area
+    if (this.area == "CORE") {
+      let offset2 = p5.Vector.sub(this.pos, this.secondCluster.pos);
+      let distMag2 = offset2.mag();
+
+      if (distMag2 > idealSeparation + this.size) {
+        offset2.setMag(-idealSeparation * this.secondForce); //weaker so they aren't too attracted to center
+        this.acc.add(offset2);
+      } else { //but also be repelled by center...
+        this.secondForce = .1;
+        offset2.setMag(idealSeparation);
+        this.acc.add(offset2);
+      }
+    }
+
     //avoid mouse if too close
     let mouseDist = p5.Vector.sub(mousePos, this.pos);
+    // let mouseDist = p5.Vector.sub(this.pos, mousePos);
+
     let mouseDistMag = mouseDist.mag();
 
     if (mouseDistMag < mouseRepel) {
       // mouseDist.setMag(-mouseRepel * (mouseRepel - mouseDistMag) * 10);
-      let mf = mouseRepel - (mouseRepel - mouseDistMag);
-      mouseDist.setMag(-(mf * mf));
+      // let mf = mouseRepel - (mouseRepel - mouseDistMag);
+      // mouseDist.setMag(-(mf * mf));
+      let mf = (-10 * mouseRepel * mouseRepel) / (mouseDistMag * mouseDistMag)
+      mouseDist.setMag(mf);
       this.acc.add(mouseDist);
     }
   }
@@ -162,12 +214,15 @@ class CNode { //courseNode
   }
   
   update(){
+    this.acc.limit(this.maxForce);
     this.vel.add(this.acc); //add the current forces to velocity
     this.vel.limit(this.maxSpeed); //make sure we're not going too fast
     this.vel.mult(this.friction);
+    if (this.vel.mag() < 1){this.vel.mult(this.vel.mag());} //make sure the force is big enough, avoid the vibrating when in final position
+    // if (this.vel.mag() < 1){this.vel.mult(0.01);} //make sure the force is big enough, avoid the vibrating when in final position
+    // if (this.course == "Jam House") { console.log(this.vel.mag())};
     this.acc.mult(0); //reset the forces for the next loop
     this.pos.add(this.vel); //move the node
-    
   }
 
   show(){

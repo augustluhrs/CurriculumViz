@@ -4,6 +4,12 @@
 *
 */
 
+@font-face {
+  font-family: 'tiltneon';
+  src: url('assets/fonts/tiltneon.ttf') format('truetype');
+}
+
+
 html, body {
   margin: 0;
   padding: 0;
@@ -11,6 +17,13 @@ html, body {
 canvas {
   display: block;
 } 
+
+/* https://dev.to/ashwamegh/how-to-hide-scrollbar-from-any-html-element-dae */
+/* https://www.w3schools.com/css/css_pseudo_elements.asp */
+.scroll-hide::-webkit-scrollbar { 
+  width: 0 !important;
+  display: none; 
+}
 
 .cNode {
   border-radius: 50%;
@@ -22,7 +35,8 @@ canvas {
   /* line-height: 200%; */
   display: inline-block;
   margin: auto;
-  font-family: Verdana;
+  font-size: 110%;
+  font-family: "tiltneon";
   transform: translate(-50%, -50%); /*center button */
   /* background-color: palevioletred; */
 }
@@ -31,9 +45,19 @@ canvas {
   background-color: #156064;
 }
 
-/* https://dev.to/ashwamegh/how-to-hide-scrollbar-from-any-html-element-dae */
-/* https://www.w3schools.com/css/css_pseudo_elements.asp */
-.scroll-hide::-webkit-scrollbar { 
-  width: 0 !important;
-  display: none; 
+.buttons {
+  margin: 10px;
+  background-color: rgb(108,112,45);
+  color: white;
+  font-size: 150%;
+  font-family: "tiltneon";
+  text-align: center;
+  border-radius: 12px;
+  transition-duration: 0.4s;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+.buttons:hover {
+  background-color: white;
+  color: rgb(108,112,45);
 }
