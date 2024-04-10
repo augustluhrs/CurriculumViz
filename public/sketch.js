@@ -16,12 +16,13 @@ let webOffset, clusterOffset, idealSeparation, mouseRepel, boundaryForce;
 let mousePos;
 let physicsButton, speedSlider, forceSlider, frictionSlider;
 let title, titleSize, titleRatio; //ca title logo
+let warningText = "";
 
 //csv variables
 let masterSheet;
 let courses = []; //stores the cNodes
 // let areas = ["CORE", "SOUL", "IMAGE", "MOVEMENT", "ACTING", "SOUND", "TECHNOLOGY", "WRITING", "VISUAL ART", "STUDIES"];
-let areas;
+// let areas; //now in modules
 let clusters = {}; //stores the vector locations of the web clusters by area
 
 //options/filters/visuals
@@ -41,8 +42,8 @@ options.isAlphaPaint = true;
 
 function preload(){
   masterSheet = loadTable("data/master_4-8.csv", "csv", "header");
-  title = loadImage("assets/brand/ca_title.png");
-  font = loadFont("assets/fonts/tiltneon.ttf");
+  title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
+  font = loadFont("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662");
 }
 
 /**
@@ -69,23 +70,28 @@ function setup() {
   if(options.isAlphaPaint){
     bg.setAlpha(4);
   }
+  
+  //mobile warning
+  if (width < height){
+    warningText = "NOT READY FOR MOBILE, PLEASE CHECK THIS OUT ON A COMPUTER";
+  }
 
   //title logo
   titleSize = width/8;
   titleRatio = title.height / title.width;
 
-  areas = [
-    ["CORE", color("#DB7093")], //thulian pink (palevioletred css)
-    ["SOUL", color("#eeeeff")], //whiteblue
-    ["IMAGE", color("#14BDEB")], //aero blue
-    ["ACTING", color("#f5dc23")], //goldenrod
-    ["MOVEMENT", color("#89608E")], //pomp and power (dark lilac)
-    ["SOUND", color("#F08700")], //tangerine
-    ["TECHNOLOGY", color("#428722")], //forest green
-    ["WRITING", color("#5792C3")], //celestial blue
-    ["VISUAL ART", color("#FB3640")], // imperial red
-    ["STUDIES", color("#fac9b8")], //pale dogwood (pink)
-  ]
+  // areas = [
+  //   ["CORE", color("#DB7093")], //thulian pink (palevioletred css)
+  //   ["SOUL", color("#eeeeff")], //whiteblue
+  //   ["IMAGE", color("#14BDEB")], //aero blue
+  //   ["ACTING", color("#f5dc23")], //goldenrod
+  //   ["MOVEMENT", color("#89608E")], //pomp and power (dark lilac)
+  //   ["SOUND", color("#F08700")], //tangerine
+  //   ["TECHNOLOGY", color("#428722")], //forest green
+  //   ["WRITING", color("#5792C3")], //celestial blue
+  //   ["VISUAL ART", color("#FB3640")], // imperial red
+  //   ["STUDIES", color("#fac9b8")], //pale dogwood (pink)
+  // ]
 
   //setup the css element properties
   //get the relative node size
@@ -111,13 +117,13 @@ function setup() {
   push();
   translate(width/2, height/2);
   clusters["CORE"] = {
-    color: areas[0][1],
+    color: color(areas[0][1]),
     pos: createVector(width/2, height/2),
     count: 0,
     currentIndex: 0,
   };
   clusters["SOUL"] = {
-    color: areas[1][1],
+    color: color(areas[1][1]),
     pos: createVector(width/2, height/2),
     count: 0,
     currentIndex: 0,
@@ -132,7 +138,7 @@ function setup() {
     clusterPos.x += width/2; //so we don't have to translate anymore
     clusterPos.y += height/2;
     clusters[areas[i][0]] = {
-      color: areas[i][1],
+      color: color(areas[i][1]),
       pos: clusterPos,
       count: 0,
       currentIndex: 0, //for offset counting
@@ -221,7 +227,11 @@ function setup() {
 function draw() {
   background(bg);
   image(title, 10, 10, titleSize, titleSize * titleRatio);
-
+  
+  push();
+  textSize(nodeSize / 3);
+  text(warningText, width/2, height/10);
+  pop();
   //web test
   if (options.isWeb){
     push();

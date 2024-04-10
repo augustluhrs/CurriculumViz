@@ -7,119 +7,85 @@
  */
 
 //create node links
-let airtable;
-let courseLinks = [];
-let courseNodes = [
-    {
-        id: 'Core',
-        color: '#DB7093',
-        // offset: -110
-    },
-    {
-        id: 'Performance',
-        color: '#89608E'
-    },
-    {
-        id: 'Image',
-        color: '#14BDEB'
-    },
-    {
-        id: 'Visual Art',
-        color: '#FB3640'
-    },
-    {
-        id: 'Emerging Media & Tech',
-        color: '#428722'
-    },
-    {
-        id: 'Music/Sound',
-        color: '#F08700'
-    },
-    {
-        id: 'Studies (Research)',
-        color: '#fac9b8'
-    },
-    {
-        id: 'Text',
-        color: '#5792C3'
-    },
-];
+let masterSheet;
+let links = []; //the bands that flow between nodes
+let nodes = []; //the boxes that the links connect to
+
 function preload() {
-    airtable = loadTable("../data/table.csv", "csv", "header");
+    masterSheet = loadTable("../data/master_4-8.csv", "csv", "header");
 }
 function setup(){
-    //cycle through the table to generate the CNodes
-    for (let r = 0; r < airtable.getRowCount(); r++){
-        let arr = airtable.rows[r].arr
+    //get first column nodes from areas.js
+    for (let area of areas){
+        let areaNode = {
+            id: area[0],
+            color: area[1]
+        }
+        nodes.push(areaNode);
+    }
+
+    //3rd col: keywords
+    for (let keyword of mainKeywords){
+        let keywordNode = {
+            id: keyword,
+            color: "#aaaaaa",
+            column: 3
+        }
+        nodes.push(keywordNode);
+    }
+
+    //cycle through the table to generate the 2nd column nodes (courses)
+    //also generate the links
+    for (let r = 0; r < masterSheet.getRowCount(); r++){
+        //Course,Professor,Area,Credits,Semester,Keywords,Short,Long,Media,Credit,Media,Credit,Media,Credit
+        let arr = masterSheet.rows[r].arr
         let credits = 4;
-        if (arr[7] !== ""){
-            credits = arr[7];
+        if (arr[3] !== "UNKNOWN" && arr[3] !== "0"){ //jam house is 0 credits
+            credits = int(arr[3]);
         } else {
             console.log(arr[0] + " is missing credits");
-            // credits = 4;
         }
-        let courseLink = [arr[4].toString(), arr[0].toString(), credits.toString()]
-        courseLinks.push(courseLink);
-
+        
+        //2nd col: courses
         let courseNode = {
             id: arr[0],
-            color: "#888888",
+            color: areaColors[arr[2]],
             column: 2
         }
-        courseNodes.push(courseNode);
+        // if (arr[2] == "TECHNOLOGY"){nodes.push(courseNode);} else {continue;}
+        nodes.push(courseNode);
+        
+        //links between area and course
+        let areaLink = [arr[2].toString(), arr[0].toString(), credits] //area to course, weight is credits
+        links.push(areaLink);
+
+        //make a new link for each keyword in the course row
+        let courseKeywords = split(arr[5], ",");
+        // console.log(courseKeywords)
+        if (courseKeywords[0] !== "" && courseKeywords.length > 0){
+            for (let ck of courseKeywords) {
+            let keyLink = [arr[0].toString(), ck, 1];
+            links.push(keyLink);
+        }
+            // links.push([arr[0].toString(), courseKeywords[0], 1]); /testing just one
+        } 
+        
     }
 
     createChart();
-
-    /*
-    document.addEventListener('DOMContentLoaded', function() {
-        const chart = Highcharts.chart('container', {
-          title: {
-              text: 'CollabArts Curriculum Visualization'
-          },
-          subtitle: {
-              text:
-            'v. 0.1.0'
-          },
-          accessibility: {
-              point: {
-                  valueDescriptionFormat: '{index}. {point.from} to {point.to}, {point.weight}.'
-              }
-          },
-          tooltip: {
-              headerFormat: null,
-              pointFormat:
-            '{point.fromNode.name} \u2192 {point.toNode.name}: {point.weight:.2f} quads',
-              nodeFormat: '{point.name}: {point.sum:.2f} quads'
-          },
-          series: [{
-              keys: ['from', 'to', 'weight'],
-      
-              nodes: courseNodes,
-              data: courseLinks,
-
-              type: 'sankey',
-            name: 'Sankey demo series'
-            }]
-
-        });
-    });
-    */
 }
 
-// function draw(){
-
-// }
-
+// function draw(){ }
+let chart;
 function createChart(){
     // document.addEventListener('DOMContentLoaded', function() {
-        const chart = Highcharts.chart('container', {
+        chart = Highcharts.chart('container', {
             title: {
                 text: 'CollabArts Curriculum Visualization'
             },
             subtitle: {
                 text:
-                    'v. 0.1.0'
+                    'v0.1.10'
             },
             accessibility: {
                 point: {
@@ -135,7 +101,9 @@ function createChart(){
             series: [{
                 keys: ['from', 'to', 'weight'],
 
-                // nodes: courseNodes,
+                // nodes: nodes,
+                data: links,
+                /*
                 nodes: [
                     // areas
                     
@@ -263,7 +231,8 @@ function createChart(){
                         offset: -1
                     }
                 ],
-                // data: courseLinks,
+                
+                // data: links,
                 
                 data: [
                     ['Solar', 'Electricity & Heat', 0.48],
@@ -315,11 +284,16 @@ function createChart(){
                     ['Industrial', 'Energy Services', 12.4],
                     ['Transportation', 'Energy Services', 5.91]
                 ],
-                
+                */
                 type: 'sankey',
-                name: 'Sankey demo series'
+                name: 'CA Curriculum Keyword Links'
             }]
 
+        }, chart => {
+            setTimeout(()=>{
+                console.log('loaded');
+                chart.redraw();
+            }, 2000)
         });
     // });
 }
