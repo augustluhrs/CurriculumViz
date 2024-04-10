@@ -2,6 +2,14 @@
 
 ## v0
 
+## v0.1.10
+
+*4/10/24 2 hrs*
+
+- moved areas declaration to module so flow could have access
+- working alluvial charts sans node colors
+- new dev branch
+
 ## v0.1.9
 
 *4/9/24 3.25 hrs*
