@@ -7,6 +7,8 @@
 - [TODO](./TODO.md)
 - [CHANGELOG](./CHANGELOG.md)
 
+![noFriction noAlpha](documentation/nodes_noFrictionAlpha.png)
+
 ## Credits
 
 ### Fonts

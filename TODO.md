@@ -18,6 +18,7 @@
     - [X] button to toggle physics
   - [ ] keyword weighted links
     - [ ] lines for keyword links
+    - [ ] side panel UI for keyword checkboxes
     - [ ] weight sorting
       - [ ] distinction between main vs secondary keywords
     - [ ] click to show sibling classes
@@ -28,16 +29,19 @@
         - [ ] accelerated force/bouncy before settling
   - [ ] UI panel
     - [ ] click to show (mobile)
-    - [ ] click to show (desktop)
+    - [X] click to show (desktop)
+      - [X] click to hide
+    - [ ] shift clusters to side
     - [ ] basic info
-      - [ ] class name
-      - [ ] short description
-      - [ ] professor
+      - [X] class name
+      - [X] short description
+      - [X] professor
     - [ ] mid stage
       - [ ] example media (one photo)
+        - [ ] google drive share link public
       - [ ] click for more info
         - [ ] long descrip.
-        - [ ] keywords
+        - [X] keywords
         - [ ] skills/tech
         - [ ] area
         - [ ] time/semester
@@ -62,12 +66,14 @@
     - [X] default to no shake on slider
     - [ ] set up asset hosting so don't have to upload to glitch
     - [ ] learn react...
+    - [ ] clean up sketch code
+    - [ ] add alpha party mode toggle
   - [ ] bugs
     - [X] nodes stacking if offset = 0
-- [ ] alluvial chart
-  - [ ] process new csv for keywords
-  - [ ] area to course weight is credits
-  - [ ] course to keyword weight is ???
+- [X] alluvial chart
+  - [X] process new csv for keywords
+  - [X] area to course weight is credits
+  - [X] course to keyword weight is ???
   - [ ] colors for links
   - [ ] colors for keywords
 - [ ] AgGrid

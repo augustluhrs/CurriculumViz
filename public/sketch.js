@@ -15,7 +15,13 @@ let nodeScale = 0.09; // 9% of shorter side of window
 let webOffset, clusterOffset, idealSeparation, mouseRepel, boundaryForce;
 let mousePos;
 let physicsButton, speedSlider, forceSlider, frictionSlider;
+let speedDiv, forceDiv, frictionDiv;
 let title, titleSize, titleRatio; //ca title logo
+
+let canvas, coursePanel, coursePanelButton;
+let courseInfo = {}; //stores the divs for the diff class info stuff in the coursePanel
+let shiftCenterPos;
+
 let warningText = "";
 
 //csv variables
@@ -54,7 +60,8 @@ function preload(){
 
 function setup() {
   //background and UI
-  createCanvas(windowWidth, windowHeight);//stretches to fit whatever windowSize the user has
+  canvas = createCanvas(windowWidth, windowHeight);//stretches to fit whatever windowSize the user has
+  canvas.parent("mainContainer");
   textAlign(CENTER, CENTER);
   textWrap(WORD);
   textFont(font);
@@ -68,7 +75,7 @@ function setup() {
   // nodeStroke = color("#f0c5c4");
   // titleCol = color("#00fffa");
   if(options.isAlphaPaint){
-    bg.setAlpha(4);
+    bg.setAlpha(0);
   }
   
   //mobile warning
@@ -79,19 +86,6 @@ function setup() {
   //title logo
   titleSize = width/8;
   titleRatio = title.height / title.width;
-
-  // areas = [
-  //   ["CORE", color("#DB7093")], //thulian pink (palevioletred css)
-  //   ["SOUL", color("#eeeeff")], //whiteblue
-  //   ["IMAGE", color("#14BDEB")], //aero blue
-  //   ["ACTING", color("#f5dc23")], //goldenrod
-  //   ["MOVEMENT", color("#89608E")], //pomp and power (dark lilac)
-  //   ["SOUND", color("#F08700")], //tangerine
-  //   ["TECHNOLOGY", color("#428722")], //forest green
-  //   ["WRITING", color("#5792C3")], //celestial blue
-  //   ["VISUAL ART", color("#FB3640")], // imperial red
-  //   ["STUDIES", color("#fac9b8")], //pale dogwood (pink)
-  // ]
 
   //setup the css element properties
   //get the relative node size
@@ -112,110 +106,18 @@ function setup() {
   idealSeparation = nodeSize;
   mouseRepel = idealSeparation * 4;
   boundaryForce = 100;
-
-  //get the web cluster locations per area -- this is dumb TODO refactor
-  push();
-  translate(width/2, height/2);
-  clusters["CORE"] = {
-    color: color(areas[0][1]),
-    pos: createVector(width/2, height/2),
-    count: 0,
-    currentIndex: 0,
-  };
-  clusters["SOUL"] = {
-    color: color(areas[1][1]),
-    pos: createVector(width/2, height/2),
-    count: 0,
-    currentIndex: 0,
-  };
-  //needs to be relative to node scale (shorter side) or else will be off screen
-  let angle = 360/8;
-  for (let i = 2; i < 10; i++){ //skipping core and soul
-    // rotate(angle);
-    // let clusterPos = rotationCoords(-nodeSize * 4, 0, angle);
-    let clusterPos = rotationCoords(webOffset, 0, angle);
-    // console.log(clusterPos);
-    clusterPos.x += width/2; //so we don't have to translate anymore
-    clusterPos.y += height/2;
-    clusters[areas[i][0]] = {
-      color: color(areas[i][1]),
-      pos: clusterPos,
-      count: 0,
-      currentIndex: 0, //for offset counting
-    };
-
-    angle += 360/8;
-    // rect(-nodeSize * 4, 0, 100);
-  }
-  pop();
-  // console.log(clusters);
-  //cycle through the table to generate the CNodes
-  for (let r = 0; r < masterSheet.getRowCount(); r++){
-    let rowArr = masterSheet.rows[r].arr;
-    let courseInfo = { //Course,Professor,Area,Credits,Semester,Keywords,Short,Long,Media,Credit,Media,Credit,Media,Credit
-      course: rowArr[0],
-      professor: rowArr[1],
-      area: rowArr[2],
-      credits: rowArr[3],
-      semester: rowArr[4],
-      keywords: rowArr[5],
-      short: rowArr[6],
-      long: rowArr[7],
-      media: [
-        [rowArr[8], rowArr[9]],
-        [rowArr[10], rowArr[11]],
-        [rowArr[12], rowArr[13]]
-      ]
-    }
-    let newCourse = new CNode(courseInfo);
-    courses.push(newCourse);
-  }
-
-  //get web positions from cluster count
-  for (let cNode of courses) {
-    cNode.getClusterOffset();
-  }
+  shiftCenterPos = createVector(width * 0.31, height/2);
+  // shiftWebOffset =
 
   //set up mousePos variable
   mousePos = createVector(0, 0);
 
-  //control UI
-  physicsButton = createButton("TURN PHYSICS OFF").class("buttons").position(20, height - 50).mousePressed(()=>{
-    options.isPhysics = !options.isPhysics;
-    if (options.isPhysics) {
-      physicsButton.html("TURN PHYSICS OFF");
-    } else {
-      physicsButton.html("TURN PHYSICS ON");
-    }
-  });
-  speedSlider = createSlider(0, 10, 6, 0.1).changed(()=>{
-    for (let cNode of courses) {
-      cNode.maxSpeed = speedSlider.value();
-    }
-  });
-  forceSlider = createSlider(0.1, 10, .4, 0.1).changed(()=>{
-    for (let cNode of courses) {
-      cNode.maxForce = forceSlider.value();
-    }
-  });
-  frictionSlider = createSlider(0, 1, 0.93, 0.01).changed(()=>{
-    for (let cNode of courses) {
-      cNode.friction = frictionSlider.value();
-    }
-  });
-  // let velocityBufferSlider = createSlider(0, 2, 0.2, .05).changed(()=>{
-  //   console.log(velocityBufferSlider.value());
-  //   for (let cNode of courses) {
-  //     cNode.velocityBuffer = velocityBufferSlider.value();
-  //   }
-  // });
-  //set all CNode physics variables here based on slider defaults
-  for (let cNode of courses){
-    cNode.maxSpeed = speedSlider.value();
-    cNode.maxForce = forceSlider.value();
-    cNode.friction = frictionSlider.value();
-    // cNode.velocityBuffer = velocityBufferSlider.value();
-  }
+
+  initClusters();
+  initCourseNodes();
+  initPanelUI();
+  initControlUI();
+  
 }
 
 /**
@@ -275,6 +177,197 @@ function draw() {
   
 }
 
+function nodeClick(node) {
+  //when a node is clicked. as the name suggests.
+  console.log(node.course);
+  coursePanel.show();
+  courseInfo.courseTitle.html(node.course);
+  courseInfo.courseProfessor.html(node.professor);
+  courseInfo.courseShort.html(node.short);
+  courseInfo.courseKeywords.html(node.keywords);
+
+  shiftClusters();
+}
+
+function initPanelUI(){
+  //panel UI
+  coursePanel = createDiv().class("panels").id("coursePanel").parent("mainContainer");
+  // panel.width = width * .38;
+  // panel.height = height;
+  coursePanel.size(width * 0.28, height);
+  coursePanel.position(width * .72, 0);
+  coursePanel.hide();
+
+  coursePanelButton = createButton('>>>').class("buttons").parent("coursePanel");
+  // coursePanelButton.position(0, height/2);
+  coursePanelButton.mousePressed(()=>{
+    coursePanel.hide();
+    shiftClustersHome();
+  })
+
+  //course info for coursePanel
+  courseInfo["courseTitle"] = createDiv("COURSE TITLE").parent("coursePanel").class("infoDivs");
+  courseInfo["courseProfessor"] = createDiv().parent("coursePanel").class("infoDivs");
+  courseInfo["courseBreak"] = createDiv().parent("coursePanel").class("infoDivs");
+  courseInfo["courseShort"] = createDiv().parent("coursePanel").class("infoDivs");
+  courseInfo["courseBreak2"] = createDiv().parent("coursePanel").class("infoDivs"); //yeah idk
+  courseInfo["courseKeywords"] = createDiv().parent("coursePanel").class("infoDivs");
+
+}
+
+function initControlUI(){
+  //control UI
+  physicsButton = createButton("TURN PHYSICS OFF").class("buttons").position(20, height - 50).mousePressed(()=>{
+    options.isPhysics = !options.isPhysics;
+    if (options.isPhysics) {
+      physicsButton.html("TURN PHYSICS OFF");
+    } else {
+      physicsButton.html("TURN PHYSICS ON");
+    }
+  });
+  speedDiv = createDiv("maxSpeed").parent("controlDiv").id("speedDiv").class("controls");
+  speedSlider = createSlider(0, 10, 6, 0.1).parent("speedDiv").changed(()=>{
+    for (let cNode of courses) {
+      cNode.maxSpeed = speedSlider.value();
+    }
+  });
+  forceDiv = createDiv("maxForce").parent("controlDiv").id("forceDiv").class("controls");
+  forceSlider = createSlider(0.1, 10, .4, 0.1).parent("forceDiv").changed(()=>{
+    for (let cNode of courses) {
+      cNode.maxForce = forceSlider.value();
+    }
+  });
+  frictionDiv = createDiv("friction").parent("controlDiv").id("frictionDiv").class("controls");
+  frictionSlider = createSlider(0, 1, 0.93, 0.01).parent("frictionDiv").changed(()=>{
+    for (let cNode of courses) {
+      cNode.friction = frictionSlider.value();
+    }
+  });
+  // let velocityBufferSlider = createSlider(0, 2, 0.2, .05).changed(()=>{
+  //   console.log(velocityBufferSlider.value());
+  //   for (let cNode of courses) {
+  //     cNode.velocityBuffer = velocityBufferSlider.value();
+  //   }
+  // });
+  //set all CNode physics variables here based on slider defaults
+  for (let cNode of courses){
+    cNode.maxSpeed = speedSlider.value();
+    cNode.maxForce = forceSlider.value();
+    cNode.friction = frictionSlider.value();
+    // cNode.velocityBuffer = velocityBufferSlider.value();
+  }
+}
+
+
+function shiftClusters(){
+  //when side panel opens, move the clusters
+  push();
+  translate(shiftCenterPos.x, shiftCenterPos.y); //hmm
+  clusters["CORE"].pos = shiftCenterPos;
+  clusters["SOUL"].pos = shiftCenterPos;
+
+  let angle = 360/8;
+  for (let i = 2; i < 10; i++){ //skipping core and soul
+    let clusterPos = rotationCoords(webOffset, 0, angle);
+    clusterPos.x += shiftCenterPos.x; //so we don't have to translate anymore
+    clusterPos.y += shiftCenterPos.y;
+    clusters[areas[i][0]].pos = clusterPos;
+
+    angle += 360/8;
+  }
+  pop();
+}
+
+function shiftClustersHome(){
+  //when side panel closes, move the clusters back home
+  push();
+  translate(width/2, height/2); //hmm
+  clusters["CORE"].pos = createVector(width/2, height/2);
+  clusters["SOUL"].pos = createVector(width/2, height/2);
+
+  let angle = 360/8;
+  for (let i = 2; i < 10; i++){ //skipping core and soul
+    let clusterPos = rotationCoords(webOffset, 0, angle);
+    clusterPos.x += width/2; //so we don't have to translate anymore
+    clusterPos.y += height/2;
+    clusters[areas[i][0]].pos = clusterPos;
+
+    angle += 360/8;
+  }
+  pop();
+}
+
+function initClusters(){
+    //get the web cluster locations per area -- this is dumb TODO refactor
+    push();
+    translate(width/2, height/2);
+    clusters["CORE"] = {
+      color: color(areas[0][1]),
+      pos: createVector(width/2, height/2),
+      count: 0,
+      currentIndex: 0,
+    };
+    clusters["SOUL"] = {
+      color: color(areas[1][1]),
+      pos: createVector(width/2, height/2),
+      count: 0,
+      currentIndex: 0,
+    };
+    //needs to be relative to node scale (shorter side) or else will be off screen
+    let angle = 360/8;
+    for (let i = 2; i < 10; i++){ //skipping core and soul
+      // rotate(angle);
+      // let clusterPos = rotationCoords(-nodeSize * 4, 0, angle);
+      let clusterPos = rotationCoords(webOffset, 0, angle);
+      // console.log(clusterPos);
+      clusterPos.x += width/2; //so we don't have to translate anymore
+      clusterPos.y += height/2;
+      clusters[areas[i][0]] = {
+        color: color(areas[i][1]),
+        pos: clusterPos,
+        count: 0,
+        currentIndex: 0, //for offset counting
+      };
+  
+      angle += 360/8;
+      // rect(-nodeSize * 4, 0, 100);
+    }
+    pop();
+}
+
+function initCourseNodes(){
+  //cycle through the table to generate the CNodes
+  for (let r = 0; r < masterSheet.getRowCount(); r++){
+    let rowArr = masterSheet.rows[r].arr;
+    let courseInfo = { //Course,Professor,Area,Credits,Semester,Keywords,Short,Long,Media,Credit,Media,Credit,Media,Credit
+      course: rowArr[0],
+      professor: rowArr[1],
+      area: rowArr[2],
+      credits: rowArr[3],
+      semester: rowArr[4],
+      keywords: rowArr[5],
+      short: rowArr[6],
+      long: rowArr[7],
+      media: [ //url, credit text, p5 Image (added later)
+        [rowArr[8], rowArr[9]],
+        [rowArr[10], rowArr[11]],
+        [rowArr[12], rowArr[13]]
+      ]
+    }
+    let newCourse = new CNode(courseInfo, nodeClick);
+    courses.push(newCourse);
+  }
+
+  //get web positions from cluster count
+  for (let cNode of courses) {
+    cNode.getClusterOffset();
+  }
+
+  //start to load the images in the cNodes
+  for (let cNode of courses){
+    // cNode.media[0].push(loadImage(cNode.media[0][0])); //need public link and CORS stuff
+  }
+}
 
 function rotationCoords(x, y, angle){
   //getting vector from rotation around center

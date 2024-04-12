@@ -2,7 +2,16 @@
 
 ## v0
 
-## v0.1.10
+### v0.1.11
+
+*4/11/24 1.5hrs*
+
+- added control footer divs
+- added mainContainer and panel divs
+- basic courseInfo panel on node click, with hide button
+- cleaned up setup a bit, moved chunks to init functions
+
+### v0.1.10
 
 *4/10/24 2 hrs*
 
@@ -10,7 +19,7 @@
 - working alluvial charts sans node colors
 - new dev branch
 
-## v0.1.9
+### v0.1.9
 
 *4/9/24 3.25 hrs*
 

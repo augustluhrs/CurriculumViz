@@ -25,6 +25,22 @@ canvas {
   display: none; 
 }
 
+.panels {
+  /* display: flexbox; */
+  font-family: "tiltneon";
+}
+
+#coursePanel {
+  /* position: absolute; */
+  /* top: 0; */
+  background-color: #fbc6d0;
+}
+
+.infoDivs {
+  text-align: center;
+  padding: 5%;
+}
+
 .cNode {
   border-radius: 50%;
   border: none;
@@ -38,7 +54,6 @@ canvas {
   font-size: 110%;
   font-family: "tiltneon";
   transform: translate(-50%, -50%); /*center button */
-  /* background-color: palevioletred; */
 }
 
 .cNode:hover {
@@ -60,4 +75,8 @@ canvas {
 .buttons:hover {
   background-color: white;
   color: rgb(108,112,45);
+}
+
+.controls {
+  font-family: "tiltneon";
 }
