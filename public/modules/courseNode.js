@@ -1,6 +1,6 @@
 class CNode { //courseNode
   // constructor(data, pos){
-  constructor(data){
+  constructor(data, clickCallback){
     //data from table: Course,Professor,Area,Credits,Semester,Keywords,Short,Long,Media,Credit,Media,Credit,Media,Credit
     this.course = data.course;
     this.professor = data.professor;
@@ -18,6 +18,7 @@ class CNode { //courseNode
     this.button.elt.style.width = nodeSize_px;
     this.button.elt.style.height = nodeSize_px;
     this.button.mousePressed(this.click.bind(this));
+    this.clickCallback = clickCallback;
 
     // cluster position and colors by area (later display option toggle TODO)
     // https://coolors.co/aaef74-89608e-428722-5792c3-fac9b8
@@ -238,7 +239,8 @@ class CNode { //courseNode
   }
 
   click(){
-    console.log(this.course)
+    // console.log(this.course);
+    this.clickCallback(this);
   }
   
   // showLines(){
