@@ -17,9 +17,12 @@ let mousePos;
 let physicsButton, speedSlider, forceSlider, frictionSlider;
 let speedDiv, forceDiv, frictionDiv;
 let title, titleSize, titleRatio; //ca title logo
+
 let canvas, coursePanel, coursePanelButton;
 let courseInfo = {}; //stores the divs for the diff class info stuff in the coursePanel
 let shiftCenterPos;
+
+let warningText = "";
 
 //csv variables
 let masterSheet;
@@ -45,8 +48,8 @@ options.isAlphaPaint = true;
 
 function preload(){
   masterSheet = loadTable("data/master_4-8.csv", "csv", "header");
-  title = loadImage("assets/brand/ca_title.png");
-  font = loadFont("assets/fonts/tiltneon.ttf");
+  title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
+  font = loadFont("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662");
 }
 
 /**
@@ -73,6 +76,11 @@ function setup() {
   // titleCol = color("#00fffa");
   if(options.isAlphaPaint){
     bg.setAlpha(0);
+  }
+  
+  //mobile warning
+  if (width < height){
+    warningText = "NOT READY FOR MOBILE, PLEASE CHECK THIS OUT ON A COMPUTER";
   }
 
   //title logo
@@ -121,7 +129,11 @@ function setup() {
 function draw() {
   background(bg);
   image(title, 10, 10, titleSize, titleSize * titleRatio);
-
+  
+  push();
+  textSize(nodeSize / 3);
+  text(warningText, width/2, height/10);
+  pop();
   //web test
   if (options.isWeb){
     push();
