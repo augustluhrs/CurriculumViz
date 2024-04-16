@@ -14,12 +14,18 @@ let nodeSize, nodeSize_px;
 let nodeScale = 0.09; // 9% of shorter side of window
 let webOffset, clusterOffset, idealSeparation, mouseRepel, boundaryForce;
 let mousePos;
-let physicsButton, speedSlider, forceSlider, frictionSlider;
+let physicsButton, speedSlider, forceSlider, frictionSlider, bounceButton, mouseAvoidButton;
+let lastPhysics = {}; //for bounce mode reset TODO clean up
 let speedDiv, forceDiv, frictionDiv;
 let title, titleSize, titleRatio; //ca title logo
 let canvas, coursePanel, coursePanelButton;
 let courseInfo = {}; //stores the divs for the diff class info stuff in the coursePanel
-let shiftCenterPos;
+let shiftCenterPos, panelLeftEdge; //TODO should have all the course panel stuff in own object
+let bounceDelay; //stores the interval ID to clear the physics toggle in bounceToggle
+
+let keywordPanel, keywordPanelButton;
+let keywordCheckboxes = {};
+
 
 //csv variables
 let masterSheet;
@@ -37,11 +43,16 @@ let options = {
   isDraggable: false,
   isGravity: false,
   isAlphaPaint: false,
+  isBounce:false,
+  isAvoidingMouse: false,
+  isShowingPanel: false,
+  isShowingKeywords: false, //ugh naming, this is a panel too...
 };
 options.isWeb = true;
 options.isMoving = true;
 options.isPhysics = true;
 options.isAlphaPaint = true;
+// options.isAvoidingMouse = true;
 
 function preload(){
   masterSheet = loadTable("data/master_4-8.csv", "csv", "header");
@@ -72,7 +83,7 @@ function setup() {
   // nodeStroke = color("#f0c5c4");
   // titleCol = color("#00fffa");
   if(options.isAlphaPaint){
-    bg.setAlpha(0);
+    bg.setAlpha(4);
   }
 
   //title logo
@@ -97,9 +108,10 @@ function setup() {
   clusterOffset = (-nodeSize * 1.3);
   idealSeparation = nodeSize;
   mouseRepel = idealSeparation * 4;
-  boundaryForce = 100;
+  boundaryForce = 1000;
   shiftCenterPos = createVector(width * 0.31, height/2);
-  // shiftWebOffset =
+  panelLeftEdge = width * .72; //course panel
+  panelRightEdge = width * .1; //keyword panel
 
   //set up mousePos variable
   mousePos = createVector(0, 0);
@@ -167,7 +179,12 @@ function draw() {
 
 function nodeClick(node) {
   //when a node is clicked. as the name suggests.
-  console.log(node.course);
+
+  //deselect any existing nodes, the one that's clicked will select itself
+  for (let cNode of courses){ //ugh TODO redo 'cNode' naming
+    cNode.isSelected = false;
+  }
+  // console.log(node.course);
   coursePanel.show();
   courseInfo.courseTitle.html(node.course);
   courseInfo.courseProfessor.html(node.professor);
@@ -175,22 +192,21 @@ function nodeClick(node) {
   courseInfo.courseKeywords.html(node.keywords);
 
   shiftClusters();
+  options.isShowingPanel = true;
 }
 
 function initPanelUI(){
-  //panel UI
+  //course panel UI
   coursePanel = createDiv().class("panels").id("coursePanel").parent("mainContainer");
-  // panel.width = width * .38;
-  // panel.height = height;
-  coursePanel.size(width * 0.28, height);
-  coursePanel.position(width * .72, 0);
+  coursePanel.size(width - panelLeftEdge, height);
+  coursePanel.position(panelLeftEdge, 0);
   coursePanel.hide();
 
   coursePanelButton = createButton('>>>').class("buttons").parent("coursePanel");
-  // coursePanelButton.position(0, height/2);
   coursePanelButton.mousePressed(()=>{
     coursePanel.hide();
     shiftClustersHome();
+    options.isShowingPanel = false;
   })
 
   //course info for coursePanel
@@ -201,18 +217,59 @@ function initPanelUI(){
   courseInfo["courseBreak2"] = createDiv().parent("coursePanel").class("infoDivs"); //yeah idk
   courseInfo["courseKeywords"] = createDiv().parent("coursePanel").class("infoDivs");
 
+  //keyword panel UI
+  keywordPanelHeight = 1 * height / 3;
+  keywordPanel = createDiv().class("panels").id("keywordPanel").parent("mainContainer");
+  keywordPanel.size(panelRightEdge, height - keywordPanelHeight);
+  keywordPanel.position(0, keywordPanelHeight);
+  keywordPanel.hide();
+
+  keywordPanelButton = createButton('>>>').class("buttons");
+  keywordPanelButton.position(0, keywordPanelHeight);
+  keywordPanelButton.mousePressed(()=>{
+    options.isShowingKeywords = !options.isShowingKeywords;
+    //reset opacity (note: might be annoying if you want your selections to persist upon closing)
+    for (let cNode of courses){
+      cNode.fitsKeywords = true;
+    }
+    if (options.isShowingKeywords){
+      shiftCenterPos.x += panelRightEdge;
+      if(options.isShowingPanel){shiftClusters()};
+      keywordPanel.show();
+      keywordPanelButton.html('<<<');
+      keywordPanelButton.position(panelRightEdge, keywordPanelHeight);
+    } else {
+      shiftCenterPos.x -= panelRightEdge;
+      options.isShowingPanel ? shiftClusters() : shiftClustersHome();
+      keywordPanel.hide();
+      keywordPanelButton.html('>>>');
+      keywordPanelButton.position(0, keywordPanelHeight);
+    }
+  });
+
+  //keywords for keyword panel
+  for (let keyword of mainKeywords){
+    keywordCheckboxes[keyword] = createCheckbox(keyword, false).class("checkboxes").parent("keywordPanel");
+    keywordCheckboxes[keyword].changed(keywordCheck);
+  }
+
 }
 
 function initControlUI(){
   //control UI
   physicsButton = createButton("TURN PHYSICS OFF").class("buttons").position(20, height - 50).mousePressed(()=>{
-    options.isPhysics = !options.isPhysics;
-    if (options.isPhysics) {
-      physicsButton.html("TURN PHYSICS OFF");
-    } else {
-      physicsButton.html("TURN PHYSICS ON");
-    }
+    togglePhysics();
   });
+  bounceButton = createButton("BOUNCE HOUSE ON").class("buttons").position(300, height - 50).mousePressed(()=>{
+    toggleBounce();
+  });
+  mouseAvoidButton = createButton(options.isAvoidingMouse ? "IGNORE MOUSE" : "AVOID MOUSE").class("buttons").position(600, height - 50).mousePressed(()=>{
+    options.isAvoidingMouse = !options.isAvoidingMouse;
+    mouseAvoidButton.html(options.isAvoidingMouse ? "IGNORE MOUSE" : "AVOID MOUSE");
+  });
+
+
+
   speedDiv = createDiv("maxSpeed").parent("controlDiv").id("speedDiv").class("controls");
   speedSlider = createSlider(0, 10, 6, 0.1).parent("speedDiv").changed(()=>{
     for (let cNode of courses) {
@@ -231,19 +288,9 @@ function initControlUI(){
       cNode.friction = frictionSlider.value();
     }
   });
-  // let velocityBufferSlider = createSlider(0, 2, 0.2, .05).changed(()=>{
-  //   console.log(velocityBufferSlider.value());
-  //   for (let cNode of courses) {
-  //     cNode.velocityBuffer = velocityBufferSlider.value();
-  //   }
-  // });
+
   //set all CNode physics variables here based on slider defaults
-  for (let cNode of courses){
-    cNode.maxSpeed = speedSlider.value();
-    cNode.maxForce = forceSlider.value();
-    cNode.friction = frictionSlider.value();
-    // cNode.velocityBuffer = velocityBufferSlider.value();
-  }
+  updateNodePhysics();
 }
 
 
@@ -354,6 +401,93 @@ function initCourseNodes(){
   //start to load the images in the cNodes
   for (let cNode of courses){
     // cNode.media[0].push(loadImage(cNode.media[0][0])); //need public link and CORS stuff
+  }
+}
+
+function keywordCheck(){
+  for (let cNode of courses) {
+    cNode.fitsKeywords = checkNodeForSelectedKeywords(cNode);
+  }
+}
+
+function checkNodeForSelectedKeywords(cNode){ //hmm
+  for (let keybox of Object.keys(keywordCheckboxes)){
+    if (keywordCheckboxes[keybox].checked()){
+      if (!cNode.keywords.includes(keybox)){
+        //if any of the selected keywords are missing, return false
+        return false;
+      }
+    }
+  }
+  //only return true if all selected keywords are present
+  console.log(cNode.course);
+  return true;
+}
+function togglePhysics(){ //separating b/c bounce mode needs to call this
+  options.isPhysics = !options.isPhysics;
+  physicsButton.html(options.isPhysics ? "TURN PHYSICS OFF" : "TURN PHYSICS ON");
+  // options.isPhysics ? 
+}
+
+function toggleBounce(){
+  options.isBounce = !options.isBounce;
+  bounceButton.html(options.isBounce ? "BOUNCE HOUSE OFF" : "BOUNCE HOUSE ON");
+
+  if (options.isBounce) {
+    
+    if (options.isPhysics){ //when we turn bounce on and physics is still on
+      //store the values of physics the first time so we can reset them after
+      lastPhysics.speed = speedSlider.value();
+      lastPhysics.force = forceSlider.value();
+      lastPhysics.friction = frictionSlider.value();
+
+      // togglePhysics(); //need to wait a second for the nodes to be able to move
+      bounceButton.hide(); //just to prevent them from clicking again too early and messing with physics toggle
+      bounceDelay = setInterval(()=>{
+        togglePhysics();
+        bounceButton.show();
+        clearInterval(bounceDelay);
+      }, 1000);
+
+      //change values to party mode
+      speedSlider.value(10);
+      forceSlider.value(10);
+      frictionSlider.value(1);
+      updateNodePhysics();
+
+      //make the background no alpha so we get trails
+      // if(options.isAlphaPaint){
+        bg.setAlpha(0);
+      // }
+
+      //hiding physics button to not get confused
+      physicsButton.hide();
+      mouseAvoidButton.hide();
+    }
+    // bounceButton.html("BOUNCE HOUSE OFF");
+  } else {
+    if (!options.isPhysics){ //when we turn bounce off, reset physics to old values
+      speedSlider.value(lastPhysics.speed);
+      forceSlider.value(lastPhysics.force);
+      frictionSlider.value(lastPhysics.friction);
+      togglePhysics();
+      updateNodePhysics();
+      if(options.isAlphaPaint){
+        bg.setAlpha(4);
+      }
+      physicsButton.show();
+      mouseAvoidButton.show();
+
+    };
+    // bounceButton.html("BOUNCE HOUSE ON");
+  }
+}
+
+function updateNodePhysics(){
+  for (let cNode of courses){
+    cNode.maxSpeed = speedSlider.value();
+    cNode.maxForce = forceSlider.value();
+    cNode.friction = frictionSlider.value();
   }
 }
 

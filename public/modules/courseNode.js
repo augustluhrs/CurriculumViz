@@ -13,6 +13,10 @@ class CNode { //courseNode
     this.media = data.media;
     //this.skills,
 
+    //for keyword/panel modes
+    this.isSelected = false;
+    this.fitsKeywords = true;
+
     //css element
     this.button = createButton(this.course).class("cNode");
     this.button.elt.style.width = nodeSize_px;
@@ -22,60 +26,59 @@ class CNode { //courseNode
 
     // cluster position and colors by area (later display option toggle TODO)
     // https://coolors.co/aaef74-89608e-428722-5792c3-fac9b8
-    if (!this.area) { this.col = nodeCol }
-    else {
-      switch(this.area){
-        case "CORE":
-          this.cluster = clusters["CORE"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "SOUL":
-          this.cluster = clusters["SOUL"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "IMAGE":
-          this.cluster = clusters["IMAGE"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "ACTING":
-          this.cluster = clusters["ACTING"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "MOVEMENT":
-          this.cluster = clusters["MOVEMENT"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "SOUND":
-          this.cluster = clusters["SOUND"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "TECHNOLOGY":
-          this.cluster = clusters["TECHNOLOGY"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "WRITING":
-          this.cluster = clusters["WRITING"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "VISUAL ART":
-          this.cluster = clusters["VISUAL ART"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "STUDIES":
-          this.cluster = clusters["STUDIES"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-      }
+    this.col;
+    this.col2;
+    switch(this.area){
+      case "CORE":
+        this.cluster = clusters["CORE"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "SOUL":
+        this.cluster = clusters["SOUL"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "IMAGE":
+        this.cluster = clusters["IMAGE"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "ACTING":
+        this.cluster = clusters["ACTING"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "MOVEMENT":
+        this.cluster = clusters["MOVEMENT"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "SOUND":
+        this.cluster = clusters["SOUND"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "TECHNOLOGY":
+        this.cluster = clusters["TECHNOLOGY"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "WRITING":
+        this.cluster = clusters["WRITING"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "VISUAL ART":
+        this.cluster = clusters["VISUAL ART"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "STUDIES":
+        this.cluster = clusters["STUDIES"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
     }
     this.button.elt.style.background = this.col;
 
@@ -100,9 +103,11 @@ class CNode { //courseNode
       } else if (this.course == "Studio Art") {
         this.secondCluster = clusters["VISUAL ART"];
       }
-      this.button.elt.style.background = `radial-gradient(${clusters["CORE"].color} 25%, ${this.secondCluster.color}, ${clusters["CORE"].color})`;
+      this.col2 = this.secondCluster.color;
+      this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
     } else if (this.area == "SOUL") {
-      this.button.elt.style.background = `radial-gradient(${clusters["SOUL"].color} 25%, ${clusters["CORE"].color}, ${clusters["SOUL"].color})`;
+      this.col2 = clusters["CORE"].color;
+      this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
     }
     
     //other display info
@@ -189,19 +194,21 @@ class CNode { //courseNode
       }
     }
 
-    //avoid mouse if too close
-    let mouseDist = p5.Vector.sub(mousePos, this.pos);
-    // let mouseDist = p5.Vector.sub(this.pos, mousePos);
+    if (options.isAvoidingMouse){
+      //avoid mouse if too close
+      let mouseDist = p5.Vector.sub(mousePos, this.pos);
+      // let mouseDist = p5.Vector.sub(this.pos, mousePos);
 
-    let mouseDistMag = mouseDist.mag();
+      let mouseDistMag = mouseDist.mag();
 
-    if (mouseDistMag < mouseRepel) {
-      // mouseDist.setMag(-mouseRepel * (mouseRepel - mouseDistMag) * 10);
-      // let mf = mouseRepel - (mouseRepel - mouseDistMag);
-      // mouseDist.setMag(-(mf * mf));
-      let mf = (-10 * mouseRepel * mouseRepel) / (mouseDistMag * mouseDistMag)
-      mouseDist.setMag(mf);
-      this.acc.add(mouseDist);
+      if (mouseDistMag < mouseRepel) {
+        // mouseDist.setMag(-mouseRepel * (mouseRepel - mouseDistMag) * 10);
+        // let mf = mouseRepel - (mouseRepel - mouseDistMag);
+        // mouseDist.setMag(-(mf * mf));
+        let mf = (-10 * mouseRepel * mouseRepel) / (mouseDistMag * mouseDistMag)
+        mouseDist.setMag(mf);
+        this.acc.add(mouseDist);
+      }
     }
   }
   
@@ -212,6 +219,16 @@ class CNode { //courseNode
     if (this.pos.y > height - (this.size / 2)) {this.acc.add(createVector(0, -boundaryForce))}
     if (this.pos.y < (this.size / 2)) {this.acc.add(createVector(0, boundaryForce))}
     
+    if (options.isShowingPanel) {
+      if (this.pos.x > panelLeftEdge - (this.size / 2)) {
+        this.acc.add(createVector(-boundaryForce * 10, 0));
+      }
+    }
+    if (options.isShowingKeywords) {
+      if (this.pos.x < panelRightEdge + (this.size / 2)) { //TODO add top check
+        this.acc.add(createVector(boundaryForce * 10, 0));
+      }
+    }
   }
   
   update(){
@@ -228,19 +245,58 @@ class CNode { //courseNode
 
   show(){
     //for alpha paint trails
+    if (options.isShowingKeywords) {
+      push();
+      noStroke();
+      // this.button.elt.style.background = this.col;
+      if(this.isSelected && this.fitsKeywords){ //TODO redundant when both open?
+        fill(255);
+        ellipse(this.pos.x, this.pos.y, this.size * 1.2);
+      } else if (this.isSelected){ //selected but doesn't match keywords
+        fill(255, 50, 0);
+        ellipse(this.pos.x, this.pos.y, this.size * 1.2);
+      }
+
+      if (this.fitsKeywords){
+        this.col.setAlpha(255);
+        if (this.area == "CORE" || this.area == "SOUL"){
+          this.col2.setAlpha(255);
+          this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
+        } else {
+          this.button.elt.style.background = this.col;
+        }
+      } else {
+        this.col.setAlpha(10);
+        if (this.area == "CORE" || this.area == "SOUL"){
+          this.col2.setAlpha(10);
+          this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
+        } else {
+          this.button.elt.style.background = this.col;
+        }
+      }
+      pop();
+    } 
+    
     if (options.isAlphaPaint) {
       push();
       noStroke();
-      fill(this.col);
-      ellipse(this.pos.x, this.pos.y, this.size);
+      if(this.isSelected){
+        fill(255);
+        ellipse(this.pos.x, this.pos.y, this.size * 1.2);
+      } else if (this.fitsKeywords){
+        fill(this.col);
+        ellipse(this.pos.x, this.pos.y, this.size);
+      }
       pop();
     }
+
     this.button.position(this.pos.x, this.pos.y);
   }
 
   click(){
     // console.log(this.course);
     this.clickCallback(this);
+    this.isSelected = true;
   }
   
   // showLines(){

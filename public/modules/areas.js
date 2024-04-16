@@ -35,6 +35,7 @@ let mainKeywords = [ //main 24
 "directing",
 "electronics",
 "fabrication",
+"fashion/wearable",
 "film/video",
 "guest artists",
 "interactive",
@@ -48,5 +49,4 @@ let mainKeywords = [ //main 24
 "theater",
 "visual art",
 "writing",
-"fashion/wearable",
 ]
