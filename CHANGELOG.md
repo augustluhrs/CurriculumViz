@@ -2,6 +2,15 @@
 
 ## v0
 
+### v0.1.12
+
+*4/16/24 2.5hrs*
+
+- keyword panel, selecting makes non-fitting courses transparent
+- made nodes avoid course and keyword panels and increased boundaryForce
+- bounce house mode
+- mouse avoid toggle
+
 ### v0.1.11
 
 *4/11/24 1.5hrs*

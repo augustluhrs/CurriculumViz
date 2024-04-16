@@ -77,6 +77,12 @@ canvas {
   color: rgb(108,112,45);
 }
 
+.checkboxes {
+  font-family: "tiltneon";
+  font-size: 150%;
+  padding-left: 10%;
+}
+
 .controls {
   font-family: "tiltneon";
 }
