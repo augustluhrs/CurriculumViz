@@ -73,8 +73,10 @@
     - [ ] clean up sketch code
     - [X] add alpha party mode toggle (bounce house)
     - [ ] clean up mode buttons and space/layout
+    - [ ] drag nodes
   - [ ] bugs
     - [X] nodes stacking if offset = 0
+    - [X] panel reset node colors on close
 - [X] alluvial chart
   - [X] process new csv for keywords
   - [X] area to course weight is credits

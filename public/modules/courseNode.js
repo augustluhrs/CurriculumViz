@@ -280,7 +280,7 @@ class CNode { //courseNode
     if (options.isAlphaPaint) {
       push();
       noStroke();
-      if(this.isSelected){
+      if(this.isSelected && this.fitsKeywords){
         fill(255);
         ellipse(this.pos.x, this.pos.y, this.size * 1.2);
       } else if (this.fitsKeywords){
