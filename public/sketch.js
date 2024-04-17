@@ -47,6 +47,7 @@ let options = {
   isAvoidingMouse: false,
   isShowingPanel: false,
   isShowingKeywords: false, //ugh naming, this is a panel too...
+  isKeywordWeighted: false, //for showing siblings/cousins
 };
 options.isWeb = true;
 options.isMoving = true;
@@ -410,6 +411,11 @@ function initCourseNodes(){
     }
     let newCourse = new CNode(courseInfo, nodeClick);
     courses.push(newCourse);
+  }
+
+  //get relationships for keyword comparison
+  for (let cNode of courses) {
+    cNode.checkRelationships(courses);
   }
 
   //get web positions from cluster count

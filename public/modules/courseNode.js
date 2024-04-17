@@ -16,6 +16,15 @@ class CNode { //courseNode
     //for keyword/panel modes
     this.isSelected = false;
     this.fitsKeywords = true;
+    this.keyArr = this.keywords.split(",");
+    this.relationships = {
+      tally: {},//holds the number of similar keywords by course
+      unsorted: [],
+      sorted: [],
+      siblings: [],
+      cousins: [],
+      relatives: [], //the "others"
+    };
 
     //css element
     this.button = createButton(this.course).class("cNode");
@@ -297,6 +306,28 @@ class CNode { //courseNode
     // console.log(this.course);
     this.clickCallback(this);
     this.isSelected = true;
+  }
+
+  checkRelationships(courses){ //issue with parameter being global name?
+    //tally up number of same keywords
+    for (let cNode of courses){
+      if (cNode.course == this.course){continue;}
+      this.relationships.tally[cNode.course] = 0;
+      for (let keyword of this.keyArr){
+        if (cNode.keyArr.includes(keyword)){
+          this.relationships.tally[cNode.course]++;
+        }
+      }
+    }
+
+    //turn to array and sort by tally
+    for (let [key, value] of Object.entries(this.relationships.tally)){
+      this.relationships.unsorted.push([key, value]);
+    }
+    console.log(this.relationships.unsorted);
+    this.relationships.sorted = this.relationships.unsorted.sort((a, b)=>{a[1] - b[1]
+    console.log(a)});
+    console.log(this.course, this.relationships.sorted);
   }
   
   // showLines(){
