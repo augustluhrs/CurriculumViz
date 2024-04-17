@@ -207,6 +207,11 @@ function initPanelUI(){
     coursePanel.hide();
     shiftClustersHome();
     options.isShowingPanel = false;
+    
+    //reset the selected node (TODO, just store which is selected?)
+    for (let cNode of courses){
+      cNode.isSelected = false;
+    }
   })
 
   //course info for coursePanel
@@ -228,10 +233,24 @@ function initPanelUI(){
   keywordPanelButton.position(0, keywordPanelHeight);
   keywordPanelButton.mousePressed(()=>{
     options.isShowingKeywords = !options.isShowingKeywords;
+    
+    //reset checkboxes
+    for (let keybox of Object.keys(keywordCheckboxes)){
+      keywordCheckboxes[keybox].checked(false);
+    }
+    
     //reset opacity (note: might be annoying if you want your selections to persist upon closing)
     for (let cNode of courses){
       cNode.fitsKeywords = true;
+      cNode.col.setAlpha(255);
+      if(cNode.col2 !== undefined){
+        cNode.col2.setAlpha(255);
+        cNode.button.elt.style.background = `radial-gradient(${cNode.col} 25%, ${cNode.col2}, ${cNode.col})`;
+      } else {
+        cNode.button.elt.style.background = cNode.col;
+      }
     }
+
     if (options.isShowingKeywords){
       shiftCenterPos.x += panelRightEdge;
       if(options.isShowingPanel){shiftClusters()};

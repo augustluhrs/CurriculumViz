@@ -2,6 +2,20 @@
 
 ## v0
 
+### v0.1.13
+
+*4/16/24 45mins*
+
+- fixed bug on keyword panel where the nodes would reset but not the checkboxes
+- changed colors on node select (panel hide resets, if mismatch keywords, red)
+- fixed bug where opacity on background ellipse wouldn't reset on keyword/panel reset
+- fixed bug where core gradients wouldn't reset on panel close
+
+todonext:
+- keyword highlight mode (remove clusters, send others in spiral)
+- change colors for visual art and tech
+- keyword siblings and cousins
+
 ### v0.1.12
 
 *4/16/24 2.5hrs*
