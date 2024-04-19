@@ -19,6 +19,7 @@
   - [ ] keyword weighted links
     - [ ] lines for keyword links
     - [X] side panel UI for keyword checkboxes
+    - [ ] keyword text on button
     - [ ] weight sorting
       - [ ] distinction between main vs secondary keywords
     - [ ] click to show sibling classes
@@ -65,18 +66,50 @@
     - [ ] fontsize
     - [ ] node map alt distribution (3,3,3) (or make the clusters autosort same as nodes?)
     - [ ] fix text being blue
+    - [ ] test click/drag zoom
+    - [ ] test panning
+  - [ ] features
+    - [X] add alpha party mode toggle (bounce house)
+    - [ ] scale nodes and cluster radius
+    - [ ] click area to highlight those, show/hide
+    - [ ] drag courses toggle
+    - [ ] courses ignore each other if too far from home cluster
+    - [ ] highlight course
+      - [X] stroke
+      - [ ] red if mismatch keywords
+        - [ ] diff color / texture (cross hatch)
+      - [ ] rainbow fade animation
+      - [ ] blob outline wobble
+  - [ ] control panel
+    - [ ] clean up mode buttons and space/layout
+    - [ ] show/hide chevron
+    - [ ] dropdown of mode toggle
+    - [ ] refactor mode loop and have mode manager function
+  - [ ] design
+    - [ ] font
+      - [X] new font
+      - [ ] despina font
+    - [ ] colors
+      - [X] new area palette
+    - [X] area changes
+      - [X] move writing inbetween studies and image
+    - [ ] selected node
+      - [ ] new blob shape
+      - [X] rainbow/neon fade highlight
   - [ ] misc
-    - [X] new font
     - [X] default to no shake on slider
     - [ ] set up asset hosting so don't have to upload to glitch
     - [ ] learn react...
     - [ ] clean up sketch code
-    - [X] add alpha party mode toggle (bounce house)
-    - [ ] clean up mode buttons and space/layout
-    - [ ] drag nodes
+    - [ ] easter egg button
+    - [ ] other controls
+      - [ ] cluster spacing radius slider
+      - [ ] node diameter slider
+      - [ ] opacity slider
   - [ ] bugs
     - [X] nodes stacking if offset = 0
     - [X] panel reset node colors on close
+    - [ ] keyword panel size text overflow on lower res
 - [X] alluvial chart
   - [X] process new csv for keywords
   - [X] area to course weight is credits
