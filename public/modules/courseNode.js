@@ -1,3 +1,5 @@
+let rainbowSpacing = 10;
+
 class CNode { //courseNode
   // constructor(data, pos){
   constructor(data, clickCallback){
@@ -25,6 +27,7 @@ class CNode { //courseNode
       cousins: [],
       relatives: [], //the "others"
     };
+    this.rainbowOffset = 0; //for selection animation
 
     //css element
     this.button = createButton(this.course).class("cNode");
@@ -253,11 +256,12 @@ class CNode { //courseNode
   }
 
   show(){
-    //for alpha paint trails
+    
+    //keyword fade/show if matching
     if (options.isShowingKeywords) {
       push();
       noStroke();
-      // this.button.elt.style.background = this.col;
+      /* //not showing red when selected now
       if(this.isSelected && this.fitsKeywords){ //TODO redundant when both open?
         fill(255);
         ellipse(this.pos.x, this.pos.y, this.size * 1.2);
@@ -265,19 +269,21 @@ class CNode { //courseNode
         fill(255, 50, 0);
         ellipse(this.pos.x, this.pos.y, this.size * 1.2);
       }
-
+      */
       if (this.fitsKeywords){
-        this.col.setAlpha(255);
+        this.col.setAlpha(1);
+        this.button.html(this.course);
         if (this.area == "CORE" || this.area == "SOUL"){
-          this.col2.setAlpha(255);
+          this.col2.setAlpha(1);
           this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
         } else {
           this.button.elt.style.background = this.col;
         }
       } else {
-        this.col.setAlpha(10);
+        this.col.setAlpha(.05);
+        this.button.html('');
         if (this.area == "CORE" || this.area == "SOUL"){
-          this.col2.setAlpha(10);
+          this.col2.setAlpha(.05);
           this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
         } else {
           this.button.elt.style.background = this.col;
@@ -285,13 +291,19 @@ class CNode { //courseNode
       }
       pop();
     } 
-    
+
+    //for alpha paint trails
     if (options.isAlphaPaint) {
       push();
       noStroke();
-      if(this.isSelected && this.fitsKeywords){
-        fill(255);
-        ellipse(this.pos.x, this.pos.y, this.size * 1.2);
+      if(this.isSelected){
+        //new rainbow fade anim
+        if (this.rainbowOffset > 360) {
+          this.rainbowOffset = 0;
+        } else {
+          this.rainbowOffset += rainbowSpacing;
+        }
+        this.anim_selectionRainbow(this.rainbowOffset);
       } else if (this.fitsKeywords){
         fill(this.col);
         ellipse(this.pos.x, this.pos.y, this.size);
@@ -324,12 +336,26 @@ class CNode { //courseNode
     for (let [key, value] of Object.entries(this.relationships.tally)){
       this.relationships.unsorted.push([key, value]);
     }
-    console.log(this.relationships.unsorted);
-    this.relationships.sorted = this.relationships.unsorted.sort((a, b)=>{a[1] - b[1]
-    console.log(a)});
-    console.log(this.course, this.relationships.sorted);
+    // console.log(this.relationships.unsorted);
+    // this.relationships.sorted = this.relationships.unsorted.sort((a, b)=>{a[1] - b[1] 
+      // console.log(a)});
+    // console.log(this.course, this.relationships.sorted);
   }
   
+  anim_selectionRainbow(rainbowOffset){
+    // for (let i = rainbowOffset; i < 360 + rainbowOffset; i += rainbowSpacing){
+      // if (i > 360) {i -= 360}; //needed?
+      fill(rainbowOffset, 100, 100, .2);
+      // fill(i, 100, 100);
+      // ellipse(this.pos.x, this.pos.y, this.size + ((360/rainbowSpacing)*(i - this.rainbowOffset)) * (  (rainbowSpacing/360)));
+      let leSigh = map(rainbowOffset, 0, 360, this.size, this.size * 1.3);
+      ellipse(this.pos.x, this.pos.y, leSigh);
+      // ellipse(this.pos.x, this.pos.y, (this.size * 1.3) * (rainbowOffset/360));
+      // ellipse(this.pos.x, this.pos.y, this.size * 1.5);
+
+
+    // }
+  }
   // showLines(){
   //   //lines?
   //   push();

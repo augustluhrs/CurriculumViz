@@ -85,13 +85,27 @@
     - [ ] show/hide chevron
     - [ ] dropdown of mode toggle
     - [ ] refactor mode loop and have mode manager function
+  - [ ] design
+    - [ ] font
+      - [X] new font
+      - [ ] despina font
+    - [ ] colors
+      - [X] new area palette
+    - [X] area changes
+      - [X] move writing inbetween studies and image
+    - [ ] selected node
+      - [ ] new blob shape
+      - [X] rainbow/neon fade highlight
   - [ ] misc
-    - [X] new font
     - [X] default to no shake on slider
     - [ ] set up asset hosting so don't have to upload to glitch
     - [ ] learn react...
     - [ ] clean up sketch code
     - [ ] easter egg button
+    - [ ] other controls
+      - [ ] cluster spacing radius slider
+      - [ ] node diameter slider
+      - [ ] opacity slider
   - [ ] bugs
     - [X] nodes stacking if offset = 0
     - [X] panel reset node colors on close

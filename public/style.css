@@ -39,6 +39,7 @@ canvas {
 .infoDivs {
   text-align: center;
   padding: 5%;
+  /* transition-duration: 0.4s; */
 }
 
 .cNode {

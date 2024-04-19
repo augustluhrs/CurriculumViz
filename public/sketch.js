@@ -77,14 +77,16 @@ function setup() {
   ellipseMode(CENTER);
   rectMode(CENTER);
   angleMode(DEGREES); //just for 360/7 areas
+  colorMode(HSB);
   // bg = color("#616708"); //olive
-  // bg = color("#aaef74"); //light pale green
-  bg = color('#aaff55'); // light green
+  bg = color("#aaef74"); //light pale green
+  // bg = color('#aaff55'); // light green
+
   // nodeCol = color("#f3a9b0");
   // nodeStroke = color("#f0c5c4");
   // titleCol = color("#00fffa");
   if(options.isAlphaPaint){
-    bg.setAlpha(4);
+    bg.setAlpha(.03);
   }
 
   //title logo
@@ -242,10 +244,11 @@ function initPanelUI(){
     
     //reset opacity (note: might be annoying if you want your selections to persist upon closing)
     for (let cNode of courses){
+      cNode.button.html(cNode.course);
       cNode.fitsKeywords = true;
-      cNode.col.setAlpha(255);
+      cNode.col.setAlpha(1);
       if(cNode.col2 !== undefined){
-        cNode.col2.setAlpha(255);
+        cNode.col2.setAlpha(1);
         cNode.button.elt.style.background = `radial-gradient(${cNode.col} 25%, ${cNode.col2}, ${cNode.col})`;
       } else {
         cNode.button.elt.style.background = cNode.col;
@@ -262,7 +265,7 @@ function initPanelUI(){
       shiftCenterPos.x -= panelRightEdge;
       options.isShowingPanel ? shiftClusters() : shiftClustersHome();
       keywordPanel.hide();
-      keywordPanelButton.html('>>>');
+      keywordPanelButton.html('KEYWORDS >>>');
       keywordPanelButton.position(0, keywordPanelHeight);
     }
   });
@@ -448,6 +451,7 @@ function checkNodeForSelectedKeywords(cNode){ //hmm
   console.log(cNode.course);
   return true;
 }
+
 function togglePhysics(){ //separating b/c bounce mode needs to call this
   options.isPhysics = !options.isPhysics;
   physicsButton.html(options.isPhysics ? "TURN PHYSICS OFF" : "TURN PHYSICS ON");
@@ -498,7 +502,7 @@ function toggleBounce(){
       togglePhysics();
       updateNodePhysics();
       if(options.isAlphaPaint){
-        bg.setAlpha(4);
+        bg.setAlpha(.03);
       }
       physicsButton.show();
       mouseAvoidButton.show();

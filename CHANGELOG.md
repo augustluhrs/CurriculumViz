@@ -2,17 +2,23 @@
 
 ## v0
 
+### v0.1.15
+
+*4/19/24 2hrs*
+
+- tested new color palette and alternatives
+- keyword panel
+  - button with label
+  - hides text on fade nodes, reset on button close
+- switched to HSB and updated setAlpha's
+- rainbow select anim
+
 ### v0.1.14
 
 *4/17/24 1hr*
 
 - keyword sorting (WIP)
 - todo updates from meeting
-
-todonext:
-- keyword highlight mode (remove clusters, send others in spiral)
-- change colors for visual art and tech
-- keyword siblings and cousins
 
 ### v0.1.13
 
@@ -22,6 +28,7 @@ todonext:
 - changed colors on node select (panel hide resets, if mismatch keywords, red)
 - fixed bug where opacity on background ellipse wouldn't reset on keyword/panel reset
 - fixed bug where core gradients wouldn't reset on panel close
+- post-commit: fixed link on readme for second image
 
 ### v0.1.12
 
