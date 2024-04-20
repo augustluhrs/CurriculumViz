@@ -58,6 +58,12 @@ options.isPhysics = true;
 options.isAlphaPaint = true;
 // options.isAvoidingMouse = true;
 
+let state = { //need to refactor this vs options
+  bgAlpha: 0.1,
+  selectedKeywords: [],
+  selectedCluster: null,
+}
+
 function preload(){
   masterSheet = loadTable("data/master_4-8.csv", "csv", "header");
   title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
@@ -89,7 +95,7 @@ function setup() {
   // nodeStroke = color("#f0c5c4");
   // titleCol = color("#00fffa");
   if(options.isAlphaPaint){
-    bg.setAlpha(.03);
+    bg.setAlpha(state.bgAlpha);
   }
   
   //mobile warning
@@ -112,7 +118,7 @@ function setup() {
   //turn to string for css
   nodeSize_px = nodeSize.toString();
   nodeSize_px += 'px';
-  textSize(nodeSize / 7);
+  textSize(nodeSize / 6);
 
   //distances from clusters to center of web and nodes to clusters
   webOffset = (-nodeSize * 4);
@@ -153,6 +159,7 @@ function draw() {
   if (options.isWeb){
     push();
     noStroke();
+    // textSize()
     // fill(50, 205, 100);
     // for (let i = 0; i < 8; i++){
     // for (let cluster of clusters){
@@ -230,7 +237,7 @@ function initPanelUI(){
   })
 
   //course info for coursePanel
-  courseInfo["courseTitle"] = createDiv("COURSE TITLE").parent("coursePanel").class("infoDivs");
+  courseInfo["courseTitle"] = createDiv("COURSE TITLE").parent("coursePanel").class("infoDivs").id("courseTitle");
   courseInfo["courseProfessor"] = createDiv().parent("coursePanel").class("infoDivs");
   courseInfo["courseBreak"] = createDiv().parent("coursePanel").class("infoDivs");
   courseInfo["courseShort"] = createDiv().parent("coursePanel").class("infoDivs");
@@ -244,7 +251,7 @@ function initPanelUI(){
   keywordPanel.position(0, keywordPanelHeight);
   keywordPanel.hide();
 
-  keywordPanelButton = createButton('>>>').class("buttons");
+  keywordPanelButton = createButton('KEYWORDS >>>').class("buttons");
   keywordPanelButton.position(0, keywordPanelHeight);
   keywordPanelButton.mousePressed(()=>{
     options.isShowingKeywords = !options.isShowingKeywords;
@@ -514,7 +521,7 @@ function toggleBounce(){
       togglePhysics();
       updateNodePhysics();
       if(options.isAlphaPaint){
-        bg.setAlpha(.03);
+        bg.setAlpha(state.bgAlpha);
       }
       physicsButton.show();
       mouseAvoidButton.show();

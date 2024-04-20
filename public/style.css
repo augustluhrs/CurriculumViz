@@ -38,8 +38,14 @@ canvas {
 
 .infoDivs {
   text-align: center;
-  padding: 5%;
+  font-size: 110%;
+  /* padding: 5%; */
+  margin: 5%;
   /* transition-duration: 0.4s; */
+}
+
+#courseTitle {
+  font-size: 200%;
 }
 
 .cNode {
