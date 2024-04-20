@@ -2,7 +2,53 @@
 
 ## v0
 
-## v0.1.10
+### v0.1.15
+
+*4/19/24 2hrs*
+
+- tested new color palette and alternatives
+- keyword panel
+  - button with label
+  - hides text on fade nodes, reset on button close
+- switched to HSB and updated setAlpha's
+- rainbow select anim
+
+### v0.1.14
+
+*4/17/24 1hr*
+
+- keyword sorting (WIP)
+- todo updates from meeting
+
+### v0.1.13
+
+*4/16/24 45mins*
+
+- fixed bug on keyword panel where the nodes would reset but not the checkboxes
+- changed colors on node select (panel hide resets, if mismatch keywords, red)
+- fixed bug where opacity on background ellipse wouldn't reset on keyword/panel reset
+- fixed bug where core gradients wouldn't reset on panel close
+- post-commit: fixed link on readme for second image
+
+### v0.1.12
+
+*4/16/24 2.5hrs*
+
+- keyword panel, selecting makes non-fitting courses transparent
+- made nodes avoid course and keyword panels and increased boundaryForce
+- bounce house mode
+- mouse avoid toggle
+
+### v0.1.11
+
+*4/11/24 1.5hrs*
+
+- added control footer divs
+- added mainContainer and panel divs
+- basic courseInfo panel on node click, with hide button
+- cleaned up setup a bit, moved chunks to init functions
+
+### v0.1.10
 
 *4/10/24 2 hrs*
 
@@ -10,7 +56,7 @@
 - working alluvial charts sans node colors
 - new dev branch
 
-## v0.1.9
+### v0.1.9
 
 *4/9/24 3.25 hrs*
 

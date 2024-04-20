@@ -18,26 +18,35 @@
     - [X] button to toggle physics
   - [ ] keyword weighted links
     - [ ] lines for keyword links
+    - [X] side panel UI for keyword checkboxes
+    - [ ] keyword text on button
     - [ ] weight sorting
       - [ ] distinction between main vs secondary keywords
     - [ ] click to show sibling classes
     - [ ] sibling and cousin topological lines
     - [ ] animation
-      - [ ] fade all non-related classes
+      - [X] fade all non-related classes
+      - [ ] others spiral out in lazy river
       - [ ] bring siblings/cousins close
         - [ ] accelerated force/bouncy before settling
   - [ ] UI panel
     - [ ] click to show (mobile)
-    - [ ] click to show (desktop)
-    - [ ] basic info
-      - [ ] class name
-      - [ ] short description
-      - [ ] professor
+    - [X] click to show (desktop)
+      - [X] click to hide
+    - [X] shift clusters to side
+      - [X] nodes avoid panel
+    - [X] basic info
+      - [X] class name
+      - [X] short description
+      - [X] professor
     - [ ] mid stage
+      - [ ] text size
+      - [ ] text layout
       - [ ] example media (one photo)
+        - [ ] google drive share link public
       - [ ] click for more info
         - [ ] long descrip.
-        - [ ] keywords
+        - [X] keywords
         - [ ] skills/tech
         - [ ] area
         - [ ] time/semester
@@ -57,19 +66,56 @@
     - [ ] fontsize
     - [ ] node map alt distribution (3,3,3) (or make the clusters autosort same as nodes?)
     - [ ] fix text being blue
+    - [ ] test click/drag zoom
+    - [ ] test panning
+  - [ ] features
+    - [X] add alpha party mode toggle (bounce house)
+    - [ ] scale nodes and cluster radius
+    - [ ] click area to highlight those, show/hide
+    - [ ] drag courses toggle
+    - [ ] courses ignore each other if too far from home cluster
+    - [ ] highlight course
+      - [X] stroke
+      - [ ] red if mismatch keywords
+        - [ ] diff color / texture (cross hatch)
+      - [ ] rainbow fade animation
+      - [ ] blob outline wobble
+  - [ ] control panel
+    - [ ] clean up mode buttons and space/layout
+    - [ ] show/hide chevron
+    - [ ] dropdown of mode toggle
+    - [ ] refactor mode loop and have mode manager function
+  - [ ] design
+    - [ ] font
+      - [X] new font
+      - [ ] despina font
+    - [ ] colors
+      - [X] new area palette
+    - [X] area changes
+      - [X] move writing inbetween studies and image
+    - [ ] selected node
+      - [ ] new blob shape
+      - [X] rainbow/neon fade highlight
   - [ ] misc
-    - [X] new font
     - [X] default to no shake on slider
     - [ ] set up asset hosting so don't have to upload to glitch
     - [ ] learn react...
+    - [ ] clean up sketch code
+    - [ ] easter egg button
+    - [ ] other controls
+      - [ ] cluster spacing radius slider
+      - [ ] node diameter slider
+      - [ ] opacity slider
   - [ ] bugs
     - [X] nodes stacking if offset = 0
-- [ ] alluvial chart
-  - [ ] process new csv for keywords
-  - [ ] area to course weight is credits
-  - [ ] course to keyword weight is ???
-  - [ ] colors for links
-  - [ ] colors for keywords
+    - [X] panel reset node colors on close
+    - [ ] keyword panel size text overflow on lower res
+- [X] alluvial chart
+  - [X] process new csv for keywords
+  - [X] area to course weight is credits
+  - [X] course to keyword weight is ???
+  - ~~[ ] colors for links~~
+  - ~~[ ] colors for keywords~~
 - [ ] AgGrid
   - [ ] setup page and install library
   - [ ] test create blocks

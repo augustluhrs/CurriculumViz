@@ -1,6 +1,8 @@
+let rainbowSpacing = 10;
+
 class CNode { //courseNode
   // constructor(data, pos){
-  constructor(data){
+  constructor(data, clickCallback){
     //data from table: Course,Professor,Area,Credits,Semester,Keywords,Short,Long,Media,Credit,Media,Credit,Media,Credit
     this.course = data.course;
     this.professor = data.professor;
@@ -13,68 +15,82 @@ class CNode { //courseNode
     this.media = data.media;
     //this.skills,
 
+    //for keyword/panel modes
+    this.isSelected = false;
+    this.fitsKeywords = true;
+    this.keyArr = this.keywords.split(",");
+    this.relationships = {
+      tally: {},//holds the number of similar keywords by course
+      unsorted: [],
+      sorted: [],
+      siblings: [],
+      cousins: [],
+      relatives: [], //the "others"
+    };
+    this.rainbowOffset = 0; //for selection animation
+
     //css element
     this.button = createButton(this.course).class("cNode");
     this.button.elt.style.width = nodeSize_px;
     this.button.elt.style.height = nodeSize_px;
     this.button.mousePressed(this.click.bind(this));
+    this.clickCallback = clickCallback;
 
     // cluster position and colors by area (later display option toggle TODO)
     // https://coolors.co/aaef74-89608e-428722-5792c3-fac9b8
-    if (!this.area) { this.col = nodeCol }
-    else {
-      switch(this.area){
-        case "CORE":
-          this.cluster = clusters["CORE"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "SOUL":
-          this.cluster = clusters["SOUL"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "IMAGE":
-          this.cluster = clusters["IMAGE"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "ACTING":
-          this.cluster = clusters["ACTING"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "MOVEMENT":
-          this.cluster = clusters["MOVEMENT"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "SOUND":
-          this.cluster = clusters["SOUND"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "TECHNOLOGY":
-          this.cluster = clusters["TECHNOLOGY"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "WRITING":
-          this.cluster = clusters["WRITING"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "VISUAL ART":
-          this.cluster = clusters["VISUAL ART"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-        case "STUDIES":
-          this.cluster = clusters["STUDIES"];
-          this.col = this.cluster.color;
-          this.cluster.count ++;
-        break;
-      }
+    this.col;
+    this.col2;
+    switch(this.area){
+      case "CORE":
+        this.cluster = clusters["CORE"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "SOUL":
+        this.cluster = clusters["SOUL"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "IMAGE":
+        this.cluster = clusters["IMAGE"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "ACTING":
+        this.cluster = clusters["ACTING"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "MOVEMENT":
+        this.cluster = clusters["MOVEMENT"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "SOUND":
+        this.cluster = clusters["SOUND"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "TECHNOLOGY":
+        this.cluster = clusters["TECHNOLOGY"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "WRITING":
+        this.cluster = clusters["WRITING"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "VISUAL ART":
+        this.cluster = clusters["VISUAL ART"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
+      case "STUDIES":
+        this.cluster = clusters["STUDIES"];
+        this.col = this.cluster.color;
+        this.cluster.count ++;
+      break;
     }
     this.button.elt.style.background = this.col;
 
@@ -99,9 +115,11 @@ class CNode { //courseNode
       } else if (this.course == "Studio Art") {
         this.secondCluster = clusters["VISUAL ART"];
       }
-      this.button.elt.style.background = `radial-gradient(${clusters["CORE"].color} 25%, ${this.secondCluster.color}, ${clusters["CORE"].color})`;
+      this.col2 = this.secondCluster.color;
+      this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
     } else if (this.area == "SOUL") {
-      this.button.elt.style.background = `radial-gradient(${clusters["SOUL"].color} 25%, ${clusters["CORE"].color}, ${clusters["SOUL"].color})`;
+      this.col2 = clusters["CORE"].color;
+      this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
     }
     
     //other display info
@@ -188,19 +206,21 @@ class CNode { //courseNode
       }
     }
 
-    //avoid mouse if too close
-    let mouseDist = p5.Vector.sub(mousePos, this.pos);
-    // let mouseDist = p5.Vector.sub(this.pos, mousePos);
+    if (options.isAvoidingMouse){
+      //avoid mouse if too close
+      let mouseDist = p5.Vector.sub(mousePos, this.pos);
+      // let mouseDist = p5.Vector.sub(this.pos, mousePos);
 
-    let mouseDistMag = mouseDist.mag();
+      let mouseDistMag = mouseDist.mag();
 
-    if (mouseDistMag < mouseRepel) {
-      // mouseDist.setMag(-mouseRepel * (mouseRepel - mouseDistMag) * 10);
-      // let mf = mouseRepel - (mouseRepel - mouseDistMag);
-      // mouseDist.setMag(-(mf * mf));
-      let mf = (-10 * mouseRepel * mouseRepel) / (mouseDistMag * mouseDistMag)
-      mouseDist.setMag(mf);
-      this.acc.add(mouseDist);
+      if (mouseDistMag < mouseRepel) {
+        // mouseDist.setMag(-mouseRepel * (mouseRepel - mouseDistMag) * 10);
+        // let mf = mouseRepel - (mouseRepel - mouseDistMag);
+        // mouseDist.setMag(-(mf * mf));
+        let mf = (-10 * mouseRepel * mouseRepel) / (mouseDistMag * mouseDistMag)
+        mouseDist.setMag(mf);
+        this.acc.add(mouseDist);
+      }
     }
   }
   
@@ -211,6 +231,16 @@ class CNode { //courseNode
     if (this.pos.y > height - (this.size / 2)) {this.acc.add(createVector(0, -boundaryForce))}
     if (this.pos.y < (this.size / 2)) {this.acc.add(createVector(0, boundaryForce))}
     
+    if (options.isShowingPanel) {
+      if (this.pos.x > panelLeftEdge - (this.size / 2)) {
+        this.acc.add(createVector(-boundaryForce * 10, 0));
+      }
+    }
+    if (options.isShowingKeywords) {
+      if (this.pos.x < panelRightEdge + (this.size / 2)) { //TODO add top check
+        this.acc.add(createVector(boundaryForce * 10, 0));
+      }
+    }
   }
   
   update(){
@@ -226,21 +256,106 @@ class CNode { //courseNode
   }
 
   show(){
+    
+    //keyword fade/show if matching
+    if (options.isShowingKeywords) {
+      push();
+      noStroke();
+      /* //not showing red when selected now
+      if(this.isSelected && this.fitsKeywords){ //TODO redundant when both open?
+        fill(255);
+        ellipse(this.pos.x, this.pos.y, this.size * 1.2);
+      } else if (this.isSelected){ //selected but doesn't match keywords
+        fill(255, 50, 0);
+        ellipse(this.pos.x, this.pos.y, this.size * 1.2);
+      }
+      */
+      if (this.fitsKeywords){
+        this.col.setAlpha(1);
+        this.button.html(this.course);
+        if (this.area == "CORE" || this.area == "SOUL"){
+          this.col2.setAlpha(1);
+          this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
+        } else {
+          this.button.elt.style.background = this.col;
+        }
+      } else {
+        this.col.setAlpha(.05);
+        this.button.html('');
+        if (this.area == "CORE" || this.area == "SOUL"){
+          this.col2.setAlpha(.05);
+          this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
+        } else {
+          this.button.elt.style.background = this.col;
+        }
+      }
+      pop();
+    } 
+
     //for alpha paint trails
     if (options.isAlphaPaint) {
       push();
       noStroke();
-      fill(this.col);
-      ellipse(this.pos.x, this.pos.y, this.size);
+      if(this.isSelected){
+        //new rainbow fade anim
+        if (this.rainbowOffset > 360) {
+          this.rainbowOffset = 0;
+        } else {
+          this.rainbowOffset += rainbowSpacing;
+        }
+        this.anim_selectionRainbow(this.rainbowOffset);
+      } else if (this.fitsKeywords){
+        fill(this.col);
+        ellipse(this.pos.x, this.pos.y, this.size);
+      }
       pop();
     }
+
     this.button.position(this.pos.x, this.pos.y);
   }
 
   click(){
-    console.log(this.course)
+    // console.log(this.course);
+    this.clickCallback(this);
+    this.isSelected = true;
+  }
+
+  checkRelationships(courses){ //issue with parameter being global name?
+    //tally up number of same keywords
+    for (let cNode of courses){
+      if (cNode.course == this.course){continue;}
+      this.relationships.tally[cNode.course] = 0;
+      for (let keyword of this.keyArr){
+        if (cNode.keyArr.includes(keyword)){
+          this.relationships.tally[cNode.course]++;
+        }
+      }
+    }
+
+    //turn to array and sort by tally
+    for (let [key, value] of Object.entries(this.relationships.tally)){
+      this.relationships.unsorted.push([key, value]);
+    }
+    // console.log(this.relationships.unsorted);
+    // this.relationships.sorted = this.relationships.unsorted.sort((a, b)=>{a[1] - b[1] 
+      // console.log(a)});
+    // console.log(this.course, this.relationships.sorted);
   }
   
+  anim_selectionRainbow(rainbowOffset){
+    // for (let i = rainbowOffset; i < 360 + rainbowOffset; i += rainbowSpacing){
+      // if (i > 360) {i -= 360}; //needed?
+      fill(rainbowOffset, 100, 100, .2);
+      // fill(i, 100, 100);
+      // ellipse(this.pos.x, this.pos.y, this.size + ((360/rainbowSpacing)*(i - this.rainbowOffset)) * (  (rainbowSpacing/360)));
+      let leSigh = map(rainbowOffset, 0, 360, this.size, this.size * 1.3);
+      ellipse(this.pos.x, this.pos.y, leSigh);
+      // ellipse(this.pos.x, this.pos.y, (this.size * 1.3) * (rainbowOffset/360));
+      // ellipse(this.pos.x, this.pos.y, this.size * 1.5);
+
+
+    // }
+  }
   // showLines(){
   //   //lines?
   //   push();
