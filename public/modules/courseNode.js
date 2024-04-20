@@ -28,6 +28,7 @@ class CNode { //courseNode
       relatives: [], //the "others"
     };
     this.rainbowOffset = 0; //for selection animation
+    this.hasCollisions = true; //for ignoring other nodes
 
     //css element
     this.button = createButton(this.course).class("cNode");
@@ -156,19 +157,21 @@ class CNode { //courseNode
     //check the current pos of other nodes 
     //so we can calculate our distance and create an offset
     //that is the difference of our actual distance to our desired distance (the ranking relationship)
-    for (let cNode of courses) {
-      if (cNode.course !== this.course) {
-        let offset = p5.Vector.sub(cNode.pos, this.pos);
-        let distMag = offset.mag();
-        if (distMag == 0) {
-          offset = createVector(random(-0.1, 0.1), random(-0.1, 0.1));
-        }
-        if (distMag <= idealSeparation) {
-          // let desiredMag = distMag + idealSeparation;
-          // offset.setMag(desiredMag);
-          offset.setMag(-idealSeparation);
-          // offset.mult(0.9);
-          this.acc.add(offset);
+    if (this.hasCollisions){ //if we're ignoring other nodes
+      for (let cNode of courses) {
+        if (cNode.course !== this.course && cNode.hasCollisions) {
+          let offset = p5.Vector.sub(cNode.pos, this.pos);
+          let distMag = offset.mag();
+          if (distMag == 0) {
+            offset = createVector(random(-0.1, 0.1), random(-0.1, 0.1));
+          }
+          if (distMag <= idealSeparation) {
+            // let desiredMag = distMag + idealSeparation;
+            // offset.setMag(desiredMag);
+            offset.setMag(-idealSeparation);
+            // offset.mult(0.9);
+            this.acc.add(offset);
+          }
         }
       }
     }

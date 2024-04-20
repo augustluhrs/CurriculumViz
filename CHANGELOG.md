@@ -2,6 +2,16 @@
 
 ## v0
 
+### v0.1.16
+
+*4/20/24 30 mins*
+
+- new state pattern init
+- changed bg alpha to lessen stains
+- courseTitle font size
+- area font size
+- init of collision check for ignoring other nodes
+
 ### v0.1.15
 
 *4/19/24 2hrs*
