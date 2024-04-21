@@ -2,6 +2,21 @@
 
 ## v0
 
+### v0.1.17
+
+*4/21/24 3.5 hrs*
+
+- refactored sketch variables and added defaults object
+- refactored node update methods --> updateState()
+- added substepping and refactored animation physics functions
+  - new adjust check for mode
+  - fixed bounce house not working with new state checks (new look...)
+  - adjusted default speed, force, friction
+  - moved stepsize from individual checks to just checkPos()
+  - tested hasCollisions but not working atm
+- refactored keyword check and moved the sketch functions to node methods
+- stopped hiding the avoid mouse button during bounce house
+
 ### v0.1.16
 
 *4/20/24 30 mins*

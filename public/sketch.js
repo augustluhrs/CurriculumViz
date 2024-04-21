@@ -7,17 +7,17 @@
 */
 
 //design/UI variables
-let bg;
+// let bg;
 // let nodeCol, nodeStroke, titleCol;
 let font;
-let nodeSize, nodeSize_px;
-let nodeScale = 0.09; // 9% of shorter side of window
-let webOffset, clusterOffset, idealSeparation, mouseRepel, boundaryForce;
+// let nodeSize, nodeSize_px;
+// let nodeScale = 0.09; // 9% of shorter side of window
+// let webOffset, clusterOffset, idealSeparation, mouseRepel, boundaryForce;
 let mousePos;
 let physicsButton, speedSlider, forceSlider, frictionSlider, bounceButton, mouseAvoidButton;
 let lastPhysics = {}; //for bounce mode reset TODO clean up
 let speedDiv, forceDiv, frictionDiv;
-let title, titleSize, titleRatio; //ca title logo
+let title; //ca title logo
 let canvas, coursePanel, coursePanelButton;
 let courseInfo = {}; //stores the divs for the diff class info stuff in the coursePanel
 let shiftCenterPos, panelLeftEdge; //TODO should have all the course panel stuff in own object
@@ -33,6 +33,28 @@ let courses = []; //stores the cNodes
 // let areas = ["CORE", "SOUL", "IMAGE", "MOVEMENT", "ACTING", "SOUND", "TECHNOLOGY", "WRITING", "VISUAL ART", "STUDIES"];
 // let areas; //now in modules
 let clusters = {}; //stores the vector locations of the web clusters by area
+
+//defaults --> settings
+let defaults = {
+  allowedDistFromCluster: null, //will change in setup
+  bg: null,
+  boundaryForce: null,
+  clusterOffset: null,
+  frictionStart: 0.99,
+  forceMax: 2,
+  forceStart: 0.25,
+  idealSeparation: null,
+  mouseRepel: null,
+  nodeScale: 0.09, //9% of shorter side of window
+  nodeSize: null,
+  nodeSize_px: null,
+  speedMax: 4,
+  speedStart: 1,
+  subSteps: 8,
+  titleSize: null,
+  titleRatio: null,
+  webOffset: null,
+}
 
 //options/filters/visuals
 let options = {
@@ -59,6 +81,7 @@ let state = { //need to refactor this vs options
   bgAlpha: 0.1,
   selectedKeywords: [],
   selectedCluster: null,
+  mode: "default" //default, keyword
 }
 
 function preload(){
@@ -85,39 +108,40 @@ function setup() {
   angleMode(DEGREES); //just for 360/7 areas
   colorMode(HSB);
   // bg = color("#616708"); //olive
-  bg = color("#aaef74"); //light pale green
-  // bg = color('#aaff55'); // light green
+  defaults.bg = color("#aaef74"); //light pale green
+  // defaults.bg = color('#aaff55'); // light green
 
   // nodeCol = color("#f3a9b0");
   // nodeStroke = color("#f0c5c4");
   // titleCol = color("#00fffa");
   if(options.isAlphaPaint){
-    bg.setAlpha(state.bgAlpha);
+    defaults.bg.setAlpha(state.bgAlpha);
   }
 
   //title logo
-  titleSize = width/8;
-  titleRatio = title.height / title.width;
+  defaults.titleSize = width/8;
+  defaults.titleRatio = title.height / title.width;
 
   //setup the css element properties
   //get the relative node size
   // nodeScale = .08; //5% of shorter side of window
   if (width > height) { 
-    nodeSize = height * nodeScale; 
+    defaults.nodeSize = height * defaults.nodeScale; 
   } else {
-    nodeSize = width * nodeScale;
+    defaults.nodeSize = width * defaults.nodeScale;
   }
   //turn to string for css
-  nodeSize_px = nodeSize.toString();
-  nodeSize_px += 'px';
-  textSize(nodeSize / 6);
+  defaults.nodeSize_px = defaults.nodeSize.toString();
+  defaults.nodeSize_px += 'px';
+  textSize(defaults.nodeSize / 6);
 
   //distances from clusters to center of web and nodes to clusters
-  webOffset = (-nodeSize * 4);
-  clusterOffset = (-nodeSize * 1.3);
-  idealSeparation = nodeSize;
-  mouseRepel = idealSeparation * 4;
-  boundaryForce = 1000;
+  defaults.webOffset = (-defaults.nodeSize * 4);
+  defaults.clusterOffset = (-defaults.nodeSize * 1.3);
+  defaults.idealSeparation = defaults.nodeSize;
+  defaults.mouseRepel = defaults.idealSeparation * 4;
+  defaults.boundaryForce = 1000;
+  defaults.allowedDistFromCluster = defaults.nodeSize * 3;
   shiftCenterPos = createVector(width * 0.31, height/2);
   panelLeftEdge = width * .72; //course panel
   panelRightEdge = width * .1; //keyword panel
@@ -140,8 +164,8 @@ function setup() {
  */
 
 function draw() {
-  background(bg);
-  image(title, 10, 10, titleSize, titleSize * titleRatio);
+  background(defaults.bg);
+  image(title, 10, 10, defaults.titleSize, defaults.titleSize * defaults.titleRatio);
 
   //web test
   if (options.isWeb){
@@ -156,19 +180,32 @@ function draw() {
       stroke(255);
       strokeWeight(4);
       fill(clusters[cluster].color);
-      rect(clusters[cluster].pos.x, clusters[cluster].pos.y, nodeSize);
+      rect(clusters[cluster].pos.x, clusters[cluster].pos.y, defaults.nodeSize);
       noStroke();
       fill(0);
-      text(cluster, clusters[cluster].pos.x, clusters[cluster].pos.y, nodeSize);
+      text(cluster, clusters[cluster].pos.x, clusters[cluster].pos.y, defaults.nodeSize);
     }
     pop();
   }
 
+  // node updates and animation calculations
+  if (options.isAvoidingMouse){
+    mousePos.x = mouseX;
+    mousePos.y = mouseY;
+  }
+  if (options.isMoving){ 
+    nodeUpdates();
+  }
+  for (let cNode of courses) {
+    cNode.show();
+  }
+
   //cNode display
+  /*
   if (options.isMoving) {
     if (options.isPhysics) {
-      mousePos.x = mouseX;
-      mousePos.y = mouseY;
+      // mousePos.x = mouseX;
+      // mousePos.y = mouseY;
       for (let cNode of courses) {
         cNode.checkDist(mousePos);
       }
@@ -177,13 +214,12 @@ function draw() {
       cNode.checkBounds();
     }
     for (let cNode of courses){
-      cNode.update();
+      cNode.updatePos();
       // cNode.showLines();
     }
   }
-  for (let cNode of courses) {
-    cNode.show();
-  }
+  */
+  
   
 }
 
@@ -301,19 +337,19 @@ function initControlUI(){
 
 
   speedDiv = createDiv("maxSpeed").parent("controlDiv").id("speedDiv").class("controls");
-  speedSlider = createSlider(0, 10, 6, 0.1).parent("speedDiv").changed(()=>{
+  speedSlider = createSlider(0, defaults.speedMax, defaults.speedStart, 0.1).parent("speedDiv").changed(()=>{
     for (let cNode of courses) {
       cNode.maxSpeed = speedSlider.value();
     }
   });
   forceDiv = createDiv("maxForce").parent("controlDiv").id("forceDiv").class("controls");
-  forceSlider = createSlider(0.1, 10, .4, 0.1).parent("forceDiv").changed(()=>{
+  forceSlider = createSlider(0.1, defaults.forceMax, defaults.forceStart, 0.1).parent("forceDiv").changed(()=>{
     for (let cNode of courses) {
       cNode.maxForce = forceSlider.value();
     }
   });
   frictionDiv = createDiv("friction").parent("controlDiv").id("frictionDiv").class("controls");
-  frictionSlider = createSlider(0, 1, 0.93, 0.01).parent("frictionDiv").changed(()=>{
+  frictionSlider = createSlider(0, 1, defaults.frictionStart, 0.01).parent("frictionDiv").changed(()=>{
     for (let cNode of courses) {
       cNode.friction = frictionSlider.value();
     }
@@ -323,6 +359,43 @@ function initControlUI(){
   updateNodePhysics();
 }
 
+function nodeUpdates(){
+  for (let cNode of courses){
+    cNode.adjustSelfBeforeUpdate(); //checks for state/modes and toggles internal values
+  }
+  subStepUpdate(mousePos, 1);
+}
+
+function subStepUpdate(mousePos, subStep){
+  // let stepCourses = structuredClone(coursesCopy);
+  // let stepCourses = JSON.parse(JSON.stringify(coursesCopy));
+  let coursesCopy = [];
+  for (let cNode of courses){
+    let nodeCopy = {
+      course: cNode.course,
+      pos: createVector(cNode.pos.x, cNode.pos.y), //le sigh
+      hasCollisions: cNode.hasCollisions, //needs this for the collision pass through to work
+    }
+    coursesCopy.push(nodeCopy);
+  }
+  // let nextCourses = []; //hmm
+  
+  // for (let cNode of coursesCopy){ //need two diff courses array so later don't have earlier's changes
+  for (let cNode of courses){ //need two diff courses array so later don't have earlier's changes
+    cNode.updateAccFromState(mousePos, coursesCopy, 1/defaults.subSteps);
+    cNode.updatePos(1/defaults.subSteps);
+    // nextCourses.push(cNode); //not returning from node method, fine?
+  }
+
+
+  subStep++;
+  if (subStep > defaults.subSteps){
+    // return nextCourses;
+    return;
+  } else {
+    subStepUpdate(mousePos, subStep);
+  }
+}
 
 function shiftClusters(){
   //when side panel opens, move the clusters
@@ -333,7 +406,7 @@ function shiftClusters(){
 
   let angle = 360/8;
   for (let i = 2; i < 10; i++){ //skipping core and soul
-    let clusterPos = rotationCoords(webOffset, 0, angle);
+    let clusterPos = rotationCoords(defaults.webOffset, 0, angle);
     clusterPos.x += shiftCenterPos.x; //so we don't have to translate anymore
     clusterPos.y += shiftCenterPos.y;
     clusters[areas[i][0]].pos = clusterPos;
@@ -352,7 +425,7 @@ function shiftClustersHome(){
 
   let angle = 360/8;
   for (let i = 2; i < 10; i++){ //skipping core and soul
-    let clusterPos = rotationCoords(webOffset, 0, angle);
+    let clusterPos = rotationCoords(defaults.webOffset, 0, angle);
     clusterPos.x += width/2; //so we don't have to translate anymore
     clusterPos.y += height/2;
     clusters[areas[i][0]].pos = clusterPos;
@@ -383,7 +456,7 @@ function initClusters(){
     for (let i = 2; i < 10; i++){ //skipping core and soul
       // rotate(angle);
       // let clusterPos = rotationCoords(-nodeSize * 4, 0, angle);
-      let clusterPos = rotationCoords(webOffset, 0, angle);
+      let clusterPos = rotationCoords(defaults.webOffset, 0, angle);
       // console.log(clusterPos);
       clusterPos.x += width/2; //so we don't have to translate anymore
       clusterPos.y += height/2;
@@ -441,34 +514,34 @@ function initCourseNodes(){
 
 function keywordCheck(){
   for (let cNode of courses) {
-    cNode.fitsKeywords = checkNodeForSelectedKeywords(cNode);
+    // cNode.fitsKeywords = checkNodeForSelectedKeywords(cNode);
+    cNode.haveKeywordsChanged = true;
   }
 }
 
-function checkNodeForSelectedKeywords(cNode){ //hmm
-  for (let keybox of Object.keys(keywordCheckboxes)){
-    if (keywordCheckboxes[keybox].checked()){
-      if (!cNode.keywords.includes(keybox)){
-        //if any of the selected keywords are missing, return false
-        return false;
-      }
-    }
-  }
-  //only return true if all selected keywords are present
-  console.log(cNode.course);
-  return true;
-}
+// function checkNodeForSelectedKeywords(cNode){ //hmm
+//   for (let keybox of Object.keys(keywordCheckboxes)){
+//     if (keywordCheckboxes[keybox].checked()){
+//       if (!cNode.keywords.includes(keybox)){
+//         //if any of the selected keywords are missing, return false
+//         return false;
+//       }
+//     }
+//   }
+//   //only return true if all selected keywords are present
+//   // console.log(cNode.course);
+//   return true;
+// }
 
 function togglePhysics(){ //separating b/c bounce mode needs to call this
   options.isPhysics = !options.isPhysics;
   physicsButton.html(options.isPhysics ? "TURN PHYSICS OFF" : "TURN PHYSICS ON");
-  // options.isPhysics ? 
 }
 
 function toggleBounce(){
   options.isBounce = !options.isBounce;
   bounceButton.html(options.isBounce ? "BOUNCE HOUSE OFF" : "BOUNCE HOUSE ON");
-
+  options.isBounce? state.mode = "bounce" : state.mode = "default";
   if (options.isBounce) {
     
     if (options.isPhysics){ //when we turn bounce on and physics is still on
@@ -491,14 +564,19 @@ function toggleBounce(){
       frictionSlider.value(1);
       updateNodePhysics();
 
+      //give them all a random start direction
+      for (let cNode of courses){
+        cNode.vel = createVector(random(-1, 1), random(-1, 1))
+      }
+
       //make the background no alpha so we get trails
       // if(options.isAlphaPaint){
-        bg.setAlpha(0);
+        defaults.bg.setAlpha(0);
       // }
 
       //hiding physics button to not get confused
       physicsButton.hide();
-      mouseAvoidButton.hide();
+      // mouseAvoidButton.hide();
     }
     // bounceButton.html("BOUNCE HOUSE OFF");
   } else {
@@ -509,10 +587,10 @@ function toggleBounce(){
       togglePhysics();
       updateNodePhysics();
       if(options.isAlphaPaint){
-        bg.setAlpha(state.bgAlpha);
+        defaults.bg.setAlpha(state.bgAlpha);
       }
       physicsButton.show();
-      mouseAvoidButton.show();
+      // mouseAvoidButton.show();
 
     };
     // bounceButton.html("BOUNCE HOUSE ON");
