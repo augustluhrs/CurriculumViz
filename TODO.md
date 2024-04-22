@@ -19,7 +19,7 @@
   - [ ] keyword weighted links
     - [ ] lines for keyword links
     - [X] side panel UI for keyword checkboxes
-    - [ ] keyword text on button
+    - [X] keyword text on button
     - [ ] weight sorting
       - [ ] distinction between main vs secondary keywords
     - [ ] click to show sibling classes
@@ -102,6 +102,9 @@
     - [ ] learn react...
     - [ ] clean up sketch code
     - [ ] easter egg button
+    - [ ] physics updates
+      - [ ] substepping
+      - [ ] shader
     - [ ] other controls
       - [ ] cluster spacing radius slider
       - [ ] node diameter slider

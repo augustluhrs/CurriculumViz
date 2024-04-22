@@ -36,10 +36,16 @@ canvas {
   background-color: #fbc6d0;
 }
 
-.infoDivs { /* the course panel text divs */
+.infoDivs {
   text-align: center;
-  padding: 5%;
+  font-size: 110%;
+  /* padding: 5%; */
+  margin: 5%;
   /* transition-duration: 0.4s; */
+}
+
+#courseTitle {
+  font-size: 200%;
 }
 
 .cNode {
@@ -80,7 +86,7 @@ canvas {
 
 .checkboxes {
   font-family: "tiltneon";
-  font-size: 100%;
+  font-size: 110%;
   padding-left: 10%;
 }
 
