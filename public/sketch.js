@@ -23,6 +23,8 @@ let keywordPanel, keywordPanelButton;
 let keywordCheckboxes = {};
 
 
+let warningText = "";
+
 //csv variables
 let masterSheet;
 let courses = []; //stores the cNodes
@@ -79,8 +81,8 @@ let state = { //need to refactor this vs options
 
 function preload(){
   masterSheet = loadTable("data/master_4-8.csv", "csv", "header");
-  title = loadImage("assets/brand/ca_title.png");
-  font = loadFont("assets/fonts/tiltneon.ttf");
+  title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
+  font = loadFont("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662");
 }
 
 /**
@@ -105,6 +107,11 @@ function setup() {
   // defaults.bg = color('#aaff55'); // light green
   if(options.isAlphaPaint){
     defaults.bg.setAlpha(state.bgAlpha);
+  }
+  
+  //mobile warning
+  if (width < height){
+    warningText = "NOT READY FOR MOBILE, PLEASE CHECK THIS OUT ON A COMPUTER";
   }
 
   //title logo
@@ -167,6 +174,7 @@ function draw() {
   if (options.isMoving){ 
     //run the physics updates
     nodeUpdates();
+
   }
   for (let cNode of courses) {
     //draw the nodes
