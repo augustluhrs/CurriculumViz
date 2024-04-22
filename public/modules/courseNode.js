@@ -18,6 +18,8 @@ class CNode { //courseNode
     //for keyword/panel modes
     this.isSelected = false;
     this.fitsKeywords = true;
+    this.haveKeywordsChanged = false;
+    this.hasClusterSelectionChanged = false;
     this.keyArr = this.keywords.split(",");
     this.relationships = {
       tally: {},//holds the number of similar keywords by course
@@ -29,11 +31,12 @@ class CNode { //courseNode
     };
     this.rainbowOffset = 0; //for selection animation
     this.hasCollisions = true; //for ignoring other nodes
+    this.shouldCheckCollision = false; //so the collision only gets turned off once per big event, to prevent edge bugs
 
     //css element
     this.button = createButton(this.course).class("cNode");
-    this.button.elt.style.width = nodeSize_px;
-    this.button.elt.style.height = nodeSize_px;
+    this.button.elt.style.width = defaults.nodeSize_px;
+    this.button.elt.style.height = defaults.nodeSize_px;
     this.button.mousePressed(this.click.bind(this));
     this.clickCallback = clickCallback;
 
@@ -126,7 +129,7 @@ class CNode { //courseNode
     //other display info
     // this.ske = nodeStroke; //stroke, idk
     // this.skw = 5; //stroke weight
-    this.size = nodeSize;
+    this.size = defaults.nodeSize;
     this.pos = createVector(this.cluster.pos.x, this.cluster.pos.y);
     
     //physics
@@ -145,108 +148,174 @@ class CNode { //courseNode
     push();
     let angle = (360/this.cluster.count) * this.cluster.currentIndex;
     translate(this.cluster.pos.x, this.cluster.pos.y);
-    let nodePos = rotationCoords(clusterOffset, 0, angle);
+    let nodePos = rotationCoords(defaults.clusterOffset, 0, angle);
     nodePos.x += this.cluster.pos.x;
     nodePos.y += this.cluster.pos.y;
     this.pos = nodePos;
     this.cluster.currentIndex ++;
     pop();
   }
+
+  adjustSelfBeforeUpdate(){//hmm, prob will refactor, but this is supposed to be where all the state responsive object changes happen
+    if (state.mode == "default"){
+      if(this.shouldCheckCollision){
+        if (p5.Vector.dist(this.pos, this.cluster.pos) > defaults.allowedDistFromCluster){
+          this.hasCollisions = false;
+          console.log(this.course);
+        } else {
+          this.hasCollisions = true; //hmm this is dumb TODO
+          this.shouldCheckCollision = false;
+        }
+      }
+    } else if(state.mode == "bounce"){
+      // this.hasCollisions = false;
+    }
+
+    if (this.hasClusterSelectionChanged){
+      this.clusterHighlight();
+    }
+    
+    // if(options.isShowingKeywords){ //so can overlap with bounce house, mode keywords and options.isShowingKeywords are distinct...
+      if (this.haveKeywordsChanged){
+        this.checkKeywords();
+      }
+    // }
+
+  }
   
-  checkDist(mousePos){
-    //check the current pos of other nodes 
-    //so we can calculate our distance and create an offset
-    //that is the difference of our actual distance to our desired distance (the ranking relationship)
-    if (this.hasCollisions){ //if we're ignoring other nodes
-      for (let cNode of courses) {
-        if (cNode.course !== this.course && cNode.hasCollisions) {
-          let offset = p5.Vector.sub(cNode.pos, this.pos);
-          let distMag = offset.mag();
-          if (distMag == 0) {
-            offset = createVector(random(-0.1, 0.1), random(-0.1, 0.1));
-          }
-          if (distMag <= idealSeparation) {
-            // let desiredMag = distMag + idealSeparation;
-            // offset.setMag(desiredMag);
-            offset.setMag(-idealSeparation);
-            // offset.mult(0.9);
-            this.acc.add(offset);
-          }
+  updateAccFromState(mousePos, coursesCopy){ //mousePos not needed... steps for substepping...
+    //using global state object for various modes and info
+    //state is... global main modes? options is optional stuff that is mode-agnostic?
+    //new update vector manager
+    if (state.mode == "default"){
+      this.checkNodeDist(coursesCopy);
+      this.checkClusterDist();
+    }
+    else if (state.mode == "keyword"){
+      this.checkNodeDist(coursesCopy);
+    }
+    else if (state.mode == "bounce"){
+      this.checkNodeDist(coursesCopy);
+    }
+    //optional updates
+    if (options.isAvoidingMouse){
+      this.checkMouseDist(mousePos);
+    }
+
+    //always avoids boundaries
+    this.checkBounds();
+  }
+
+  checkNodeDist(coursesCopy){
+    if (!this.hasCollisions){return;}
+    for (let nodeCopy of coursesCopy) {
+      if (nodeCopy.course !== this.course && nodeCopy.hasCollisions) {
+        let offset = p5.Vector.sub(nodeCopy.pos, this.pos);
+        let distMag = offset.mag();
+        if (distMag == 0) {
+          offset = createVector(random(-0.1, 0.1), random(-0.1, 0.1));
+        }
+        if (distMag <= defaults.idealSeparation) {
+          offset.setMag(-defaults.idealSeparation);
+          //trying a relative scaling instead of toggle collisions (errors with nodes on edge of zone)
+          // let distFromCluster = p5.Vector.dist(this.pos, this.cluster.pos);
+          // if (!this.hasCollisions){
+          //   offset.setMag(-defaults.idealSeparation / 2);
+          //   offset.mult(1/((distFromCluster/defaults.allowedDistFromCluster)*(distFromCluster/defaults.allowedDistFromCluster))); //so weaker node force the farther they are from home
+          //   console.log(this.course);
+          //   console.log(1/((distFromCluster/defaults.allowedDistFromCluster)*(distFromCluster/defaults.allowedDistFromCluster)));
+          // } else {
+          //   offset.setMag(-defaults.idealSeparation);
+          // }
+          this.acc.add(offset);
         }
       }
     }
-    
+  }
+
+  checkClusterDist(){
     //also try to stay in "home" cluster (area)
-    let offset = p5.Vector.sub(this.pos, this.cluster.pos);
-    let distMag = offset.mag();
+    if (state.selectedCluster == this.area){
+      let offset = p5.Vector.sub(this.pos, clusterCenter);
+      let distMag = offset.mag();
 
-    if (distMag > idealSeparation) {
-      if (this.area == "SOUL") {
-        offset.setMag(-idealSeparation * .5);
-      }
-      else {
-        offset.setMag(-idealSeparation * .2);//weaker so they aren't too attracted to center
-      }
-      // offset.setMag(-idealSeparation * .2); 
-      this.acc.add(offset);
-    } else { //but also be repelled by center...
-      offset.setMag(idealSeparation);
-      this.acc.add(offset);
-    }
-
-    //the core classes should stay close to their area
-    if (this.area == "CORE") {
-      let offset2 = p5.Vector.sub(this.pos, this.secondCluster.pos);
-      let distMag2 = offset2.mag();
-
-      if (distMag2 > idealSeparation + this.size) {
-        offset2.setMag(-idealSeparation * this.secondForce); //weaker so they aren't too attracted to center
-        this.acc.add(offset2);
+      if (distMag > defaults.idealSeparation) {
+        offset.setMag(-defaults.idealSeparation * .2); 
+        this.acc.add(offset);
       } else { //but also be repelled by center...
-        this.secondForce = .1;
-        offset2.setMag(idealSeparation);
-        this.acc.add(offset2);
+        offset.setMag(defaults.idealSeparation);
+        this.acc.add(offset);
+      }
+
+    } else if (state.selectedCluster !== null && state.selectedCluster !== this.area){
+      //placeholder for spiral anim  
+    } else {
+      let offset = p5.Vector.sub(this.pos, this.cluster.pos);
+      let distMag = offset.mag();
+
+      if (distMag > defaults.idealSeparation) {
+        if (this.area == "SOUL") {
+          offset.setMag(-defaults.idealSeparation * .5);
+        }
+        else {
+          offset.setMag(-defaults.idealSeparation * .2);//weaker so they aren't too attracted to center
+        }
+        this.acc.add(offset);
+      } else { //but also be repelled by center...
+        offset.setMag(defaults.idealSeparation);
+        this.acc.add(offset);
+      }
+
+      //the core classes should stay close to their area
+      if (this.area == "CORE") {
+        let offset2 = p5.Vector.sub(this.pos, this.secondCluster.pos);
+        let distMag2 = offset2.mag();
+
+        if (distMag2 > defaults.idealSeparation + this.size) {
+          offset2.setMag(-defaults.idealSeparation * this.secondForce); //weaker so they aren't too attracted to center
+          this.acc.add(offset2);
+        } else { //but also be repelled by center...
+          this.secondForce = .1;
+          offset2.setMag(defaults.idealSeparation);
+          this.acc.add(offset2);
+        }
       }
     }
+  }
 
-    if (options.isAvoidingMouse){
-      //avoid mouse if too close
-      let mouseDist = p5.Vector.sub(mousePos, this.pos);
-      // let mouseDist = p5.Vector.sub(this.pos, mousePos);
+  checkMouseDist(mousePos){
+    let mouseDist = p5.Vector.sub(mousePos, this.pos);
+    // let mouseDist = p5.Vector.sub(this.pos, mousePos); //attracts rather than repels
+    let mouseDistMag = mouseDist.mag();
 
-      let mouseDistMag = mouseDist.mag();
-
-      if (mouseDistMag < mouseRepel) {
-        // mouseDist.setMag(-mouseRepel * (mouseRepel - mouseDistMag) * 10);
-        // let mf = mouseRepel - (mouseRepel - mouseDistMag);
-        // mouseDist.setMag(-(mf * mf));
-        let mf = (-10 * mouseRepel * mouseRepel) / (mouseDistMag * mouseDistMag)
-        mouseDist.setMag(mf);
-        this.acc.add(mouseDist);
-      }
+    if (mouseDistMag < defaults.mouseRepel) {
+      let mf = (-10 * defaults.mouseRepel * defaults.mouseRepel) / (mouseDistMag * mouseDistMag)
+      mouseDist.setMag(mf);
+      this.acc.add(mouseDist);
     }
   }
   
   checkBounds() {
     //make sure it's staying in bounds
-    if (this.pos.x > width - (this.size / 2)) {this.acc.add(createVector(-boundaryForce, 0))}
-    if (this.pos.x < (this.size / 2)) {this.acc.add(createVector(boundaryForce, 0))}
-    if (this.pos.y > height - (this.size / 2)) {this.acc.add(createVector(0, -boundaryForce))}
-    if (this.pos.y < (this.size / 2)) {this.acc.add(createVector(0, boundaryForce))}
+    if (this.pos.x > width - (this.size / 2)) {this.acc.add(createVector(-defaults.boundaryForce, 0))}
+    if (this.pos.x < (this.size / 2)) {this.acc.add(createVector(defaults.boundaryForce, 0))}
+    if (this.pos.y > height - (this.size / 2)) {this.acc.add(createVector(0, -defaults.boundaryForce))}
+    if (this.pos.y < (this.size / 2)) {this.acc.add(createVector(0, defaults.boundaryForce))}
     
     if (options.isShowingPanel) {
       if (this.pos.x > panelLeftEdge - (this.size / 2)) {
-        this.acc.add(createVector(-boundaryForce * 10, 0));
+        this.acc.add(createVector(-defaults.boundaryForce * 10, 0));
       }
     }
     if (options.isShowingKeywords) {
       if (this.pos.x < panelRightEdge + (this.size / 2)) { //TODO add top check
-        this.acc.add(createVector(boundaryForce * 10, 0));
+        this.acc.add(createVector(defaults.boundaryForce * 10, 0));
       }
     }
   }
   
-  update(){
+  updatePos(stepSize){
+    this.acc.mult(stepSize);
     this.acc.limit(this.maxForce);
     this.vel.add(this.acc); //add the current forces to velocity
     this.vel.limit(this.maxSpeed); //make sure we're not going too fast
@@ -259,42 +328,6 @@ class CNode { //courseNode
   }
 
   show(){
-    
-    //keyword fade/show if matching
-    if (options.isShowingKeywords) {
-      push();
-      noStroke();
-      /* //not showing red when selected now
-      if(this.isSelected && this.fitsKeywords){ //TODO redundant when both open?
-        fill(255);
-        ellipse(this.pos.x, this.pos.y, this.size * 1.2);
-      } else if (this.isSelected){ //selected but doesn't match keywords
-        fill(255, 50, 0);
-        ellipse(this.pos.x, this.pos.y, this.size * 1.2);
-      }
-      */
-      if (this.fitsKeywords){
-        this.col.setAlpha(1);
-        this.button.html(this.course);
-        if (this.area == "CORE" || this.area == "SOUL"){
-          this.col2.setAlpha(1);
-          this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
-        } else {
-          this.button.elt.style.background = this.col;
-        }
-      } else {
-        this.col.setAlpha(.05);
-        this.button.html('');
-        if (this.area == "CORE" || this.area == "SOUL"){
-          this.col2.setAlpha(.05);
-          this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
-        } else {
-          this.button.elt.style.background = this.col;
-        }
-      }
-      pop();
-    } 
-
     //for alpha paint trails
     if (options.isAlphaPaint) {
       push();
@@ -321,6 +354,120 @@ class CNode { //courseNode
     // console.log(this.course);
     this.clickCallback(this);
     this.isSelected = true;
+  }
+
+  checkVisibility(){
+    /** 
+     * SCENARIOS:
+     * 1) default, no keywords, no cluster = all visible
+     * 2) keywords, no cluster = visible if keywords selected and match
+     * 3) cluster, no keywords = visible if area
+     * 4) keywords and cluster = visible if keywords selected,match, and area
+    */
+    if ((options.isShowingKeywords && !this.fitsKeywords && state.selectedCluster == null)
+      || (!options.isShowingKeywords && state.selectedCluster !== null && (this.area !== state.selectedCluster || (this.area == "SOUL" && state.selectedCluster !== "CORE")))
+      || ((options.isShowingKeywords && !this.fitsKeywords) || (state.selectedCluster !== null && (this.area !== state.selectedCluster || (this.area == "SOUL" && state.selectedCluster !== "CORE"))))
+    ){ //god i need to refactor so badly wtf
+      this.hasCollisions = false;
+      this.col.setAlpha(defaults.fadeAlpha);
+      this.button.html('');
+      if (this.area == "CORE" || this.area == "SOUL"){
+        this.col2.setAlpha(defaults.fadeAlpha);
+        this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
+      } else {
+        this.button.elt.style.background = this.col;
+      }
+    } else { //default
+      this.hasCollisions = true;
+      this.col.setAlpha(1);
+      this.button.html(this.course);
+      if (this.area == "CORE" || this.area == "SOUL"){
+        this.col2.setAlpha(1);
+        this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
+      } else {
+        this.button.elt.style.background = this.col;
+      }
+    }
+
+    //also reseting the hacky collision thing
+    // this.shouldCheckCollision = true;
+  }
+
+  checkKeywords(){ //toggles the fade on courses that don't match keywords
+    //reset so this only happens once per keyword change
+    this.haveKeywordsChanged = false;
+    // if(state.selectedCluster == this.area || (state.selectedCluster == "CORE" && this.area == "SOUL")){
+    //   return;
+    // }
+    this.fitsKeywords = true;
+    for (let keybox of Object.keys(keywordCheckboxes)){
+      if (keywordCheckboxes[keybox].checked()){
+        if (!this.keywords.includes(keybox)){
+          this.fitsKeywords = false;
+        }
+      }
+    }
+    //only true if all selected keywords are present
+    this.checkVisibility();
+    // push();
+    // noStroke();
+    // if (this.fitsKeywords){
+    //   this.col.setAlpha(1);
+    //   this.button.html(this.course);
+    //   if (this.area == "CORE" || this.area == "SOUL"){
+    //     this.col2.setAlpha(1);
+    //     this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
+    //   } else {
+    //     this.button.elt.style.background = this.col;
+    //   }
+    // } else {
+    //   this.col.setAlpha(.05);
+    //   this.button.html('');
+    //   if (this.area == "CORE" || this.area == "SOUL"){
+    //     this.col2.setAlpha(.05);
+    //     this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
+    //   } else {
+    //     this.button.elt.style.background = this.col;
+    //   }
+    // }
+    // pop();
+
+  }
+
+  clusterHighlight(){
+    this.hasClusterSelectionChanged = false;
+    this.checkVisibility();
+
+    // push();
+    // noStroke();
+    // if (this.area == state.selectedCluster || state.selectedCluster == null || (this.area == "SOUL" && state.selectedCluster == "CORE")){
+    //   if (options.isShowingKeywords && !this.fitsKeywords) {return};
+
+    //   this.hasCollisions = true;
+    //   this.col.setAlpha(1);
+    //   this.button.html(this.course);
+    //   if (this.area == "CORE" || this.area == "SOUL"){
+    //     this.col2.setAlpha(1);
+    //     this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
+    //   } else {
+    //     this.button.elt.style.background = this.col;
+    //   }
+    // } else {
+    //   //remove collisions TODO fix
+    //   this.hasCollisions = false;
+
+    //   //fade out
+    //   this.col.setAlpha(.05);
+    //   this.button.html('');
+    //   if (this.area == "CORE" || this.area == "SOUL"){
+    //     this.col2.setAlpha(.05);
+    //     this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
+    //   } else {
+    //     this.button.elt.style.background = this.col;
+    //   }
+    // }
+    // pop();
+
   }
 
   checkRelationships(courses){ //issue with parameter being global name?
@@ -359,11 +506,82 @@ class CNode { //courseNode
 
     // }
   }
-  // showLines(){
-  //   //lines?
-  //   push();
-  //   // stroke(150, 0, 255)
-  //   strokeWeight(1);
-  //   pop();
-  // }
+
 }
+
+
+/*
+  checkDist(mousePos){
+    //check the current pos of other nodes 
+    //so we can calculate our distance and create an offset
+    //that is the difference of our actual distance to our desired distance (the ranking relationship)
+    if (this.hasCollisions){ //if we're ignoring other nodes
+      for (let cNode of courses) {
+        if (cNode.course !== this.course && cNode.hasCollisions) {
+          let offset = p5.Vector.sub(cNode.pos, this.pos);
+          let distMag = offset.mag();
+          if (distMag == 0) {
+            offset = createVector(random(-0.1, 0.1), random(-0.1, 0.1));
+          }
+          if (distMag <= defaults.idealSeparation) {
+            // let desiredMag = distMag + idealSeparation;
+            // offset.setMag(desiredMag);
+            offset.setMag(-defaults.idealSeparation);
+            // offset.mult(0.9);
+            this.acc.add(offset);
+          }
+        }
+      }
+    }
+    
+    //also try to stay in "home" cluster (area)
+    let offset = p5.Vector.sub(this.pos, this.cluster.pos);
+    let distMag = offset.mag();
+
+    if (distMag > defaults.idealSeparation) {
+      if (this.area == "SOUL") {
+        offset.setMag(-defaults.idealSeparation * .5);
+      }
+      else {
+        offset.setMag(-defaults.idealSeparation * .2);//weaker so they aren't too attracted to center
+      }
+      // offset.setMag(-idealSeparation * .2); 
+      this.acc.add(offset);
+    } else { //but also be repelled by center...
+      offset.setMag(defaults.idealSeparation);
+      this.acc.add(offset);
+    }
+
+    //the core classes should stay close to their area
+    if (this.area == "CORE") {
+      let offset2 = p5.Vector.sub(this.pos, this.secondCluster.pos);
+      let distMag2 = offset2.mag();
+
+      if (distMag2 > defaults.idealSeparation + this.size) {
+        offset2.setMag(-defaults.idealSeparation * this.secondForce); //weaker so they aren't too attracted to center
+        this.acc.add(offset2);
+      } else { //but also be repelled by center...
+        this.secondForce = .1;
+        offset2.setMag(defaults.idealSeparation);
+        this.acc.add(offset2);
+      }
+    }
+
+    if (options.isAvoidingMouse){
+      //avoid mouse if too close
+      let mouseDist = p5.Vector.sub(mousePos, this.pos);
+      // let mouseDist = p5.Vector.sub(this.pos, mousePos);
+
+      let mouseDistMag = mouseDist.mag();
+
+      if (mouseDistMag < defaults.mouseRepel) {
+        // mouseDist.setMag(-mouseRepel * (mouseRepel - mouseDistMag) * 10);
+        // let mf = mouseRepel - (mouseRepel - mouseDistMag);
+        // mouseDist.setMag(-(mf * mf));
+        let mf = (-10 * defaults.mouseRepel * defaults.mouseRepel) / (mouseDistMag * mouseDistMag)
+        mouseDist.setMag(mf);
+        this.acc.add(mouseDist);
+      }
+    }
+  }
+  */

@@ -2,9 +2,36 @@
 
 ## v0
 
+### v0.1.18
+
+#### *4/21/24 3hrs*
+
+- click cluster to hide all others and only show courses from that area
+  - keep fade settings with regards to keyword panel
+- ugh super frustrating refactor of show/hide with checkVisibility()
+- collision check and flag, so nodes go home faster after big shifts
+- refactored cluster center shift vector
+- update bounce max values
+- alphabetize the functions in sketch.js
+
+### v0.1.17
+
+#### *4/21/24 3.5 hrs*
+
+- refactored sketch variables and added defaults object
+- refactored node update methods --> updateState()
+- added substepping and refactored animation physics functions
+  - new adjust check for mode
+  - fixed bounce house not working with new state checks (new look...)
+  - adjusted default speed, force, friction
+  - moved stepsize from individual checks to just checkPos()
+  - tested hasCollisions but not working atm
+- refactored keyword check and moved the sketch functions to node methods
+- stopped hiding the avoid mouse button during bounce house
+
 ### v0.1.16
 
-*4/20/24 30 mins*
+#### *4/20/24 30 mins*
 
 - new state pattern init
 - changed bg alpha to lessen stains
@@ -14,7 +41,7 @@
 
 ### v0.1.15
 
-*4/19/24 2hrs*
+#### *4/19/24 2hrs*
 
 - tested new color palette and alternatives
 - keyword panel
@@ -25,14 +52,14 @@
 
 ### v0.1.14
 
-*4/17/24 1hr*
+#### *4/17/24 1hr*
 
 - keyword sorting (WIP)
 - todo updates from meeting
 
 ### v0.1.13
 
-*4/16/24 45mins*
+#### *4/16/24 45mins*
 
 - fixed bug on keyword panel where the nodes would reset but not the checkboxes
 - changed colors on node select (panel hide resets, if mismatch keywords, red)
@@ -42,7 +69,7 @@
 
 ### v0.1.12
 
-*4/16/24 2.5hrs*
+#### *4/16/24 2.5hrs*
 
 - keyword panel, selecting makes non-fitting courses transparent
 - made nodes avoid course and keyword panels and increased boundaryForce
@@ -51,7 +78,7 @@
 
 ### v0.1.11
 
-*4/11/24 1.5hrs*
+#### *4/11/24 1.5hrs*
 
 - added control footer divs
 - added mainContainer and panel divs
@@ -60,7 +87,7 @@
 
 ### v0.1.10
 
-*4/10/24 2 hrs*
+#### *4/10/24 2 hrs*
 
 - moved areas declaration to module so flow could have access
 - working alluvial charts sans node colors
@@ -68,7 +95,7 @@
 
 ### v0.1.9
 
-*4/9/24 3.25 hrs*
+#### *4/9/24 3.25 hrs*
 
 - added radial gradient for core/soul classes
 - core classes seek out their outer area (hard, then balanced out)
@@ -78,7 +105,7 @@
 
 ### v0.1.8
 
-*4/9/24 1.33 hrs*
+#### *4/9/24 1.33 hrs*
 
 - node map changes
   - loading from new masterSheet csv
@@ -88,7 +115,7 @@
 
 ### v0.1.7
 
-*4/9/24 3.5 hrs*
+#### *4/9/24 3.5 hrs*
 
 - updated readme with new tasks and separated TODO and CHANGELOG
 - master sheet changes:
@@ -102,54 +129,54 @@
 
 ### v0.1.6
 
-*3/29/24 20 mins*
+#### *3/29/24 20 mins*
 
 - new fall courses to node map
 
 ### v0.1.5
 
-*3/29/24 20 mins*
+#### *3/29/24 15 mins*
 
 - updated forces in node map to fix boundary issues
 
 ### v0.1.4
 
-*3/29/24: 1 hr*
+#### *3/29/24: 1 hr*
 
 - fixed node map name mislabelling
 - added mouse push and speed slider
 
 ### v0.1.3
 
-*3/28/24: 2 hrs*
+#### *3/28/24: 2 hrs*
 
 - sankey demo display bug fixes
 - form adjustments for alluvial data structure processing
 
 ### v0.1.2
 
-*3/27/24: 2 hrs*
+#### *3/27/24: 2 hrs*
 
 - updated keyword script to lump together similar fields and remove punctuation differences
 - started alluvial chart updates with initial keywords
 
 ### v0.1.1
 
-*3/26/24: 1.5 hrs*
+#### *3/26/24: 1.5 hrs*
 
 - formatting responses csv
 - keyword tally scraping script
 
 ### v0.1.0
 
-*2/28/24:  1.5 hrs*
+#### *2/28/24:  1.5 hrs*
 
 - added sankey chart / alluvial diagram placeholder via highcharts api
 - started to add course nodes to sankey
 
 ### v0.0.4
 
-*2/21/24: 2.5 hrs*
+#### *2/21/24: 2.5 hrs*
 
 - drafting the web positions of each cluster of areas
 - centered buttons and adjusted scale slightly (0.09)
@@ -159,14 +186,14 @@
 
 ### v0.0.3
 
-*2/19/24: 30 mins*
+#### *2/19/24: 30 mins*
 
 - updated table with areas, adjusted titles that were too long
 - placeholder area color palette
 
 ### v0.0.2
 
-*2/16/24: 3 hrs*
+#### *2/16/24: 3 hrs*
 
 - git repo init
 - file structure/lfs setup
@@ -174,7 +201,7 @@
 
 ### v0.0.1
 
-*2/13/24: 1 hr*
+#### *2/13/24: 1 hr*
 
 - basic p5 template
 - testing airtable csv load
