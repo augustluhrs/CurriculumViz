@@ -18,9 +18,10 @@ let courseInfo = {}; //stores the divs for the diff class info stuff in the cour
 let panelLeftEdge; //TODO should have all the course panel stuff in own object
 let clusterCenter; //center of cluster web, is shifted by panels opening
 let bounceDelay; //stores the interval ID to clear the physics toggle in bounceToggle
-
 let keywordPanel, keywordPanelButton;
 let keywordCheckboxes = {};
+let blobControlDiv, blobUnitDiv, wobbleOffsetDiv, wobbleMaxDiv, wobbleSpeedDiv; 
+let wobbleSpeedSlider, wobbleOffsetSlider, wobbleMaxSlider, blobUnitSlider;
 
 
 //csv variables
@@ -32,6 +33,7 @@ let clusters = {}; //stores the vector locations of the web clusters by area
 let defaults = {
   allowedDistFromCluster: null, //will change in setup
   bg: null,
+  blobUnit: null, //scale of blobWobble/petals
   boundaryForce: null,
   clusterOffset: null,
   fadeAlpha: 0.03, // the hidden nodes alpha value
@@ -49,6 +51,9 @@ let defaults = {
   titleSize: null,
   titleRatio: null,
   webOffset: null,
+  wobbleOffset: 25, //0 = uniform blob pulse
+  wobbleSpeed: 3.4, 
+  wobbleMax: null, //scale of blob wobble anim
 }
 
 //options/filters/visuals
@@ -99,7 +104,8 @@ function setup() {
   ellipseMode(CENTER);
   rectMode(CENTER);
   angleMode(DEGREES); //just for 360/7 areas
-  colorMode(HSB);
+  colorMode(HSB, 360, 100, 100, 1);
+  // colorMode(HSB, 1, 1, 1, 1); //normalizing for color _array
   // bg = color("#616708"); //olive
   defaults.bg = color("#aaef74"); //light pale green
   // defaults.bg = color('#aaff55'); // light green
@@ -134,6 +140,10 @@ function setup() {
   clusterCenter = createVector(width/2, height/2);
   panelLeftEdge = width * .72; //course panel
   panelRightEdge = width * .1; //keyword panel
+
+  //blob anim
+  defaults.blobUnit = defaults.nodeSize / 4;
+  defaults.wobbleMax = defaults.blobUnit * 2; //can adjust scale of wobble without messing with petal size
 
   //set up mousePos variable
   mousePos = createVector(0, 0);
@@ -210,7 +220,7 @@ function initClusters(){
 
 function initControlUI(){
   //control UI
-  physicsButton = createButton("TURN PHYSICS OFF").class("buttons").position(20, height - 50).mousePressed(()=>{
+  physicsButton = createButton("TURN MOTION OFF").class("buttons").position(20, height - 50).mousePressed(()=>{
     togglePhysics();
   });
   bounceButton = createButton("BOUNCE HOUSE ON").class("buttons").position(300, height - 50).mousePressed(()=>{
@@ -244,6 +254,29 @@ function initControlUI(){
 
   //set all CNode physics variables here based on slider defaults
   updateNodePhysics();
+
+  //anim testing controls
+  blobControlDiv = createDiv('wobble blob anim controls').parent("controlDiv").id("blobControlDiv").class("controls");
+  blobUnitDiv = createDiv(`blobUnit: ${defaults.blobUnit}`).parent("blobControlDiv").id("blobUnitDiv").class("controls");
+  blobUnitSlider = createSlider(defaults.nodeSize / 8, defaults.nodeSize, defaults.blobUnit, defaults.nodeSize / 16).parent("blobControlDiv").changed(()=>{
+    defaults.blobUnit = blobUnitSlider.value();
+    blobUnitDiv.html(`blobUnit: ${defaults.blobUnit}`);
+  });
+  wobbleOffsetDiv = createDiv('wobbleOffset').parent("blobControlDiv").id("wobbleOffsetDiv").class("controls");
+  wobbleOffsetSlider = createSlider(0.1, 40, defaults.wobbleOffset, 0.1).parent("blobControlDiv").changed(()=>{
+    defaults.wobbleOffset = wobbleOffsetSlider.value();
+    wobbleOffsetDiv.html(`wobbleOffset: ${defaults.wobbleOffset}`);
+  });
+  wobbleMaxDiv = createDiv('wobbleMax').parent("blobControlDiv").id("wobbleOffsetDiv").class("controls");
+  wobbleMaxSlider = createSlider(defaults.nodeSize / 8, defaults.nodeSize, defaults.wobbleMax, defaults.nodeSize / 8).parent("blobControlDiv").changed(()=>{
+    defaults.wobbleMax = wobbleMaxSlider.value();
+    wobbleMaxDiv.html(`wobbleMax: ${defaults.wobbleMax}`);
+  });
+  wobbleSpeedDiv = createDiv('wobbleSpeed').parent("blobControlDiv").id("wobbleSpeedDiv").class("controls");
+  wobbleSpeedSlider = createSlider(0.1, 20, defaults.wobbleSpeed, 0.1).parent("blobControlDiv").changed(()=>{
+    defaults.wobbleSpeed = wobbleSpeedSlider.value();
+    wobbleSpeedDiv.html(`wobbleSpeed: ${defaults.wobbleSpeed}`);
+  });
 }
 
 function initCourseNodes(){
@@ -329,25 +362,7 @@ function initPanelUI(){
       keywordCheckboxes[keybox].checked(false);
     }
     
-    //reset opacity (note: might be annoying if you want your selections to persist upon closing)
-    //don't auto show/hide if selected cluster
-    //TODO refactor and put this in node class
-    // if (state.selectedCluster == null){
-    //   for (let cNode of courses){
-    //     cNode.button.html(cNode.course);
-    //     cNode.fitsKeywords = true;
-    //     cNode.col.setAlpha(1);
-    //     if(cNode.col2 !== undefined){
-    //       cNode.col2.setAlpha(1);
-    //       cNode.button.elt.style.background = `radial-gradient(${cNode.col} 25%, ${cNode.col2}, ${cNode.col})`;
-    //     } else {
-    //       cNode.button.elt.style.background = cNode.col;
-    //     }
-    //   }
-    // } else {
-      keywordCheck();
-    // }
-    
+    keywordCheck();
 
     if (options.isShowingKeywords){
       // clusterCenter.x += panelRightEdge;
@@ -381,9 +396,15 @@ function keywordCheck(){
 
 function mousePressed(){
   //just using for cluster highlight atm
+  if ( state.mode !== "default" ){ return; }
   for (let i = 0; i < 10; i++){
     if (i == 1){continue;};//skipping soul, is dumb b/c i dumb
     if (p5.Vector.dist(clusters[areas[i][0]].pos, mousePos) < defaults.nodeSize * 0.6){
+      //TODO this is dumb, but want to reset canvas when clicking area to remove ghosts
+      defaults.bg.setAlpha(1);
+      background(defaults.bg);
+      defaults.bg.setAlpha(state.bgAlpha); //ugh defaults vs state...
+      // console.log(areas[i]);
       if (state.selectedCluster == null){
         state.selectedCluster = areas[i][0];
       } else if (i == 0) { //clicking on current cluster to reset (is in core position)
@@ -478,7 +499,7 @@ function shiftClustersHome(){
 }
 
 function showClusters(){
-  if (state.mode == "keywords"){return;}//don't show if in keywords mode
+  if (state.mode == "relationships"){return;}//don't show if in keywords mode
   push();
   noStroke();
   if (state.selectedCluster == null){ //need to figure out what the mode vs options pattern is...
@@ -542,8 +563,9 @@ function subStepUpdate(mousePos, subStep){
 }
 
 function togglePhysics(){ //separating b/c bounce mode needs to call this
-  options.isPhysics = !options.isPhysics;
-  physicsButton.html(options.isPhysics ? "TURN PHYSICS OFF" : "TURN PHYSICS ON");
+  // options.isPhysics = !options.isPhysics;
+  options.isMoving = !options.isMoving;
+  physicsButton.html(options.isPhysics ? "TURN MOTION OFF" : "TURN MOTION ON");
 }
 
 function toggleBounce(){
@@ -552,19 +574,19 @@ function toggleBounce(){
   options.isBounce? state.mode = "bounce" : state.mode = "default";
   if (options.isBounce) {
     
-    if (options.isPhysics){ //when we turn bounce on and physics is still on
+    // if (options.isPhysics){ //when we turn bounce on and physics is still on
       //store the values of physics the first time so we can reset them after
       lastPhysics.speed = speedSlider.value();
       lastPhysics.force = forceSlider.value();
       lastPhysics.friction = frictionSlider.value();
 
       // togglePhysics(); //need to wait a second for the nodes to be able to move
-      bounceButton.hide(); //just to prevent them from clicking again too early and messing with physics toggle
-      bounceDelay = setInterval(()=>{
-        togglePhysics();
-        bounceButton.show();
-        clearInterval(bounceDelay);
-      }, 1000);
+      // bounceButton.hide(); //just to prevent them from clicking again too early and messing with physics toggle
+      // bounceDelay = setInterval(()=>{
+        // togglePhysics();
+      //   bounceButton.show();
+      //   clearInterval(bounceDelay);
+      // }, 1000);
 
       //change values to party mode
       speedSlider.value(defaults.speedMax);
@@ -583,21 +605,21 @@ function toggleBounce(){
       // }
 
       //hiding physics button to not get confused
-      physicsButton.hide();
+      // physicsButton.hide();
       // mouseAvoidButton.hide();
-    }
+    // }
     // bounceButton.html("BOUNCE HOUSE OFF");
   } else {
-    if (!options.isPhysics){ //when we turn bounce off, reset physics to old values
+    // if (!options.isMoving){ //when we turn bounce off, reset physics to old values
       speedSlider.value(lastPhysics.speed);
       forceSlider.value(lastPhysics.force);
       frictionSlider.value(lastPhysics.friction);
-      togglePhysics();
+      // togglePhysics();
       updateNodePhysics();
       if(options.isAlphaPaint){
         defaults.bg.setAlpha(state.bgAlpha);
       }
-      physicsButton.show();
+      // physicsButton.show();
       // mouseAvoidButton.show();
 
       //turn collisions off so they go back home faster
@@ -605,7 +627,7 @@ function toggleBounce(){
         cNode.shouldCheckCollision = true;
       }
 
-    };
+    // };
     // bounceButton.html("BOUNCE HOUSE ON");
   }
 }

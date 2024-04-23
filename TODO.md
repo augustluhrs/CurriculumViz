@@ -71,19 +71,21 @@
   - [ ] features
     - [X] add alpha party mode toggle (bounce house)
     - [ ] scale nodes and cluster radius
-    - [ ] click area to highlight those, show/hide
+    - [X] click area to highlight those, show/hide
     - [ ] drag courses toggle
-    - [ ] courses ignore each other if too far from home cluster
-    - [ ] highlight course
+    - [X] courses ignore each other if too far from home cluster
+    - [X] highlight course
       - [X] stroke
       - [ ] red if mismatch keywords
         - [ ] diff color / texture (cross hatch)
-      - [ ] rainbow fade animation
-      - [ ] blob outline wobble
+      - [X] rainbow fade animation
+      - [ ] new blob shape
+        - [ ] blob outline wobble
   - [ ] control panel
     - [ ] clean up mode buttons and space/layout
     - [ ] show/hide chevron
     - [ ] dropdown of mode toggle
+    - [ ] font dropdown
     - [ ] refactor mode loop and have mode manager function
   - [ ] design
     - [ ] font
@@ -93,22 +95,27 @@
       - [X] new area palette
     - [X] area changes
       - [X] move writing inbetween studies and image
-    - [ ] selected node
-      - [ ] new blob shape
       - [X] rainbow/neon fade highlight
+    - [ ] logo in corner
+      - [X] placeholder
+      - [ ] updated logo (circle from IG?)
+      - [ ] click to go to website
   - [ ] misc
     - [X] default to no shake on slider
     - [ ] set up asset hosting so don't have to upload to glitch
     - [ ] learn react...
+    - [ ] beautify/lint
+      - [ ] vscode auto collapse on open? or hotkey?
     - [ ] clean up sketch code
     - [ ] easter egg button
     - [ ] physics updates
-      - [ ] substepping
+      - [X] substepping
       - [ ] shader
     - [ ] other controls
       - [ ] cluster spacing radius slider
       - [ ] node diameter slider
       - [ ] opacity slider
+      - [X] blob anim sliders
   - [ ] bugs
     - [X] nodes stacking if offset = 0
     - [X] panel reset node colors on close
