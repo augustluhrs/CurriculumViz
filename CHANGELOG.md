@@ -2,6 +2,48 @@
 
 ## v0
 
+### v0.1.20
+
+#### *4/24/24 2.5hrs*
+
+- control updates
+  - spaced out div sections
+  - added design controls
+    - font select (doesn't change buttons or fontsize)
+    - color tester (inputs then color picker, with hex updating)
+  
+todo:
+- technology --> tech in cluster display
+- example image
+- keywords
+  - added family state
+  - fixed relationship sorting
+  - placeholder sibling/cousin/relative split
+  - updating click function
+  - should do a family mode toggle
+  - node anim functions -- checkFamilyPosition() and goFamilyReunion() (check vs go...)
+- panel spacing
+
+### v0.1.19
+
+#### *4/23/24 3.75 hrs*
+
+- changed physics toggle to motion toggle
+  - bounce mode no longer has timeout, can pause in bounce mode
+  - hasCollisions inconsistent in bounce mode, but i like it
+- added isVisible to nodes
+  - can't click on invisible node for panel info
+  - simplifies checkVisibility's effects
+- fixed alpha of bg ellipse not reset for core classes
+  - cluster col reference --> new Color()
+  - .col vs .color...
+  - had to create colors off .toString()
+- changed "keywords" state to "relationships" to remove overlap with keywords checks
+- refresh background on area click
+- added blob shape and animation to selected course
+  - [p5 editor blob sketch](https://editor.p5js.org/augustluhrs/sketches/_AEKGMMOXB)
+  - increased radius of rainbow fade
+
 ### v0.1.18
 
 #### *4/21/24 3hrs*

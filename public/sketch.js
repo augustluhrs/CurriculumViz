@@ -7,9 +7,11 @@
 */
 
 //design/UI variables
-let font;
+let fonts = {};
+// let testColors = areaColors;
 let mousePos;
-let physicsButton, speedSlider, forceSlider, frictionSlider, bounceButton, mouseAvoidButton;
+let buttonsDiv, physicsButton, bounceButton, mouseAvoidButton;
+let physicsDiv, speedSlider, forceSlider, frictionSlider;
 let lastPhysics = {}; //for bounce mode reset TODO clean up
 let speedDiv, forceDiv, frictionDiv;
 let title; //ca title logo
@@ -18,10 +20,12 @@ let courseInfo = {}; //stores the divs for the diff class info stuff in the cour
 let panelLeftEdge; //TODO should have all the course panel stuff in own object
 let clusterCenter; //center of cluster web, is shifted by panels opening
 let bounceDelay; //stores the interval ID to clear the physics toggle in bounceToggle
-
 let keywordPanel, keywordPanelButton;
 let keywordCheckboxes = {};
-
+let blobControlDiv, blobUnitDiv, wobbleOffsetDiv, wobbleMaxDiv, wobbleSpeedDiv; 
+let wobbleSpeedSlider, wobbleOffsetSlider, wobbleMaxSlider, blobUnitSlider;
+let designDiv, fontsDropdown, fontLoader;
+let colorInputs = {};
 
 let warningText = "";
 
@@ -34,10 +38,12 @@ let clusters = {}; //stores the vector locations of the web clusters by area
 let defaults = {
   allowedDistFromCluster: null, //will change in setup
   bg: null,
+  blobUnit: null, //scale of blobWobble/petals
   boundaryForce: null,
   clusterOffset: null,
   fadeAlpha: 0.03, // the hidden nodes alpha value
   frictionStart: 0.99,
+  fontName: "tiltneon",
   forceMax: 2,
   forceStart: 0.25,
   idealSeparation: null,
@@ -51,6 +57,9 @@ let defaults = {
   titleSize: null,
   titleRatio: null,
   webOffset: null,
+  wobbleOffset: 25, //0 = uniform blob pulse
+  wobbleSpeed: 3.4, 
+  wobbleMax: null, //scale of blob wobble anim
 }
 
 //options/filters/visuals
@@ -76,6 +85,7 @@ let state = { //need to refactor this vs options
   bgAlpha: 0.1,
   selectedKeywords: [],
   selectedCluster: null,
+  selectedCourse: null,
   mode: "default" //default, keyword, bounce
 }
 
@@ -83,6 +93,12 @@ function preload(){
   masterSheet = loadTable("data/master_4-8.csv", "csv", "header");
   title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
   font = loadFont("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662");
+
+  // title = loadImage("assets/brand/ca_title.png");
+  fonts["tiltneon"] = {name: "tiltneon", font: loadFont("assets/fonts/fontTests/tiltneon.ttf")};
+  fonts["yk_med"] = {name: "yk_med", font: loadFont("assets/fonts/fontTests/yk_med.ttf")};
+  fonts["ibmPlex_sans_med"] = {name: "ibmPlex_sans_med", font: loadFont("assets/fonts/fontTests/ibmPlex_sans_med.ttf")};
+  fonts["ibmPlex_mono_med"] = {name: "ibmPlex_mono_med", font: loadFont("assets/fonts/fontTests/ibmPlex_mono_med.ttf")};
 }
 
 /**
@@ -97,11 +113,12 @@ function setup() {
   canvas.parent("mainContainer");
   textAlign(CENTER, CENTER);
   textWrap(WORD);
-  textFont(font);
+  textFont(fonts[defaults.fontName].font); //default
   ellipseMode(CENTER);
   rectMode(CENTER);
   angleMode(DEGREES); //just for 360/7 areas
-  colorMode(HSB);
+  colorMode(HSB, 360, 100, 100, 1);
+  // colorMode(HSB, 1, 1, 1, 1); //normalizing for color _array
   // bg = color("#616708"); //olive
   defaults.bg = color("#aaef74"); //light pale green
   // defaults.bg = color('#aaff55'); // light green
@@ -141,6 +158,10 @@ function setup() {
   clusterCenter = createVector(width/2, height/2);
   panelLeftEdge = width * .72; //course panel
   panelRightEdge = width * .1; //keyword panel
+
+  //blob anim
+  defaults.blobUnit = defaults.nodeSize / 4;
+  defaults.wobbleMax = defaults.blobUnit * 2; //can adjust scale of wobble without messing with petal size
 
   //set up mousePos variable
   mousePos = createVector(0, 0);
@@ -218,7 +239,8 @@ function initClusters(){
 
 function initControlUI(){
   //control UI
-  physicsButton = createButton("TURN PHYSICS OFF").class("buttons").position(20, height - 50).mousePressed(()=>{
+  // buttonsDiv = createDiv()
+  physicsButton = createButton("TURN MOTION OFF").class("buttons").position(20, height - 50).mousePressed(()=>{
     togglePhysics();
   });
   bounceButton = createButton("BOUNCE HOUSE ON").class("buttons").position(300, height - 50).mousePressed(()=>{
@@ -230,20 +252,21 @@ function initControlUI(){
   });
 
 
-
-  speedDiv = createDiv("maxSpeed").parent("controlDiv").id("speedDiv").class("controls");
+  physicsDiv = createDiv("PHYSICS TESTING").parent("controlDiv").id("physicsDiv").class("controls");
+  createDiv("- - - - - - - - - ").parent("physicsDiv").elt.style.setProperty('width', '100%');
+  speedDiv = createDiv("maxSpeed").parent("physicsDiv").id("speedDiv");
   speedSlider = createSlider(0, defaults.speedMax, defaults.speedStart, 0.1).parent("speedDiv").changed(()=>{
     for (let cNode of courses) {
       cNode.maxSpeed = speedSlider.value();
     }
   });
-  forceDiv = createDiv("maxForce").parent("controlDiv").id("forceDiv").class("controls");
+  forceDiv = createDiv("maxForce").parent("physicsDiv").id("forceDiv");
   forceSlider = createSlider(0.1, defaults.forceMax, defaults.forceStart, 0.1).parent("forceDiv").changed(()=>{
     for (let cNode of courses) {
       cNode.maxForce = forceSlider.value();
     }
   });
-  frictionDiv = createDiv("friction").parent("controlDiv").id("frictionDiv").class("controls");
+  frictionDiv = createDiv("friction").parent("physicsDiv").id("frictionDiv");
   frictionSlider = createSlider(0, 1, defaults.frictionStart, 0.01).parent("frictionDiv").changed(()=>{
     for (let cNode of courses) {
       cNode.friction = frictionSlider.value();
@@ -252,6 +275,64 @@ function initControlUI(){
 
   //set all CNode physics variables here based on slider defaults
   updateNodePhysics();
+
+  //design testing controls
+  designDiv = createDiv("DESIGN TESTING").parent("controlDiv").id("designDiv").class("controls");
+  createDiv("- - - - - - - - - ").parent("designDiv").elt.style.setProperty('width', '100%');
+  fontsDropdown = createSelect().parent("designDiv").id("fontsDropdown");
+  for (let font of Object.keys(fonts)){
+    // fontsDropdown.option(font.name, font.font);
+    fontsDropdown.option(font);
+  }
+  fontsDropdown.changed(()=>{
+    textFont(fonts[fontsDropdown.selected()].font);
+    document.body.style.setProperty('font-family', fontsDropdown.selected(), 'important'); //thanks Chat GPT
+    // document.getElementById("mainContainer").style.setProperty('font-family', fontsDropdown.selected(), 'important'); //thanks Chat GPT
+    // document.getElementsByClassName
+    for (let cNode of courses){
+      cNode.button.elt.style.setProperty('font-family', fontsDropdown.selected(), 'important');
+    }
+    console.log(fonts[fontsDropdown.selected()])
+  });
+  createDiv("- - - - - - - - - ").parent("designDiv").elt.style.setProperty('width', '100%');
+
+  for (let area of Object.keys(areaColors)){
+    let colorSwatch = createDiv(area).parent("designDiv").class("colorSwatch").id(`colorSwatch-${area}`);
+    let colorHex = createDiv(areaColors[area]).parent("designDiv").class("colorSwatch").id(`colorHex-${area}`);
+    colorInputs[area] = {
+      area: area,
+      hex: areaColors[area], 
+      // input: createInput(areaColors[area]).parent("designDiv").class("inputs"),
+      input: createColorPicker(areaColors[area]).parent("designDiv").class("inputs"),
+    }
+    colorInputs[area].input.changed(inputColorChange.bind(colorInputs[area]));
+    colorSwatch.elt.style.setProperty('background-color', colorInputs[area].hex);
+    colorHex.elt.style.setProperty('background-color', colorInputs[area].hex);
+  }
+
+  //anim testing controls
+  blobControlDiv = createDiv('WOBBLE BLOB ANIM TESTING').parent("controlDiv").id("blobControlDiv").class("controls");
+  createDiv("- - - - - - - - - ").parent("blobControlDiv").elt.style.setProperty('width', '100%');
+  blobUnitDiv = createDiv(`blobUnit: ${defaults.blobUnit}`).parent("blobControlDiv").id("blobUnitDiv");
+  blobUnitSlider = createSlider(defaults.nodeSize / 8, defaults.nodeSize, defaults.blobUnit, defaults.nodeSize / 16).parent("blobControlDiv").changed(()=>{
+    defaults.blobUnit = blobUnitSlider.value();
+    blobUnitDiv.html(`blobUnit: ${defaults.blobUnit}`);
+  });
+  wobbleOffsetDiv = createDiv('wobbleOffset').parent("blobControlDiv").id("wobbleOffsetDiv");
+  wobbleOffsetSlider = createSlider(0.1, 40, defaults.wobbleOffset, 0.1).parent("blobControlDiv").changed(()=>{
+    defaults.wobbleOffset = wobbleOffsetSlider.value();
+    wobbleOffsetDiv.html(`wobbleOffset: ${defaults.wobbleOffset}`);
+  });
+  wobbleMaxDiv = createDiv('wobbleMax').parent("blobControlDiv").id("wobbleOffsetDiv");
+  wobbleMaxSlider = createSlider(defaults.nodeSize / 8, defaults.nodeSize, defaults.wobbleMax, defaults.nodeSize / 8).parent("blobControlDiv").changed(()=>{
+    defaults.wobbleMax = wobbleMaxSlider.value();
+    wobbleMaxDiv.html(`wobbleMax: ${defaults.wobbleMax}`);
+  });
+  wobbleSpeedDiv = createDiv('wobbleSpeed').parent("blobControlDiv").id("wobbleSpeedDiv");
+  wobbleSpeedSlider = createSlider(0.1, 20, defaults.wobbleSpeed, 0.1).parent("blobControlDiv").changed(()=>{
+    defaults.wobbleSpeed = wobbleSpeedSlider.value();
+    wobbleSpeedDiv.html(`wobbleSpeed: ${defaults.wobbleSpeed}`);
+  });
 }
 
 function initCourseNodes(){
@@ -337,25 +418,7 @@ function initPanelUI(){
       keywordCheckboxes[keybox].checked(false);
     }
     
-    //reset opacity (note: might be annoying if you want your selections to persist upon closing)
-    //don't auto show/hide if selected cluster
-    //TODO refactor and put this in node class
-    // if (state.selectedCluster == null){
-    //   for (let cNode of courses){
-    //     cNode.button.html(cNode.course);
-    //     cNode.fitsKeywords = true;
-    //     cNode.col.setAlpha(1);
-    //     if(cNode.col2 !== undefined){
-    //       cNode.col2.setAlpha(1);
-    //       cNode.button.elt.style.background = `radial-gradient(${cNode.col} 25%, ${cNode.col2}, ${cNode.col})`;
-    //     } else {
-    //       cNode.button.elt.style.background = cNode.col;
-    //     }
-    //   }
-    // } else {
-      keywordCheck();
-    // }
-    
+    keywordCheck();
 
     if (options.isShowingKeywords){
       // clusterCenter.x += panelRightEdge;
@@ -380,6 +443,17 @@ function initPanelUI(){
 
 }
 
+function inputColorChange(){
+  //binds to the color input for "this"
+  // let code = this.input.value();
+  let code = this.input.color();
+  // if (code.length == 7 && code.startsWith("#")){
+    this.hex = code.toString('#rrggbb');
+    console.log(this.hex);
+    updateClusterColors(this.area);
+  // }
+}
+
 function keywordCheck(){
   for (let cNode of courses) {
     // cNode.fitsKeywords = checkNodeForSelectedKeywords(cNode);
@@ -389,9 +463,15 @@ function keywordCheck(){
 
 function mousePressed(){
   //just using for cluster highlight atm
+  if ( state.mode !== "default" ){ return; }
   for (let i = 0; i < 10; i++){
     if (i == 1){continue;};//skipping soul, is dumb b/c i dumb
     if (p5.Vector.dist(clusters[areas[i][0]].pos, mousePos) < defaults.nodeSize * 0.6){
+      //TODO this is dumb, but want to reset canvas when clicking area to remove ghosts
+      defaults.bg.setAlpha(1);
+      background(defaults.bg);
+      defaults.bg.setAlpha(state.bgAlpha); //ugh defaults vs state...
+      // console.log(areas[i]);
       if (state.selectedCluster == null){
         state.selectedCluster = areas[i][0];
       } else if (i == 0) { //clicking on current cluster to reset (is in core position)
@@ -406,21 +486,54 @@ function mousePressed(){
 }
 
 function nodeClick(node) {
-  //when a node is clicked. as the name suggests.
+  //when a node is clicked... as the name suggests...
 
-  //deselect any existing nodes, the one that's clicked will select itself
-  for (let cNode of courses){ //ugh TODO redo 'cNode' naming
-    cNode.isSelected = false;
+  // if(state.selectedCourse == null){
+    // state.selectedCourse = node.course;
+    // state.mode = "family";
+    //deselect any existing nodes, the one that's clicked will select itself
+    for (let cNode of courses){ //ugh TODO redo 'cNode' naming
+      cNode.isSelected = false;
+    }
+    // console.log(node.course);
+    coursePanel.show();
+    courseInfo.courseTitle.html(node.course);
+    courseInfo.courseProfessor.html(node.professor);
+    courseInfo.courseShort.html(node.short);
+    courseInfo.courseKeywords.html(node.keywords);
+
+    options.isShowingPanel = true;
+    shiftClusters();
+  // } 
+  /*
+  if(state.selectedCourse == null){
+    state.selectedCourse = node.course;
+    state.mode = "family";
+    //deselect any existing nodes, the one that's clicked will select itself
+    for (let cNode of courses){ //ugh TODO redo 'cNode' naming
+      cNode.isSelected = false;
+    }
+    // console.log(node.course);
+    coursePanel.show();
+    courseInfo.courseTitle.html(node.course);
+    courseInfo.courseProfessor.html(node.professor);
+    courseInfo.courseShort.html(node.short);
+    courseInfo.courseKeywords.html(node.keywords);
+
+    options.isShowingPanel = true;
+    shiftClusters();
+  } else {
+    //reset
+    state.selectedCourse = null;
+    state.mode = "default";
+    for (let cNode of courses){ //ugh TODO redo 'cNode' naming
+      cNode.isSelected = false;
+    }
+    coursePanel.hide();
+    shiftClustersHome();
+    options.isShowingPanel = false;
   }
-  // console.log(node.course);
-  coursePanel.show();
-  courseInfo.courseTitle.html(node.course);
-  courseInfo.courseProfessor.html(node.professor);
-  courseInfo.courseShort.html(node.short);
-  courseInfo.courseKeywords.html(node.keywords);
-
-  options.isShowingPanel = true;
-  shiftClusters();
+  */
 }
 
 function nodeUpdates(){
@@ -486,7 +599,7 @@ function shiftClustersHome(){
 }
 
 function showClusters(){
-  if (state.mode == "keywords"){return;}//don't show if in keywords mode
+  if (state.mode == "relationships"){return;}//don't show if in keywords mode
   push();
   noStroke();
   if (state.selectedCluster == null){ //need to figure out what the mode vs options pattern is...
@@ -550,8 +663,9 @@ function subStepUpdate(mousePos, subStep){
 }
 
 function togglePhysics(){ //separating b/c bounce mode needs to call this
-  options.isPhysics = !options.isPhysics;
-  physicsButton.html(options.isPhysics ? "TURN PHYSICS OFF" : "TURN PHYSICS ON");
+  // options.isPhysics = !options.isPhysics;
+  options.isMoving = !options.isMoving;
+  physicsButton.html(options.isPhysics ? "TURN MOTION OFF" : "TURN MOTION ON");
 }
 
 function toggleBounce(){
@@ -560,19 +674,19 @@ function toggleBounce(){
   options.isBounce? state.mode = "bounce" : state.mode = "default";
   if (options.isBounce) {
     
-    if (options.isPhysics){ //when we turn bounce on and physics is still on
+    // if (options.isPhysics){ //when we turn bounce on and physics is still on
       //store the values of physics the first time so we can reset them after
       lastPhysics.speed = speedSlider.value();
       lastPhysics.force = forceSlider.value();
       lastPhysics.friction = frictionSlider.value();
 
       // togglePhysics(); //need to wait a second for the nodes to be able to move
-      bounceButton.hide(); //just to prevent them from clicking again too early and messing with physics toggle
-      bounceDelay = setInterval(()=>{
-        togglePhysics();
-        bounceButton.show();
-        clearInterval(bounceDelay);
-      }, 1000);
+      // bounceButton.hide(); //just to prevent them from clicking again too early and messing with physics toggle
+      // bounceDelay = setInterval(()=>{
+        // togglePhysics();
+      //   bounceButton.show();
+      //   clearInterval(bounceDelay);
+      // }, 1000);
 
       //change values to party mode
       speedSlider.value(defaults.speedMax);
@@ -591,21 +705,21 @@ function toggleBounce(){
       // }
 
       //hiding physics button to not get confused
-      physicsButton.hide();
+      // physicsButton.hide();
       // mouseAvoidButton.hide();
-    }
+    // }
     // bounceButton.html("BOUNCE HOUSE OFF");
   } else {
-    if (!options.isPhysics){ //when we turn bounce off, reset physics to old values
+    // if (!options.isMoving){ //when we turn bounce off, reset physics to old values
       speedSlider.value(lastPhysics.speed);
       forceSlider.value(lastPhysics.force);
       frictionSlider.value(lastPhysics.friction);
-      togglePhysics();
+      // togglePhysics();
       updateNodePhysics();
       if(options.isAlphaPaint){
         defaults.bg.setAlpha(state.bgAlpha);
       }
-      physicsButton.show();
+      // physicsButton.show();
       // mouseAvoidButton.show();
 
       //turn collisions off so they go back home faster
@@ -613,8 +727,22 @@ function toggleBounce(){
         cNode.shouldCheckCollision = true;
       }
 
-    };
+    // };
     // bounceButton.html("BOUNCE HOUSE ON");
+  }
+}
+
+function updateClusterColors(area){
+  for (let cluster of Object.keys(clusters)){
+    if (cluster == area){
+      clusters[cluster].color = color(colorInputs[area].hex);
+      document.getElementById(`colorSwatch-${area}`).style.setProperty('background-color', colorInputs[area].hex);
+      document.getElementById(`colorHex-${area}`).style.setProperty('background-color', colorInputs[area].hex);
+      select(`#colorHex-${area}`).html(colorInputs[area].hex);
+    }
+  }
+  for (let cNode of courses){
+    cNode.updateColors();
   }
 }
 

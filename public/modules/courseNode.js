@@ -16,6 +16,7 @@ class CNode { //courseNode
     //this.skills,
 
     //for keyword/panel modes
+    this.isVisible = true;
     this.isSelected = false;
     this.fitsKeywords = true;
     this.haveKeywordsChanged = false;
@@ -29,11 +30,11 @@ class CNode { //courseNode
       cousins: [],
       relatives: [], //the "others"
     };
-    this.rainbowOffset = 0; //for selection animation
     this.hasCollisions = true; //for ignoring other nodes
     this.shouldCheckCollision = false; //so the collision only gets turned off once per big event, to prevent edge bugs
 
     //css element
+    // this.button = createButton(this.course).class("cNode").parent("mainContainer");
     this.button = createButton(this.course).class("cNode");
     this.button.elt.style.width = defaults.nodeSize_px;
     this.button.elt.style.height = defaults.nodeSize_px;
@@ -42,61 +43,16 @@ class CNode { //courseNode
 
     // cluster position and colors by area (later display option toggle TODO)
     // https://coolors.co/aaef74-89608e-428722-5792c3-fac9b8
-    this.col;
-    this.col2;
-    switch(this.area){
-      case "CORE":
-        this.cluster = clusters["CORE"];
-        this.col = this.cluster.color;
-        this.cluster.count ++;
-      break;
-      case "SOUL":
-        this.cluster = clusters["SOUL"];
-        this.col = this.cluster.color;
-        this.cluster.count ++;
-      break;
-      case "IMAGE":
-        this.cluster = clusters["IMAGE"];
-        this.col = this.cluster.color;
-        this.cluster.count ++;
-      break;
-      case "ACTING":
-        this.cluster = clusters["ACTING"];
-        this.col = this.cluster.color;
-        this.cluster.count ++;
-      break;
-      case "MOVEMENT":
-        this.cluster = clusters["MOVEMENT"];
-        this.col = this.cluster.color;
-        this.cluster.count ++;
-      break;
-      case "SOUND":
-        this.cluster = clusters["SOUND"];
-        this.col = this.cluster.color;
-        this.cluster.count ++;
-      break;
-      case "TECHNOLOGY":
-        this.cluster = clusters["TECHNOLOGY"];
-        this.col = this.cluster.color;
-        this.cluster.count ++;
-      break;
-      case "WRITING":
-        this.cluster = clusters["WRITING"];
-        this.col = this.cluster.color;
-        this.cluster.count ++;
-      break;
-      case "VISUAL ART":
-        this.cluster = clusters["VISUAL ART"];
-        this.col = this.cluster.color;
-        this.cluster.count ++;
-      break;
-      case "STUDIES":
-        this.cluster = clusters["STUDIES"];
-        this.col = this.cluster.color;
-        this.cluster.count ++;
-      break;
-    }
-    this.button.elt.style.background = this.col;
+    this.cluster = clusters[this.area];
+    // console.log(this.cluster.color._array);
+    // this.color = color(this.cluster.color);
+    // console.log(this.cluster.color.toString())
+    this.color = color(this.cluster.color.toString());
+    // console.log(this.color);
+    // console.log(this.color == this.cluster.color);
+    this.color2 = null; //only soul/core have 2
+    this.cluster.count++;
+    this.button.elt.style.background = this.color;
 
     //cluster position info
     //core classes have dual cluster homes
@@ -119,18 +75,22 @@ class CNode { //courseNode
       } else if (this.course == "Studio Art") {
         this.secondCluster = clusters["VISUAL ART"];
       }
-      this.col2 = this.secondCluster.color;
-      this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
+      this.color2 = color(this.secondCluster.color.toString());
+      this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
     } else if (this.area == "SOUL") {
-      this.col2 = clusters["CORE"].color;
-      this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
+      this.color2 = color(clusters["CORE"].color.toString());
+      this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
     }
     
+    
     //other display info
-    // this.ske = nodeStroke; //stroke, idk
-    // this.skw = 5; //stroke weight
     this.size = defaults.nodeSize;
     this.pos = createVector(this.cluster.pos.x, this.cluster.pos.y);
+
+    //animations
+    this.rainbowOffset = 0; //for selection animation
+    this.blob = [];
+    this.initBlob();
     
     //physics
     this.acc = createVector(0, 0); //acceleration
@@ -144,31 +104,23 @@ class CNode { //courseNode
     
   }
 
-  getClusterOffset(){ // use cluster count to create vector offset -- need method after construction
-    push();
-    let angle = (360/this.cluster.count) * this.cluster.currentIndex;
-    translate(this.cluster.pos.x, this.cluster.pos.y);
-    let nodePos = rotationCoords(defaults.clusterOffset, 0, angle);
-    nodePos.x += this.cluster.pos.x;
-    nodePos.y += this.cluster.pos.y;
-    this.pos = nodePos;
-    this.cluster.currentIndex ++;
-    pop();
-  }
-
   adjustSelfBeforeUpdate(){//hmm, prob will refactor, but this is supposed to be where all the state responsive object changes happen
     if (state.mode == "default"){
       if(this.shouldCheckCollision){
         if (p5.Vector.dist(this.pos, this.cluster.pos) > defaults.allowedDistFromCluster){
           this.hasCollisions = false;
-          console.log(this.course);
+          // console.log(this.course);
         } else {
           this.hasCollisions = true; //hmm this is dumb TODO
           this.shouldCheckCollision = false;
         }
       }
     } else if(state.mode == "bounce"){
+      //hmm I kind of like how some have collisions and some don't...
       // this.hasCollisions = false;
+    } else if(state.mode == "family"){
+      //check for updated pos stuff?
+      this.checkFamilyPosition();
     }
 
     if (this.hasClusterSelectionChanged){
@@ -191,8 +143,9 @@ class CNode { //courseNode
       this.checkNodeDist(coursesCopy);
       this.checkClusterDist();
     }
-    else if (state.mode == "keyword"){
+    else if (state.mode == "family"){
       this.checkNodeDist(coursesCopy);
+      this.goFamilyReunion();
     }
     else if (state.mode == "bounce"){
       this.checkNodeDist(coursesCopy);
@@ -206,29 +159,71 @@ class CNode { //courseNode
     this.checkBounds();
   }
 
-  checkNodeDist(coursesCopy){
-    if (!this.hasCollisions){return;}
-    for (let nodeCopy of coursesCopy) {
-      if (nodeCopy.course !== this.course && nodeCopy.hasCollisions) {
-        let offset = p5.Vector.sub(nodeCopy.pos, this.pos);
-        let distMag = offset.mag();
-        if (distMag == 0) {
-          offset = createVector(random(-0.1, 0.1), random(-0.1, 0.1));
-        }
-        if (distMag <= defaults.idealSeparation) {
-          offset.setMag(-defaults.idealSeparation);
-          //trying a relative scaling instead of toggle collisions (errors with nodes on edge of zone)
-          // let distFromCluster = p5.Vector.dist(this.pos, this.cluster.pos);
-          // if (!this.hasCollisions){
-          //   offset.setMag(-defaults.idealSeparation / 2);
-          //   offset.mult(1/((distFromCluster/defaults.allowedDistFromCluster)*(distFromCluster/defaults.allowedDistFromCluster))); //so weaker node force the farther they are from home
-          //   console.log(this.course);
-          //   console.log(1/((distFromCluster/defaults.allowedDistFromCluster)*(distFromCluster/defaults.allowedDistFromCluster)));
-          // } else {
-          //   offset.setMag(-defaults.idealSeparation);
-          // }
-          this.acc.add(offset);
-        }
+  /**
+   * 
+   * MISC METHODS
+   * 
+   */
+
+  anim_selectionRainbow(rainbowOffset){
+    push();
+    fill(rainbowOffset, 100, 100, .2);
+    let leSigh = map(rainbowOffset, 0, 360, this.size, this.size * 1.6);
+    ellipse(this.pos.x, this.pos.y, leSigh);
+    pop();
+  }
+
+  anim_wobbleBlob(){
+    //animate the splines via sin
+    let time = millis();
+    let count = 0;
+    for (let petal of this.blob){
+      for (let i = 0; i < petal.length; i++){
+        if (i < 2 || i >= petal.length - 2){continue}; //ignore anchors
+        petal[i][2] = map(sin((time / defaults.wobbleSpeed) + count), -1, 1, 0, defaults.wobbleMax);
+        // count+=0.7;
+        count+=defaults.wobbleOffset;
+      }
+      // for (let spline of petal){
+      //   spline[2] = map(sin((time / defaults.wobbleSpeed) + count), -1, 1, 0, defaults.wobbleMax);
+      //   // count+=0.7;
+      //   count+=defaults.wobbleOffset;
+      // }
+    }
+
+    //draw the petals
+    push();
+    fill(this.color);
+    noStroke();
+    translate(this.pos.x, this.pos.y);
+    // ellipse(0, 0, defaults.blobUnit * 8);
+    for (let petal of this.blob){
+      beginShape();
+      for (let spline of petal){
+        // curveVertex(spline[0], spline[1]); //no animation
+        curveVertex(spline[0], spline[1] + spline[2]);
+      }
+      endShape();
+      rotate(45);
+    }
+    pop();
+  }
+
+  checkBounds() {
+    //make sure it's staying in bounds
+    if (this.pos.x > width - (this.size / 2)) {this.acc.add(createVector(-defaults.boundaryForce, 0))}
+    if (this.pos.x < (this.size / 2)) {this.acc.add(createVector(defaults.boundaryForce, 0))}
+    if (this.pos.y > height - (this.size / 2)) {this.acc.add(createVector(0, -defaults.boundaryForce))}
+    if (this.pos.y < (this.size / 2)) {this.acc.add(createVector(0, defaults.boundaryForce))}
+    
+    if (options.isShowingPanel) {
+      if (this.pos.x > panelLeftEdge - (this.size / 2)) {
+        this.acc.add(createVector(-defaults.boundaryForce * 10, 0));
+      }
+    }
+    if (options.isShowingKeywords) {
+      if (this.pos.x < panelRightEdge + (this.size / 2)) { //TODO add top check
+        this.acc.add(createVector(defaults.boundaryForce * 10, 0));
       }
     }
   }
@@ -283,6 +278,21 @@ class CNode { //courseNode
     }
   }
 
+  checkKeywords(){ //toggles the fade on courses that don't match keywords
+    //reset so this only happens once per keyword change
+    this.haveKeywordsChanged = false;
+    this.fitsKeywords = true;
+    for (let keybox of Object.keys(keywordCheckboxes)){
+      if (keywordCheckboxes[keybox].checked()){
+        if (!this.keywords.includes(keybox)){
+          this.fitsKeywords = false;
+        }
+      }
+    }
+    //only true if all selected keywords are present
+    this.checkVisibility();
+  }
+
   checkMouseDist(mousePos){
     let mouseDist = p5.Vector.sub(mousePos, this.pos);
     // let mouseDist = p5.Vector.sub(this.pos, mousePos); //attracts rather than repels
@@ -294,180 +304,32 @@ class CNode { //courseNode
       this.acc.add(mouseDist);
     }
   }
-  
-  checkBounds() {
-    //make sure it's staying in bounds
-    if (this.pos.x > width - (this.size / 2)) {this.acc.add(createVector(-defaults.boundaryForce, 0))}
-    if (this.pos.x < (this.size / 2)) {this.acc.add(createVector(defaults.boundaryForce, 0))}
-    if (this.pos.y > height - (this.size / 2)) {this.acc.add(createVector(0, -defaults.boundaryForce))}
-    if (this.pos.y < (this.size / 2)) {this.acc.add(createVector(0, defaults.boundaryForce))}
-    
-    if (options.isShowingPanel) {
-      if (this.pos.x > panelLeftEdge - (this.size / 2)) {
-        this.acc.add(createVector(-defaults.boundaryForce * 10, 0));
-      }
-    }
-    if (options.isShowingKeywords) {
-      if (this.pos.x < panelRightEdge + (this.size / 2)) { //TODO add top check
-        this.acc.add(createVector(defaults.boundaryForce * 10, 0));
-      }
-    }
-  }
-  
-  updatePos(stepSize){
-    this.acc.mult(stepSize);
-    this.acc.limit(this.maxForce);
-    this.vel.add(this.acc); //add the current forces to velocity
-    this.vel.limit(this.maxSpeed); //make sure we're not going too fast
-    this.vel.mult(this.friction);
-    if (this.vel.mag() < 1){this.vel.mult(this.vel.mag());} //make sure the force is big enough, avoid the vibrating when in final position
-    // if (this.vel.mag() < 1){this.vel.mult(0.01);} //make sure the force is big enough, avoid the vibrating when in final position
-    // if (this.course == "Jam House") { console.log(this.vel.mag())};
-    this.acc.mult(0); //reset the forces for the next loop
-    this.pos.add(this.vel); //move the node
-  }
 
-  show(){
-    //for alpha paint trails
-    if (options.isAlphaPaint) {
-      push();
-      noStroke();
-      if(this.isSelected){
-        //new rainbow fade anim
-        if (this.rainbowOffset > 360) {
-          this.rainbowOffset = 0;
-        } else {
-          this.rainbowOffset += rainbowSpacing;
+  checkNodeDist(coursesCopy){
+    if (!this.hasCollisions){return;}
+    for (let nodeCopy of coursesCopy) {
+      if (nodeCopy.course !== this.course && nodeCopy.hasCollisions) {
+        let offset = p5.Vector.sub(nodeCopy.pos, this.pos);
+        let distMag = offset.mag();
+        if (distMag == 0) {
+          offset = createVector(random(-0.1, 0.1), random(-0.1, 0.1));
         }
-        this.anim_selectionRainbow(this.rainbowOffset);
-      } else if (this.fitsKeywords){
-        fill(this.col);
-        ellipse(this.pos.x, this.pos.y, this.size);
-      }
-      pop();
-    }
-
-    this.button.position(this.pos.x, this.pos.y);
-  }
-
-  click(){
-    // console.log(this.course);
-    this.clickCallback(this);
-    this.isSelected = true;
-  }
-
-  checkVisibility(){
-    /** 
-     * SCENARIOS:
-     * 1) default, no keywords, no cluster = all visible
-     * 2) keywords, no cluster = visible if keywords selected and match
-     * 3) cluster, no keywords = visible if area
-     * 4) keywords and cluster = visible if keywords selected,match, and area
-    */
-    if ((options.isShowingKeywords && !this.fitsKeywords && state.selectedCluster == null)
-      || (!options.isShowingKeywords && state.selectedCluster !== null && (this.area !== state.selectedCluster || (this.area == "SOUL" && state.selectedCluster !== "CORE")))
-      || ((options.isShowingKeywords && !this.fitsKeywords) || (state.selectedCluster !== null && (this.area !== state.selectedCluster || (this.area == "SOUL" && state.selectedCluster !== "CORE"))))
-    ){ //god i need to refactor so badly wtf
-      this.hasCollisions = false;
-      this.col.setAlpha(defaults.fadeAlpha);
-      this.button.html('');
-      if (this.area == "CORE" || this.area == "SOUL"){
-        this.col2.setAlpha(defaults.fadeAlpha);
-        this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
-      } else {
-        this.button.elt.style.background = this.col;
-      }
-    } else { //default
-      this.hasCollisions = true;
-      this.col.setAlpha(1);
-      this.button.html(this.course);
-      if (this.area == "CORE" || this.area == "SOUL"){
-        this.col2.setAlpha(1);
-        this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
-      } else {
-        this.button.elt.style.background = this.col;
-      }
-    }
-
-    //also reseting the hacky collision thing
-    // this.shouldCheckCollision = true;
-  }
-
-  checkKeywords(){ //toggles the fade on courses that don't match keywords
-    //reset so this only happens once per keyword change
-    this.haveKeywordsChanged = false;
-    // if(state.selectedCluster == this.area || (state.selectedCluster == "CORE" && this.area == "SOUL")){
-    //   return;
-    // }
-    this.fitsKeywords = true;
-    for (let keybox of Object.keys(keywordCheckboxes)){
-      if (keywordCheckboxes[keybox].checked()){
-        if (!this.keywords.includes(keybox)){
-          this.fitsKeywords = false;
+        if (distMag <= defaults.idealSeparation) {
+          offset.setMag(-defaults.idealSeparation);
+          //trying a relative scaling instead of toggle collisions (errors with nodes on edge of zone)
+          // let distFromCluster = p5.Vector.dist(this.pos, this.cluster.pos);
+          // if (!this.hasCollisions){
+          //   offset.setMag(-defaults.idealSeparation / 2);
+          //   offset.mult(1/((distFromCluster/defaults.allowedDistFromCluster)*(distFromCluster/defaults.allowedDistFromCluster))); //so weaker node force the farther they are from home
+          //   console.log(this.course);
+          //   console.log(1/((distFromCluster/defaults.allowedDistFromCluster)*(distFromCluster/defaults.allowedDistFromCluster)));
+          // } else {
+          //   offset.setMag(-defaults.idealSeparation);
+          // }
+          this.acc.add(offset);
         }
       }
     }
-    //only true if all selected keywords are present
-    this.checkVisibility();
-    // push();
-    // noStroke();
-    // if (this.fitsKeywords){
-    //   this.col.setAlpha(1);
-    //   this.button.html(this.course);
-    //   if (this.area == "CORE" || this.area == "SOUL"){
-    //     this.col2.setAlpha(1);
-    //     this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
-    //   } else {
-    //     this.button.elt.style.background = this.col;
-    //   }
-    // } else {
-    //   this.col.setAlpha(.05);
-    //   this.button.html('');
-    //   if (this.area == "CORE" || this.area == "SOUL"){
-    //     this.col2.setAlpha(.05);
-    //     this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
-    //   } else {
-    //     this.button.elt.style.background = this.col;
-    //   }
-    // }
-    // pop();
-
-  }
-
-  clusterHighlight(){
-    this.hasClusterSelectionChanged = false;
-    this.checkVisibility();
-
-    // push();
-    // noStroke();
-    // if (this.area == state.selectedCluster || state.selectedCluster == null || (this.area == "SOUL" && state.selectedCluster == "CORE")){
-    //   if (options.isShowingKeywords && !this.fitsKeywords) {return};
-
-    //   this.hasCollisions = true;
-    //   this.col.setAlpha(1);
-    //   this.button.html(this.course);
-    //   if (this.area == "CORE" || this.area == "SOUL"){
-    //     this.col2.setAlpha(1);
-    //     this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
-    //   } else {
-    //     this.button.elt.style.background = this.col;
-    //   }
-    // } else {
-    //   //remove collisions TODO fix
-    //   this.hasCollisions = false;
-
-    //   //fade out
-    //   this.col.setAlpha(.05);
-    //   this.button.html('');
-    //   if (this.area == "CORE" || this.area == "SOUL"){
-    //     this.col2.setAlpha(.05);
-    //     this.button.elt.style.background = `radial-gradient(${this.col} 25%, ${this.col2}, ${this.col})`;
-    //   } else {
-    //     this.button.elt.style.background = this.col;
-    //   }
-    // }
-    // pop();
-
   }
 
   checkRelationships(courses){ //issue with parameter being global name?
@@ -487,101 +349,163 @@ class CNode { //courseNode
       this.relationships.unsorted.push([key, value]);
     }
     // console.log(this.relationships.unsorted);
-    // this.relationships.sorted = this.relationships.unsorted.sort((a, b)=>{a[1] - b[1] 
-      // console.log(a)});
+    this.relationships.sorted = this.relationships.unsorted.sort((a, b)=>{return b[1] - a[1]}); 
     // console.log(this.course, this.relationships.sorted);
+
+    //get the siblings and cousins from the sorted array
+    //first see where to draw the line between siblings/cousins/others
+    //for now, doing 3+, 1-2, 0
+    for (let relationship of this.relationships.sorted){
+      //welp, don't have to sort yet i guess
+      if (relationship[1] >= 3){
+        this.relationships.siblings.push(relationship);
+      } else if (relationship[0] == 0){
+        this.relationships.relatives.push(relationship);
+      } else {
+        this.relationships.cousins.push(relationship);
+      }
+    }
+  }
+
+  checkVisibility(){
+    /** 
+     * SCENARIOS:
+     * 1) default, no keywords, no cluster = all visible
+     * 2) keywords, no cluster = visible if keywords selected and match
+     * 3) cluster, no keywords = visible if area
+     * 4) keywords and cluster = visible if keywords selected,match, and area
+    */
+    if ((options.isShowingKeywords && !this.fitsKeywords && state.selectedCluster == null)
+      || (!options.isShowingKeywords && state.selectedCluster !== null && (this.area !== state.selectedCluster || (this.area == "SOUL" && state.selectedCluster !== "CORE")))
+      || ((options.isShowingKeywords && !this.fitsKeywords) || (state.selectedCluster !== null && (this.area !== state.selectedCluster || (this.area == "SOUL" && state.selectedCluster !== "CORE"))))
+    ){ //god i need to refactor so badly wtf
+      this.isVisible = false;
+      this.hasCollisions = false;
+      this.color.setAlpha(defaults.fadeAlpha);
+      this.button.html('');
+      if (this.area == "CORE" || this.area == "SOUL"){
+        this.color2.setAlpha(defaults.fadeAlpha);
+        this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
+      } else {
+        this.button.elt.style.background = this.color;
+      }
+    } else { //default
+      this.isVisible = true;
+      this.hasCollisions = true;
+      this.color.setAlpha(1);
+      this.button.html(this.course);
+      if (this.area == "CORE" || this.area == "SOUL"){
+        this.color2.setAlpha(1);
+        this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
+      } else {
+        this.button.elt.style.background = this.color;
+      }
+    }
+  }
+
+  click(){
+    if (this.isVisible){ //can't click on invisible stuff in background
+      this.clickCallback(this);
+      // if (state.mode == "family"){
+        this.isSelected = true;
+      // }
+    }
+  }
+
+  clusterHighlight(){
+    this.hasClusterSelectionChanged = false;
+    this.checkVisibility();
+  }
+
+  getClusterOffset(){ // use cluster count to create vector offset -- need method after construction
+    push();
+    let angle = (360/this.cluster.count) * this.cluster.currentIndex;
+    translate(this.cluster.pos.x, this.cluster.pos.y);
+    let nodePos = rotationCoords(defaults.clusterOffset, 0, angle);
+    nodePos.x += this.cluster.pos.x;
+    nodePos.y += this.cluster.pos.y;
+    this.pos = nodePos;
+    this.cluster.currentIndex ++;
+    pop();
+  }
+
+  initBlob(){
+    let blobUnit = defaults.blobUnit;
+    for (let i = 0; i < 8; i++){
+      let blobPetal = [
+        [-blobUnit * 1.5,     -blobUnit], //left anchor
+        [-blobUnit * 1.5,     -blobUnit], //left spline
+        [-blobUnit * 0.75,  -blobUnit * 2.5], //top left spline
+        [0,                 -blobUnit * 3], //top spline
+        [blobUnit * 0.75,   -blobUnit * 2.5], //top right spline 
+        [blobUnit * 1.5,      -blobUnit], //right spline
+        [blobUnit * 1.5,      -blobUnit], //right anchor
+      ]
+      // let blobPetal = [
+      //   [-blobUnit * 2,     -blobUnit * 2], //left anchor
+      //   [-blobUnit * 2,     -blobUnit * 2], //left spline
+      //   [-blobUnit * 1.25,  -blobUnit * 3.5], //top left spline
+      //   [0,                 -blobUnit * 4], //top spline
+      //   [blobUnit * 1.25,   -blobUnit * 3.5], //top right spline 
+      //   [blobUnit * 2,      -blobUnit * 2], //right spline
+      //   [blobUnit * 2,      -blobUnit * 2], //right anchor
+      // ]
+      for (let petal of blobPetal){
+        petal.push(0); //wobble modifier
+      }
+      this.blob.push(blobPetal);
+    }
+  }
+
+  show(){
+    //for alpha paint trails
+    if (options.isAlphaPaint) {
+      push();
+      noStroke();
+      if(this.isSelected){
+        //new rainbow fade anim
+        if (this.rainbowOffset > 360) {
+          this.rainbowOffset = 0;
+        } else {
+          this.rainbowOffset += rainbowSpacing;
+        }
+        this.anim_selectionRainbow(this.rainbowOffset);
+        //blob petal wobbling
+        this.anim_wobbleBlob();
+      // } else if (this.fitsKeywords){
+      } else if (this.isVisible){
+        fill(this.color);
+        ellipse(this.pos.x, this.pos.y, this.size);
+      }
+      pop();
+    }
+
+    this.button.position(this.pos.x, this.pos.y);
+  }
+
+  updateColors(){
+    this.color = color(this.cluster.color.toString());
+    this.button.elt.style.background = this.color;
+
+    if (this.area == "CORE"){
+      this.color2 = color(this.secondCluster.color.toString());
+      this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
+    } else if (this.area == "SOUL") {
+      this.color2 = color(clusters["CORE"].color.toString());
+      this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
+    }
   }
   
-  anim_selectionRainbow(rainbowOffset){
-    // for (let i = rainbowOffset; i < 360 + rainbowOffset; i += rainbowSpacing){
-      // if (i > 360) {i -= 360}; //needed?
-      fill(rainbowOffset, 100, 100, .2);
-      // fill(i, 100, 100);
-      // ellipse(this.pos.x, this.pos.y, this.size + ((360/rainbowSpacing)*(i - this.rainbowOffset)) * (  (rainbowSpacing/360)));
-      let leSigh = map(rainbowOffset, 0, 360, this.size, this.size * 1.3);
-      ellipse(this.pos.x, this.pos.y, leSigh);
-      // ellipse(this.pos.x, this.pos.y, (this.size * 1.3) * (rainbowOffset/360));
-      // ellipse(this.pos.x, this.pos.y, this.size * 1.5);
-
-
-    // }
+  updatePos(stepSize){
+    this.acc.mult(stepSize);
+    this.acc.limit(this.maxForce);
+    this.vel.add(this.acc); //add the current forces to velocity
+    this.vel.limit(this.maxSpeed); //make sure we're not going too fast
+    this.vel.mult(this.friction);
+    if (this.vel.mag() < 1){this.vel.mult(this.vel.mag());} //make sure the force is big enough, avoid the vibrating when in final position
+    // if (this.vel.mag() < 1){this.vel.mult(0.01);} //make sure the force is big enough, avoid the vibrating when in final position
+    // if (this.course == "Jam House") { console.log(this.vel.mag())};
+    this.acc.mult(0); //reset the forces for the next loop
+    this.pos.add(this.vel); //move the node
   }
-
 }
-
-
-/*
-  checkDist(mousePos){
-    //check the current pos of other nodes 
-    //so we can calculate our distance and create an offset
-    //that is the difference of our actual distance to our desired distance (the ranking relationship)
-    if (this.hasCollisions){ //if we're ignoring other nodes
-      for (let cNode of courses) {
-        if (cNode.course !== this.course && cNode.hasCollisions) {
-          let offset = p5.Vector.sub(cNode.pos, this.pos);
-          let distMag = offset.mag();
-          if (distMag == 0) {
-            offset = createVector(random(-0.1, 0.1), random(-0.1, 0.1));
-          }
-          if (distMag <= defaults.idealSeparation) {
-            // let desiredMag = distMag + idealSeparation;
-            // offset.setMag(desiredMag);
-            offset.setMag(-defaults.idealSeparation);
-            // offset.mult(0.9);
-            this.acc.add(offset);
-          }
-        }
-      }
-    }
-    
-    //also try to stay in "home" cluster (area)
-    let offset = p5.Vector.sub(this.pos, this.cluster.pos);
-    let distMag = offset.mag();
-
-    if (distMag > defaults.idealSeparation) {
-      if (this.area == "SOUL") {
-        offset.setMag(-defaults.idealSeparation * .5);
-      }
-      else {
-        offset.setMag(-defaults.idealSeparation * .2);//weaker so they aren't too attracted to center
-      }
-      // offset.setMag(-idealSeparation * .2); 
-      this.acc.add(offset);
-    } else { //but also be repelled by center...
-      offset.setMag(defaults.idealSeparation);
-      this.acc.add(offset);
-    }
-
-    //the core classes should stay close to their area
-    if (this.area == "CORE") {
-      let offset2 = p5.Vector.sub(this.pos, this.secondCluster.pos);
-      let distMag2 = offset2.mag();
-
-      if (distMag2 > defaults.idealSeparation + this.size) {
-        offset2.setMag(-defaults.idealSeparation * this.secondForce); //weaker so they aren't too attracted to center
-        this.acc.add(offset2);
-      } else { //but also be repelled by center...
-        this.secondForce = .1;
-        offset2.setMag(defaults.idealSeparation);
-        this.acc.add(offset2);
-      }
-    }
-
-    if (options.isAvoidingMouse){
-      //avoid mouse if too close
-      let mouseDist = p5.Vector.sub(mousePos, this.pos);
-      // let mouseDist = p5.Vector.sub(this.pos, mousePos);
-
-      let mouseDistMag = mouseDist.mag();
-
-      if (mouseDistMag < defaults.mouseRepel) {
-        // mouseDist.setMag(-mouseRepel * (mouseRepel - mouseDistMag) * 10);
-        // let mf = mouseRepel - (mouseRepel - mouseDistMag);
-        // mouseDist.setMag(-(mf * mf));
-        let mf = (-10 * defaults.mouseRepel * defaults.mouseRepel) / (mouseDistMag * mouseDistMag)
-        mouseDist.setMag(mf);
-        this.acc.add(mouseDist);
-      }
-    }
-  }
-  */
