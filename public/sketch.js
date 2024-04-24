@@ -7,9 +7,11 @@
 */
 
 //design/UI variables
-let font;
+let fonts = {};
+// let testColors = areaColors;
 let mousePos;
-let physicsButton, speedSlider, forceSlider, frictionSlider, bounceButton, mouseAvoidButton;
+let buttonsDiv, physicsButton, bounceButton, mouseAvoidButton;
+let physicsDiv, speedSlider, forceSlider, frictionSlider;
 let lastPhysics = {}; //for bounce mode reset TODO clean up
 let speedDiv, forceDiv, frictionDiv;
 let title; //ca title logo
@@ -22,7 +24,8 @@ let keywordPanel, keywordPanelButton;
 let keywordCheckboxes = {};
 let blobControlDiv, blobUnitDiv, wobbleOffsetDiv, wobbleMaxDiv, wobbleSpeedDiv; 
 let wobbleSpeedSlider, wobbleOffsetSlider, wobbleMaxSlider, blobUnitSlider;
-
+let designDiv, fontsDropdown, fontLoader;
+let colorInputs = {};
 
 //csv variables
 let masterSheet;
@@ -38,6 +41,7 @@ let defaults = {
   clusterOffset: null,
   fadeAlpha: 0.03, // the hidden nodes alpha value
   frictionStart: 0.99,
+  fontName: "tiltneon",
   forceMax: 2,
   forceStart: 0.25,
   idealSeparation: null,
@@ -79,13 +83,17 @@ let state = { //need to refactor this vs options
   bgAlpha: 0.1,
   selectedKeywords: [],
   selectedCluster: null,
+  selectedCourse: null,
   mode: "default" //default, keyword, bounce
 }
 
 function preload(){
   masterSheet = loadTable("data/master_4-8.csv", "csv", "header");
   title = loadImage("assets/brand/ca_title.png");
-  font = loadFont("assets/fonts/tiltneon.ttf");
+  fonts["tiltneon"] = {name: "tiltneon", font: loadFont("assets/fonts/fontTests/tiltneon.ttf")};
+  fonts["yk_med"] = {name: "yk_med", font: loadFont("assets/fonts/fontTests/yk_med.ttf")};
+  fonts["ibmPlex_sans_med"] = {name: "ibmPlex_sans_med", font: loadFont("assets/fonts/fontTests/ibmPlex_sans_med.ttf")};
+  fonts["ibmPlex_mono_med"] = {name: "ibmPlex_mono_med", font: loadFont("assets/fonts/fontTests/ibmPlex_mono_med.ttf")};
 }
 
 /**
@@ -100,7 +108,7 @@ function setup() {
   canvas.parent("mainContainer");
   textAlign(CENTER, CENTER);
   textWrap(WORD);
-  textFont(font);
+  textFont(fonts[defaults.fontName].font); //default
   ellipseMode(CENTER);
   rectMode(CENTER);
   angleMode(DEGREES); //just for 360/7 areas
@@ -220,6 +228,7 @@ function initClusters(){
 
 function initControlUI(){
   //control UI
+  // buttonsDiv = createDiv()
   physicsButton = createButton("TURN MOTION OFF").class("buttons").position(20, height - 50).mousePressed(()=>{
     togglePhysics();
   });
@@ -232,20 +241,21 @@ function initControlUI(){
   });
 
 
-
-  speedDiv = createDiv("maxSpeed").parent("controlDiv").id("speedDiv").class("controls");
+  physicsDiv = createDiv("PHYSICS TESTING").parent("controlDiv").id("physicsDiv").class("controls");
+  createDiv("- - - - - - - - - ").parent("physicsDiv").elt.style.setProperty('width', '100%');
+  speedDiv = createDiv("maxSpeed").parent("physicsDiv").id("speedDiv");
   speedSlider = createSlider(0, defaults.speedMax, defaults.speedStart, 0.1).parent("speedDiv").changed(()=>{
     for (let cNode of courses) {
       cNode.maxSpeed = speedSlider.value();
     }
   });
-  forceDiv = createDiv("maxForce").parent("controlDiv").id("forceDiv").class("controls");
+  forceDiv = createDiv("maxForce").parent("physicsDiv").id("forceDiv");
   forceSlider = createSlider(0.1, defaults.forceMax, defaults.forceStart, 0.1).parent("forceDiv").changed(()=>{
     for (let cNode of courses) {
       cNode.maxForce = forceSlider.value();
     }
   });
-  frictionDiv = createDiv("friction").parent("controlDiv").id("frictionDiv").class("controls");
+  frictionDiv = createDiv("friction").parent("physicsDiv").id("frictionDiv");
   frictionSlider = createSlider(0, 1, defaults.frictionStart, 0.01).parent("frictionDiv").changed(()=>{
     for (let cNode of courses) {
       cNode.friction = frictionSlider.value();
@@ -255,24 +265,59 @@ function initControlUI(){
   //set all CNode physics variables here based on slider defaults
   updateNodePhysics();
 
+  //design testing controls
+  designDiv = createDiv("DESIGN TESTING").parent("controlDiv").id("designDiv").class("controls");
+  createDiv("- - - - - - - - - ").parent("designDiv").elt.style.setProperty('width', '100%');
+  fontsDropdown = createSelect().parent("designDiv").id("fontsDropdown");
+  for (let font of Object.keys(fonts)){
+    // fontsDropdown.option(font.name, font.font);
+    fontsDropdown.option(font);
+  }
+  fontsDropdown.changed(()=>{
+    textFont(fonts[fontsDropdown.selected()].font);
+    document.body.style.setProperty('font-family', fontsDropdown.selected(), 'important'); //thanks Chat GPT
+    // document.getElementById("mainContainer").style.setProperty('font-family', fontsDropdown.selected(), 'important'); //thanks Chat GPT
+    // document.getElementsByClassName
+    for (let cNode of courses){
+      cNode.button.elt.style.setProperty('font-family', fontsDropdown.selected(), 'important');
+    }
+    console.log(fonts[fontsDropdown.selected()])
+  });
+  createDiv("- - - - - - - - - ").parent("designDiv").elt.style.setProperty('width', '100%');
+
+  for (let area of Object.keys(areaColors)){
+    let colorSwatch = createDiv(area).parent("designDiv").class("colorSwatch").id(`colorSwatch-${area}`);
+    let colorHex = createDiv(areaColors[area]).parent("designDiv").class("colorSwatch").id(`colorHex-${area}`);
+    colorInputs[area] = {
+      area: area,
+      hex: areaColors[area], 
+      // input: createInput(areaColors[area]).parent("designDiv").class("inputs"),
+      input: createColorPicker(areaColors[area]).parent("designDiv").class("inputs"),
+    }
+    colorInputs[area].input.changed(inputColorChange.bind(colorInputs[area]));
+    colorSwatch.elt.style.setProperty('background-color', colorInputs[area].hex);
+    colorHex.elt.style.setProperty('background-color', colorInputs[area].hex);
+  }
+
   //anim testing controls
-  blobControlDiv = createDiv('wobble blob anim controls').parent("controlDiv").id("blobControlDiv").class("controls");
-  blobUnitDiv = createDiv(`blobUnit: ${defaults.blobUnit}`).parent("blobControlDiv").id("blobUnitDiv").class("controls");
+  blobControlDiv = createDiv('WOBBLE BLOB ANIM TESTING').parent("controlDiv").id("blobControlDiv").class("controls");
+  createDiv("- - - - - - - - - ").parent("blobControlDiv").elt.style.setProperty('width', '100%');
+  blobUnitDiv = createDiv(`blobUnit: ${defaults.blobUnit}`).parent("blobControlDiv").id("blobUnitDiv");
   blobUnitSlider = createSlider(defaults.nodeSize / 8, defaults.nodeSize, defaults.blobUnit, defaults.nodeSize / 16).parent("blobControlDiv").changed(()=>{
     defaults.blobUnit = blobUnitSlider.value();
     blobUnitDiv.html(`blobUnit: ${defaults.blobUnit}`);
   });
-  wobbleOffsetDiv = createDiv('wobbleOffset').parent("blobControlDiv").id("wobbleOffsetDiv").class("controls");
+  wobbleOffsetDiv = createDiv('wobbleOffset').parent("blobControlDiv").id("wobbleOffsetDiv");
   wobbleOffsetSlider = createSlider(0.1, 40, defaults.wobbleOffset, 0.1).parent("blobControlDiv").changed(()=>{
     defaults.wobbleOffset = wobbleOffsetSlider.value();
     wobbleOffsetDiv.html(`wobbleOffset: ${defaults.wobbleOffset}`);
   });
-  wobbleMaxDiv = createDiv('wobbleMax').parent("blobControlDiv").id("wobbleOffsetDiv").class("controls");
+  wobbleMaxDiv = createDiv('wobbleMax').parent("blobControlDiv").id("wobbleOffsetDiv");
   wobbleMaxSlider = createSlider(defaults.nodeSize / 8, defaults.nodeSize, defaults.wobbleMax, defaults.nodeSize / 8).parent("blobControlDiv").changed(()=>{
     defaults.wobbleMax = wobbleMaxSlider.value();
     wobbleMaxDiv.html(`wobbleMax: ${defaults.wobbleMax}`);
   });
-  wobbleSpeedDiv = createDiv('wobbleSpeed').parent("blobControlDiv").id("wobbleSpeedDiv").class("controls");
+  wobbleSpeedDiv = createDiv('wobbleSpeed').parent("blobControlDiv").id("wobbleSpeedDiv");
   wobbleSpeedSlider = createSlider(0.1, 20, defaults.wobbleSpeed, 0.1).parent("blobControlDiv").changed(()=>{
     defaults.wobbleSpeed = wobbleSpeedSlider.value();
     wobbleSpeedDiv.html(`wobbleSpeed: ${defaults.wobbleSpeed}`);
@@ -387,6 +432,17 @@ function initPanelUI(){
 
 }
 
+function inputColorChange(){
+  //binds to the color input for "this"
+  // let code = this.input.value();
+  let code = this.input.color();
+  // if (code.length == 7 && code.startsWith("#")){
+    this.hex = code.toString('#rrggbb');
+    console.log(this.hex);
+    updateClusterColors(this.area);
+  // }
+}
+
 function keywordCheck(){
   for (let cNode of courses) {
     // cNode.fitsKeywords = checkNodeForSelectedKeywords(cNode);
@@ -419,21 +475,54 @@ function mousePressed(){
 }
 
 function nodeClick(node) {
-  //when a node is clicked. as the name suggests.
+  //when a node is clicked... as the name suggests...
 
-  //deselect any existing nodes, the one that's clicked will select itself
-  for (let cNode of courses){ //ugh TODO redo 'cNode' naming
-    cNode.isSelected = false;
+  // if(state.selectedCourse == null){
+    // state.selectedCourse = node.course;
+    // state.mode = "family";
+    //deselect any existing nodes, the one that's clicked will select itself
+    for (let cNode of courses){ //ugh TODO redo 'cNode' naming
+      cNode.isSelected = false;
+    }
+    // console.log(node.course);
+    coursePanel.show();
+    courseInfo.courseTitle.html(node.course);
+    courseInfo.courseProfessor.html(node.professor);
+    courseInfo.courseShort.html(node.short);
+    courseInfo.courseKeywords.html(node.keywords);
+
+    options.isShowingPanel = true;
+    shiftClusters();
+  // } 
+  /*
+  if(state.selectedCourse == null){
+    state.selectedCourse = node.course;
+    state.mode = "family";
+    //deselect any existing nodes, the one that's clicked will select itself
+    for (let cNode of courses){ //ugh TODO redo 'cNode' naming
+      cNode.isSelected = false;
+    }
+    // console.log(node.course);
+    coursePanel.show();
+    courseInfo.courseTitle.html(node.course);
+    courseInfo.courseProfessor.html(node.professor);
+    courseInfo.courseShort.html(node.short);
+    courseInfo.courseKeywords.html(node.keywords);
+
+    options.isShowingPanel = true;
+    shiftClusters();
+  } else {
+    //reset
+    state.selectedCourse = null;
+    state.mode = "default";
+    for (let cNode of courses){ //ugh TODO redo 'cNode' naming
+      cNode.isSelected = false;
+    }
+    coursePanel.hide();
+    shiftClustersHome();
+    options.isShowingPanel = false;
   }
-  // console.log(node.course);
-  coursePanel.show();
-  courseInfo.courseTitle.html(node.course);
-  courseInfo.courseProfessor.html(node.professor);
-  courseInfo.courseShort.html(node.short);
-  courseInfo.courseKeywords.html(node.keywords);
-
-  options.isShowingPanel = true;
-  shiftClusters();
+  */
 }
 
 function nodeUpdates(){
@@ -629,6 +718,20 @@ function toggleBounce(){
 
     // };
     // bounceButton.html("BOUNCE HOUSE ON");
+  }
+}
+
+function updateClusterColors(area){
+  for (let cluster of Object.keys(clusters)){
+    if (cluster == area){
+      clusters[cluster].color = color(colorInputs[area].hex);
+      document.getElementById(`colorSwatch-${area}`).style.setProperty('background-color', colorInputs[area].hex);
+      document.getElementById(`colorHex-${area}`).style.setProperty('background-color', colorInputs[area].hex);
+      select(`#colorHex-${area}`).html(colorInputs[area].hex);
+    }
+  }
+  for (let cNode of courses){
+    cNode.updateColors();
   }
 }
 

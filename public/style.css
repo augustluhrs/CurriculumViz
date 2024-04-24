@@ -6,13 +6,26 @@
 
 @font-face {
   font-family: 'tiltneon';
-  src: url('assets/fonts/tiltneon.ttf') format('truetype');
+  src: url('assets/fonts/fontTests/tiltneon.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'yk_med';
+  src: url('assets/fonts/fontTests/yk_med.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'ibmPlex_sans_med';
+  src: url('assets/fonts/fontTests/ibmPlex_sans_med.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'ibmPlex_mono_med';
+  src: url('assets/fonts/fontTests/ibmPlex_mono_med.ttf') format('truetype');
 }
 
 
 html, body {
   margin: 0;
   padding: 0;
+  font-family: "tiltneon";
 }
 canvas {
   display: block;
@@ -25,9 +38,13 @@ canvas {
   display: none; 
 }
 
-.panels {
-  /* display: flexbox; */
+/* #mainContainer {
   font-family: "tiltneon";
+} */
+
+.panels {
+  /* display: inline-block; */
+  /* font-family: "tiltneon"; */
 }
 
 #coursePanel {
@@ -63,10 +80,6 @@ canvas {
   transform: translate(-50%, -50%); /*center button */
 }
 
-.cNode:hover {
-  background-color: #156064;
-}
-
 .buttons {
   margin: 10px;
   background-color: rgb(108,112,45);
@@ -85,11 +98,33 @@ canvas {
 }
 
 .checkboxes {
-  font-family: "tiltneon";
+  /* font-family: "tiltneon"; */
   font-size: 110%;
   padding-left: 10%;
 }
 
+.colorSwatch{
+  background-color: white;
+}
+
+#controlDiv {
+  /* font-family: "tiltneon"; */
+  display: flex;
+  justify-content: space-evenly;
+}
+
 .controls {
-  font-family: "tiltneon";
+  /* font-family: "tiltneon"; */
+  /* display: flex; */
+  /* justify-content: space-evenly; */
+  font-size: 120%;
+}
+
+#designDiv{
+  display: flex;
+  flex-direction: column;
+}
+
+.inputs {
+  width: auto;
 }

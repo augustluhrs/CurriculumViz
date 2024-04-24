@@ -2,6 +2,28 @@
 
 ## v0
 
+### v0.1.20
+
+#### *4/24/24 2.5hrs*
+
+- control updates
+  - spaced out div sections
+  - added design controls
+    - font select (doesn't change buttons or fontsize)
+    - color tester (inputs then color picker, with hex updating)
+  
+todo:
+- technology --> tech in cluster display
+- example image
+- keywords
+  - added family state
+  - fixed relationship sorting
+  - placeholder sibling/cousin/relative split
+  - updating click function
+  - should do a family mode toggle
+  - node anim functions -- checkFamilyPosition() and goFamilyReunion() (check vs go...)
+- panel spacing
+
 ### v0.1.19
 
 #### *4/23/24 3.75 hrs*

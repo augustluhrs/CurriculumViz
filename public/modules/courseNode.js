@@ -34,6 +34,7 @@ class CNode { //courseNode
     this.shouldCheckCollision = false; //so the collision only gets turned off once per big event, to prevent edge bugs
 
     //css element
+    // this.button = createButton(this.course).class("cNode").parent("mainContainer");
     this.button = createButton(this.course).class("cNode");
     this.button.elt.style.width = defaults.nodeSize_px;
     this.button.elt.style.height = defaults.nodeSize_px;
@@ -117,8 +118,9 @@ class CNode { //courseNode
     } else if(state.mode == "bounce"){
       //hmm I kind of like how some have collisions and some don't...
       // this.hasCollisions = false;
-    } else if(state.mode == "relationships"){
-
+    } else if(state.mode == "family"){
+      //check for updated pos stuff?
+      this.checkFamilyPosition();
     }
 
     if (this.hasClusterSelectionChanged){
@@ -141,8 +143,9 @@ class CNode { //courseNode
       this.checkNodeDist(coursesCopy);
       this.checkClusterDist();
     }
-    else if (state.mode == "keyword"){
+    else if (state.mode == "family"){
       this.checkNodeDist(coursesCopy);
+      this.goFamilyReunion();
     }
     else if (state.mode == "bounce"){
       this.checkNodeDist(coursesCopy);
@@ -346,9 +349,22 @@ class CNode { //courseNode
       this.relationships.unsorted.push([key, value]);
     }
     // console.log(this.relationships.unsorted);
-    // this.relationships.sorted = this.relationships.unsorted.sort((a, b)=>{a[1] - b[1] 
-      // console.log(a)});
+    this.relationships.sorted = this.relationships.unsorted.sort((a, b)=>{return b[1] - a[1]}); 
     // console.log(this.course, this.relationships.sorted);
+
+    //get the siblings and cousins from the sorted array
+    //first see where to draw the line between siblings/cousins/others
+    //for now, doing 3+, 1-2, 0
+    for (let relationship of this.relationships.sorted){
+      //welp, don't have to sort yet i guess
+      if (relationship[1] >= 3){
+        this.relationships.siblings.push(relationship);
+      } else if (relationship[0] == 0){
+        this.relationships.relatives.push(relationship);
+      } else {
+        this.relationships.cousins.push(relationship);
+      }
+    }
   }
 
   checkVisibility(){
@@ -390,7 +406,9 @@ class CNode { //courseNode
   click(){
     if (this.isVisible){ //can't click on invisible stuff in background
       this.clickCallback(this);
-      this.isSelected = true;
+      // if (state.mode == "family"){
+        this.isSelected = true;
+      // }
     }
   }
 
@@ -463,6 +481,19 @@ class CNode { //courseNode
     }
 
     this.button.position(this.pos.x, this.pos.y);
+  }
+
+  updateColors(){
+    this.color = color(this.cluster.color.toString());
+    this.button.elt.style.background = this.color;
+
+    if (this.area == "CORE"){
+      this.color2 = color(this.secondCluster.color.toString());
+      this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
+    } else if (this.area == "SOUL") {
+      this.color2 = color(clusters["CORE"].color.toString());
+      this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
+    }
   }
   
   updatePos(stepSize){

@@ -33,6 +33,7 @@
     - [ ] click to show (mobile)
     - [X] click to show (desktop)
       - [X] click to hide
+      - [ ] click node again to hide
     - [X] shift clusters to side
       - [X] nodes avoid panel
     - [X] basic info
@@ -108,6 +109,7 @@
       - [ ] vscode auto collapse on open? or hotkey?
     - [ ] clean up sketch code
     - [ ] easter egg button
+    - [ ] change Technology to Tech (needs sheet, courseNode.js and areas.js)
     - [ ] physics updates
       - [X] substepping
       - [ ] shader
