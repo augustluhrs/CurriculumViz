@@ -2,6 +2,27 @@
 
 ## v0
 
+### v0.1.21
+
+#### *4/25/24 1.75hrs*
+
+- family reunion keyword state
+  - placeholder relationship sort based on minimum of 6 per orbit
+  - check and go methods
+  - working click toggle to activate family reunion mode, but spacing is weird
+- organized courseNode constructor sections
+
+todo:
+- technology --> tech in cluster display
+- example image
+- keywords
+  - should do a family mode toggle
+  - spiral anim
+  - soft body family
+- panel spacing
+- click areas during bounce
+- selection animation should go away when not visible
+
 ### v0.1.20
 
 #### *4/24/24 2.5hrs*
@@ -11,18 +32,6 @@
   - added design controls
     - font select (doesn't change buttons or fontsize)
     - color tester (inputs then color picker, with hex updating)
-  
-todo:
-- technology --> tech in cluster display
-- example image
-- keywords
-  - added family state
-  - fixed relationship sorting
-  - placeholder sibling/cousin/relative split
-  - updating click function
-  - should do a family mode toggle
-  - node anim functions -- checkFamilyPosition() and goFamilyReunion() (check vs go...)
-- panel spacing
 
 ### v0.1.19
 
