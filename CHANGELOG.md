@@ -2,16 +2,14 @@
 
 ## v0
 
-### v0.1.22
+### v0.1.23
 
-#### *4/27/24 3 hrs*
+#### *4/28/24 1 hr*
 
-- rainbow selection anim
-  - go away when not visible
-  - increase hue shift offset
 - family reunion
-  - spring connections WIP
-  - using magSq now, but maybe shouldn't... (edit: bug in center orbit, removed)
+  - added more springs to keep shape
+  - selected course only cares about center
+- alpha slider in controls
 
 next:
 - technology --> tech in cluster display
@@ -27,6 +25,18 @@ next:
 - click areas during bounce
 - test accumulating nodeDist dir before applying force
 - add latest courses
+- clock mode?
+
+### v0.1.22
+
+#### *4/27/24 3 hrs*
+
+- rainbow selection anim
+  - go away when not visible
+  - increase hue shift offset
+- family reunion
+  - spring connections WIP
+  - using magSq now, but maybe shouldn't... (edit: bug in center orbit, removed)
 
 ### v0.1.21
 

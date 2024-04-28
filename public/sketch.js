@@ -24,6 +24,7 @@ let keywordPanel, keywordPanelButton;
 let keywordCheckboxes = {};
 let blobControlDiv, blobUnitDiv, wobbleOffsetDiv, wobbleMaxDiv, wobbleSpeedDiv; 
 let wobbleSpeedSlider, wobbleOffsetSlider, wobbleMaxSlider, blobUnitSlider;
+let otherDiv, alphaDiv, alphaSlider;
 let designDiv, fontsDropdown, fontLoader;
 let colorInputs = {};
 
@@ -37,11 +38,11 @@ let reunion = {}; //stores course relationships by name as key
 //defaults --> settings
 let defaults = {
   allowedDistFromCluster: null, //will change in setup
-  bg: null,
   blobUnit: null, //scale of blobWobble/petals
   boundaryForce: null,
   clusterOffset: null,
   fadeAlpha: 0.03, // the hidden nodes alpha value
+  familyOrbitSize: 4, //the minimum number of siblings and cousins
   frictionStart: 0.99,
   fontName: "tiltneon",
   forceMax: 2,
@@ -87,6 +88,7 @@ options.isMoving = true;
 options.isPhysics = true;
 
 let state = { //need to refactor this vs options
+  bg: null,
   bgAlpha: 0.1,
   clusterCenter: null,  //center of cluster web, is shifted by panels opening
   selectedKeywords: [],
@@ -123,10 +125,10 @@ function setup() {
   colorMode(HSB, 360, 100, 100, 1);
   // colorMode(HSB, 1, 1, 1, 1); //normalizing for color _array
   // bg = color("#616708"); //olive
-  defaults.bg = color("#aaef74"); //light pale green
-  // defaults.bg = color('#aaff55'); // light green
+  state.bg = color("#aaef74"); //light pale green
+  // state.bg = color('#aaff55'); // light green
   if(options.isAlphaPaint){
-    defaults.bg.setAlpha(state.bgAlpha);
+    state.bg.setAlpha(state.bgAlpha);
   }
 
   //title logo
@@ -156,7 +158,7 @@ function setup() {
   state.clusterCenter = createVector(width/2, height/2);
   panelLeftEdge = width * .72; //course panel
   panelRightEdge = width * .1; //keyword panel
-  defaults.orbitDiameter = defaults.nodeSize * 4;
+  defaults.orbitDiameter = defaults.nodeSize * 1.5;
 
   //blob anim
   defaults.blobUnit = defaults.nodeSize / 4;
@@ -179,7 +181,7 @@ function setup() {
  */
 
 function draw() {
-  background(defaults.bg);
+  background(state.bg);
   //CA logo in top left corner
   image(title, 10, 10, defaults.titleSize, defaults.titleSize * defaults.titleRatio);
 
@@ -235,6 +237,7 @@ function initClusters(){
   pop();
 }
 
+//MARK: controlUI
 function initControlUI(){
   //control UI
   // buttonsDiv = createDiv()
@@ -274,6 +277,15 @@ function initControlUI(){
   //set all CNode physics variables here based on slider defaults
   updateNodePhysics();
 
+  //misc controls
+
+  otherDiv = createDiv("OTHER CONTROLS").parent("controlDiv").id("otherDiv").class("controls");
+  createDiv("- - - - - - - - - ").parent("otherDiv").elt.style.setProperty('width', '100%');
+  alphaDiv = createDiv("").parent("otherDiv").id("alphaDiv");
+  alphaSlider = createSlider(0, 1, state.bgAlpha, 0.01).parent("alphaDiv").changed(()=>{
+    state.bgAlpha = alphaSlider.value();
+    state.bg.setAlpha(state.bgAlpha);
+  })
   //design testing controls
   designDiv = createDiv("DESIGN TESTING").parent("controlDiv").id("designDiv").class("controls");
   createDiv("- - - - - - - - - ").parent("designDiv").elt.style.setProperty('width', '100%');
@@ -467,9 +479,9 @@ function mousePressed(){
     if (i == 1){continue;};//skipping soul, is dumb b/c i dumb
     if (p5.Vector.dist(clusters[areas[i][0]].pos, mousePos) < defaults.nodeSize * 0.6){
       //TODO this is dumb, but want to reset canvas when clicking area to remove ghosts
-      defaults.bg.setAlpha(1);
-      background(defaults.bg);
-      defaults.bg.setAlpha(state.bgAlpha); //ugh defaults vs state...
+      state.bg.setAlpha(1);
+      background(state.bg);
+      state.bg.setAlpha(state.bgAlpha); //ugh defaults vs state...
       // console.log(areas[i]);
       if (state.selectedCluster == null){
         state.selectedCluster = areas[i][0];
@@ -684,7 +696,7 @@ function toggleBounce(){
 
       //make the background no alpha so we get trails
       // if(options.isAlphaPaint){
-        defaults.bg.setAlpha(0);
+        state.bg.setAlpha(0);
       // }
 
       //hiding physics button to not get confused
@@ -700,7 +712,7 @@ function toggleBounce(){
       // togglePhysics();
       updateNodePhysics();
       if(options.isAlphaPaint){
-        defaults.bg.setAlpha(state.bgAlpha);
+        state.bg.setAlpha(state.bgAlpha);
       }
       // physicsButton.show();
       // mouseAvoidButton.show();

@@ -141,7 +141,7 @@ class CNode { //courseNode
       this.checkClusterDist();
     }
     else if (state.mode == "family"){
-      this.checkNodeDist(coursesCopy); //won't work unless collisions on
+      // this.checkNodeDist(coursesCopy); //won't work unless collisions on
       this.goFamilyReunion(coursesCopy);
     }
     else if (state.mode == "bounce"){
@@ -282,7 +282,7 @@ class CNode { //courseNode
     //assigns itself an orbit based on relationship to currentCourse
     //hmm what changes would happen here, as in, why am i calling this every loop?
     if (this.familyMember == state.selectedCourse){return;}
-    // this.hasCollisions = false; //TODO centralize
+    this.hasCollisions = false; //TODO centralize
     this.familyMember = state.selectedCourse;
 
     //reset springs
@@ -299,6 +299,7 @@ class CNode { //courseNode
         }
       }
     }
+
     
     //create the spring body?
     if (this.orbit == 0 || this.orbit == 3){ return; }//just siblings and cousins
@@ -310,35 +311,65 @@ class CNode { //courseNode
     // let springSpacing = ( circ - ( numNodes * defaults.nodeSize ) ) /  numNodes; //wait, doesn't matter since from center anyway
     let springSpacing = circ / numNodes;
     
-    //find your reunion neighbors and create springs to them
+    //find your spot in the orbit array
     for (let i = 0; i < orbitMembers.length; i++){
       if (orbitMembers[i][0] == this.course){ 
         this.orbitSlot = i;
         continue;
       }
     }
-
-    //do the same for the center course
-    
-
+    //find your reunion neighbors and create springs to them
+    //each spring needs course and restLength
     for (let i = 0; i < orbitMembers.length; i++){
       if ( i == this.orbitSlot ){ continue; }
-      //check for edges of array
+      //add left/right neighbors of array as spring connections
       if ( ( this.orbitSlot == 0 && i == orbitMembers.length - 1 ) || 
-           ( this.orbitSlot == orbitMembers.length - 1 && i == 0 ) ) {
-        //each spring needs course and restLength
+           ( this.orbitSlot == orbitMembers.length - 1 && i == 0 ) ) { 
+      // if ( abs( this.orbitSlot - i ) == orbitMembers.length - 1 ) {
+        //check for edges of array
         this.springs.push({
           course: orbitMembers[i][0],
           restLengthSq: springSpacing * springSpacing, //switching to using magSq
         })
       } else if (abs(this.orbitSlot - i) == 1) {
-        //add left/right neighbors of array as spring connections
         this.springs.push({
           course: orbitMembers[i][0],
           restLengthSq: springSpacing * springSpacing,  
         })
       } 
     }
+    //create springs two away around the circle to keep the shape
+    //dist should roughly be hypotenuse (already sq)
+    for (let i = 0; i < orbitMembers.length; i++){
+      if ( i == this.orbitSlot ){ continue; }
+      if ( ( this.orbitSlot == 0 && i == orbitMembers.length - 2 ) || 
+           ( this.orbitSlot == orbitMembers.length - 1 && i == 1 ) ) {
+        this.springs.push({
+          course: orbitMembers[i][0],
+          restLengthSq: ( springSpacing * springSpacing ) + ( springSpacing * springSpacing ),
+        })
+      } else if ( ( this.orbitSlot == 1 && i == orbitMembers.length - 1 ) || 
+                  ( this.orbitSlot == orbitMembers.length - 1 && i == 0 ) ) {
+        this.springs.push({
+          course: orbitMembers[i][0],
+          restLengthSq: springSpacing * springSpacing,  
+          // restLengthSq: ( springSpacing * springSpacing ) + ( springSpacing * springSpacing ),
+        })
+      } else if (abs(this.orbitSlot - i) == 2) {
+        this.springs.push({
+          course: orbitMembers[i][0],
+          restLengthSq: springSpacing * springSpacing,  
+          // restLengthSq: ( springSpacing * springSpacing ) + ( springSpacing * springSpacing ),  
+        })
+      } 
+    }
+
+    //do the same for the center course (course itself doesn't have spring force, just goes to middle...)
+    let idealDistFromCenter = ( defaults.orbitDiameter * this.orbit ) + ( this.size / 2 );
+    // this.springs.push({
+    //   course: this.familyMember,
+    //   restLengthSq: idealDistFromCenter * idealDistFromCenter,
+    // })
   }
 
   checkKeywords(){ //toggles the fade on courses that don't match keywords
@@ -417,7 +448,7 @@ class CNode { //courseNode
     //first see where to draw the line between siblings/cousins/others
     // let siblingMin = 5;
     // let cousinMin = 8;
-    let orbitMinMembers = 6; //hmm
+    let orbitMinMembers = defaults.familyOrbitSize; //hmm
     let k_threshold = this.relationships.sorted[0][1]; //the highest number of same keywords
     let family = this.relationships.sorted;
     let familyOrbits = [
@@ -505,8 +536,9 @@ class CNode { //courseNode
     pop();
   }
 
+  //MARK: goFamily
   goFamilyReunion(coursesCopy){
-    
+    /*
     //check to make sure in the correct orbit layer
     let centerOffset = p5.Vector.sub(this.pos, state.clusterCenter);
     let dist = centerOffset.mag();
@@ -520,7 +552,16 @@ class CNode { //courseNode
     } else {
       // this.hasCollisions = true;
     }
-
+*/
+//need orbit layers or will springs cover that?
+    let centerOffset = p5.Vector.sub(state.clusterCenter, this.pos);
+    if (this.orbit == 0){
+      // let dist = centerOffset.mag(); 
+      this.acc.add(centerOffset);  
+    } else if (this.orbit == 3) {
+      centerOffset.setMag(-10);
+      this.acc.add(centerOffset);
+    }
 
     //check spring lengths
     for (let spring of this.springs){
@@ -579,8 +620,8 @@ class CNode { //courseNode
     //show spring lines
     if (state.mode == "family") {
       push();
-      strokeWeight(4);
-      stroke(0);
+      strokeWeight(2);
+      stroke(180, 80, 90);
 
       for (let spring of this.springs) {
         for (let cNode of courses){
