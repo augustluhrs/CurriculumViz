@@ -2,6 +2,32 @@
 
 ## v0
 
+### v0.1.22
+
+#### *4/27/24 3 hrs*
+
+- rainbow selection anim
+  - go away when not visible
+  - increase hue shift offset
+- family reunion
+  - spring connections WIP
+  - using magSq now, but maybe shouldn't... (edit: bug in center orbit, removed)
+
+next:
+- technology --> tech in cluster display
+- course info
+  - example image
+  - (strapi research)
+  - other info
+- keywords
+  - should do a family mode toggle
+  - spiral anim
+- dragging node (how if click is toggle...)
+- keyword panel spacing
+- click areas during bounce
+- test accumulating nodeDist dir before applying force
+- add latest courses
+
 ### v0.1.21
 
 #### *4/25/24 1.75hrs*
@@ -11,17 +37,6 @@
   - check and go methods
   - working click toggle to activate family reunion mode, but spacing is weird
 - organized courseNode constructor sections
-
-todo:
-- technology --> tech in cluster display
-- example image
-- keywords
-  - should do a family mode toggle
-  - spiral anim
-  - soft body family
-- panel spacing
-- click areas during bounce
-- selection animation should go away when not visible
 
 ### v0.1.20
 

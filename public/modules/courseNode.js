@@ -1,5 +1,3 @@
-let rainbowSpacing = 10;
-
 class CNode { //courseNode
   // constructor(data, pos){
   constructor(data, clickCallback){
@@ -71,8 +69,10 @@ class CNode { //courseNode
     this.maxForce = .2; //speed of change to movement
     this.friction = 0.9; //drags to stop
 
+    //MARK:construct
     //animations
     this.rainbowOffset = 0; //for selection animation
+    this.outlineOffset = 0;
     this.blob = [];
     this.initBlob();
 
@@ -97,9 +97,12 @@ class CNode { //courseNode
       cousins: [],
       relatives: [], //the "others"
     };
+    this.springs = []; // the reunion spacing forces
+    this.orbitSlot; //the sibling/cousin spot around the orbit for springs
     
   }
 
+  //MARK:adjust/state
   adjustSelfBeforeUpdate(){//hmm, prob will refactor, but this is supposed to be where all the state responsive object changes happen
     if (state.mode == "default"){
       if(this.shouldCheckCollision){
@@ -138,8 +141,8 @@ class CNode { //courseNode
       this.checkClusterDist();
     }
     else if (state.mode == "family"){
-      this.checkNodeDist(coursesCopy);
-      this.goFamilyReunion();
+      this.checkNodeDist(coursesCopy); //won't work unless collisions on
+      this.goFamilyReunion(coursesCopy);
     }
     else if (state.mode == "bounce"){
       this.checkNodeDist(coursesCopy);
@@ -159,11 +162,13 @@ class CNode { //courseNode
    * 
    */
 
-  anim_selectionRainbow(rainbowOffset){
+  anim_selectionRainbow(){
+    this.rainbowOffset > 360 ? this.rainbowOffset = 0 : this.rainbowOffset += defaults.rainbowSpacing;
+    this.outlineOffset > this.size * defaults.outlineMax ? this.outlineOffset = this.size * 1.1 : this.outlineOffset += defaults.outlineSpeed;
     push();
-    fill(rainbowOffset, 100, 100, .2);
-    let leSigh = map(rainbowOffset, 0, 360, this.size, this.size * 1.6);
-    ellipse(this.pos.x, this.pos.y, leSigh);
+    fill(this.rainbowOffset, 100, 100, .25);
+    // let leSigh = map(rainbowOffset, 0, 360, this.size, this.size * 1.6);
+    ellipse(this.pos.x, this.pos.y, this.outlineOffset);
     pop();
   }
 
@@ -203,6 +208,7 @@ class CNode { //courseNode
     pop();
   }
 
+  //MARK: check
   checkBounds() {
     //make sure it's staying in bounds
     if (this.pos.x > width - (this.size / 2)) {this.acc.add(createVector(-defaults.boundaryForce, 0))}
@@ -276,27 +282,63 @@ class CNode { //courseNode
     //assigns itself an orbit based on relationship to currentCourse
     //hmm what changes would happen here, as in, why am i calling this every loop?
     if (this.familyMember == state.selectedCourse){return;}
-    
+    // this.hasCollisions = false; //TODO centralize
     this.familyMember = state.selectedCourse;
 
+    //reset springs
+    this.springs = [];
     //if self, goFamilyReunion will handle center seek
     this.orbit = 0;
-    //orbitDistMin and orbitDistMax in defaults
-    // if (courses[])//hmmmmmmmmmmm might be dumb, but going to make a reunion object for searching outside of courses array
-    // for (let i = 0; i < 3; i++){
-    //   for (let)
-    // }
+
     //going to assign an orbit property for now for spiral anim
     for (let i = 0; i < 3; i++){
       for (let member of reunion[this.familyMember][i]){
         if (member[0] == this.course){
           this.orbit = i+1; //0 is center;
-          return;
+          continue;
         }
       }
     }
-    //resets collision if off --nvm this should be handled by checkVisiblity
-    // this.hasCollisions = true; 
+    
+    //create the spring body?
+    if (this.orbit == 0 || this.orbit == 3){ return; }//just siblings and cousins
+
+    let orbitMembers = reunion[this.familyMember][this.orbit-1];
+    //get the desired spacing (divide circumference minus combined nodeSize by numNodes)
+    let circ = PI * defaults.orbitDiameter;
+    let numNodes = orbitMembers.length;
+    // let springSpacing = ( circ - ( numNodes * defaults.nodeSize ) ) /  numNodes; //wait, doesn't matter since from center anyway
+    let springSpacing = circ / numNodes;
+    
+    //find your reunion neighbors and create springs to them
+    for (let i = 0; i < orbitMembers.length; i++){
+      if (orbitMembers[i][0] == this.course){ 
+        this.orbitSlot = i;
+        continue;
+      }
+    }
+
+    //do the same for the center course
+    
+
+    for (let i = 0; i < orbitMembers.length; i++){
+      if ( i == this.orbitSlot ){ continue; }
+      //check for edges of array
+      if ( ( this.orbitSlot == 0 && i == orbitMembers.length - 1 ) || 
+           ( this.orbitSlot == orbitMembers.length - 1 && i == 0 ) ) {
+        //each spring needs course and restLength
+        this.springs.push({
+          course: orbitMembers[i][0],
+          restLengthSq: springSpacing * springSpacing, //switching to using magSq
+        })
+      } else if (abs(this.orbitSlot - i) == 1) {
+        //add left/right neighbors of array as spring connections
+        this.springs.push({
+          course: orbitMembers[i][0],
+          restLengthSq: springSpacing * springSpacing,  
+        })
+      } 
+    }
   }
 
   checkKeywords(){ //toggles the fade on courses that don't match keywords
@@ -463,22 +505,45 @@ class CNode { //courseNode
     pop();
   }
 
-  goFamilyReunion(){
+  goFamilyReunion(coursesCopy){
+    
+    //check to make sure in the correct orbit layer
     let centerOffset = p5.Vector.sub(this.pos, state.clusterCenter);
     let dist = centerOffset.mag();
-
-    this.hasCollisions = false;
-    if (dist < defaults.orbitDist * this.orbit){ //too close to center
+    // this.hasCollisions = false;
+    if (dist < defaults.orbitDiameter * this.orbit){ //too close to center
       centerOffset.setMag(defaults.idealSeparation); //hmm same force okay?
       this.acc.add(centerOffset);
-    } else if (dist > defaults.orbitDist * (this.orbit + 1)){ //too far from center
+    } else if (dist > defaults.orbitDiameter * (this.orbit + 1)){ //too far from center
       centerOffset.setMag(-defaults.idealSeparation);
       this.acc.add(centerOffset);
     } else {
-      this.hasCollisions = true;
+      // this.hasCollisions = true;
     }
 
-    //should i make a softbody organism with spring links... that's one way to ensure spacing...
+
+    //check spring lengths
+    for (let spring of this.springs){
+      //hmm should prob change coursesCopy to object...?
+      for (let nodeCopy of coursesCopy){
+        if (nodeCopy.course !== spring.course) { continue; }
+        let springOffset = p5.Vector.sub(nodeCopy.pos, this.pos);
+        let springLengthSq = springOffset.magSq();
+        let buffer = 20;
+        if ( ( springLengthSq < spring.restLengthSq - buffer ) ||
+             ( springLengthSq > spring.restLengthSq + buffer ) ) {
+          //should repel (too close) or attract (too far)
+          springOffset.setMag(springLengthSq - spring.restLengthSq);
+          // console.log(springOffset.mag())
+          //need damp?
+          this.acc.add(springOffset);
+          continue;
+        } else {
+          // console.log(this.course + " is spaced well");
+        }
+      }
+    }
+    
 
   }
 
@@ -511,18 +576,28 @@ class CNode { //courseNode
   }
 
   show(){
+    //show spring lines
+    if (state.mode == "family") {
+      push();
+      strokeWeight(4);
+      stroke(0);
+
+      for (let spring of this.springs) {
+        for (let cNode of courses){
+          if ( spring.course !== cNode.course ) { continue; }
+          line(this.pos.x, this.pos.y, cNode.pos.x, cNode.pos.y);
+        }
+      }
+      pop();
+    }
+
     //for alpha paint trails
     if (options.isAlphaPaint) {
       push();
       noStroke();
-      if(this.isSelected){
+      if(this.isSelected && this.isVisible){
         //new rainbow fade anim
-        if (this.rainbowOffset > 360) {
-          this.rainbowOffset = 0;
-        } else {
-          this.rainbowOffset += rainbowSpacing;
-        }
-        this.anim_selectionRainbow(this.rainbowOffset);
+        this.anim_selectionRainbow();
         //blob petal wobbling
         this.anim_wobbleBlob();
       // } else if (this.fitsKeywords){
@@ -536,6 +611,7 @@ class CNode { //courseNode
     this.button.position(this.pos.x, this.pos.y);
   }
 
+  //MARK: show/update
   updateColors(){
     this.color = color(this.cluster.color.toString());
     this.button.elt.style.background = this.color;

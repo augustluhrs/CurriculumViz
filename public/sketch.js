@@ -33,6 +33,7 @@ let courses = []; //stores the cNodes
 let clusters = {}; //stores the vector locations of the web clusters by area
 let reunion = {}; //stores course relationships by name as key
 
+//MARK: defaults
 //defaults --> settings
 let defaults = {
   allowedDistFromCluster: null, //will change in setup
@@ -50,8 +51,11 @@ let defaults = {
   nodeScale: 0.09, //9% of shorter side of window
   nodeSize: null,
   nodeSize_px: null,
-  orbitDist: null, //familyReunion spacing, even for now
+  orbitDiameter: null, //familyReunion spacing, even for now
   // orbitDistMax: null,
+  outlineMax: 1.7, //for rainbow anim
+  outlineSpeed: 5,
+  rainbowSpacing: 6, //hueOffset
   speedMax: 4,
   speedStart: 0.8,
   subSteps: 8,
@@ -152,7 +156,7 @@ function setup() {
   state.clusterCenter = createVector(width/2, height/2);
   panelLeftEdge = width * .72; //course panel
   panelRightEdge = width * .1; //keyword panel
-  defaults.orbitDist = defaults.nodeSize * 2;
+  defaults.orbitDiameter = defaults.nodeSize * 4;
 
   //blob anim
   defaults.blobUnit = defaults.nodeSize / 4;
@@ -480,28 +484,9 @@ function mousePressed(){
   }
 }
 
+//MARK: click
 function nodeClick(node) {
   //when a node is clicked... as the name suggests...
-/*
-  // if(state.selectedCourse == null){
-    // state.selectedCourse = node.course;
-    // state.mode = "family";
-    //deselect any existing nodes, the one that's clicked will select itself
-    for (let cNode of courses){ //ugh TODO redo 'cNode' naming
-      cNode.isSelected = false;
-    }
-    // console.log(node.course);
-    coursePanel.show();
-    courseInfo.courseTitle.html(node.course);
-    courseInfo.courseProfessor.html(node.professor);
-    courseInfo.courseShort.html(node.short);
-    courseInfo.courseKeywords.html(node.keywords);
-
-    options.isShowingPanel = true;
-    shiftClusters();
-  // } 
-  */
-  
   if(state.selectedCourse !== node.course){
     state.selectedCourse = node.course;
     state.mode = "family";
@@ -524,6 +509,7 @@ function nodeClick(node) {
     state.mode = "default";
     for (let cNode of courses){ //ugh TODO redo 'cNode' naming
       cNode.isSelected = false;
+      cNode.shouldCheckCollision = true;
     }
     coursePanel.hide();
     shiftClustersHome();
@@ -594,6 +580,7 @@ function shiftClustersHome(){
   pop();
 }
 
+//MARK: show
 function showClusters(){
   if (state.mode == "family"){return;}//don't show if in keywords mode
   push();
