@@ -2,6 +2,65 @@
 
 ## v0
 
+### v0.1.24
+
+#### *4/28/24 20 mins and 4/30/24 2hrs*
+
+- family reunion
+  - abandoned spring body system because i'm a dingus that forgot big picture, doing same distribution method as cluster
+  - evenly spaced around orbit, second layer offset by 45 degrees
+  - links connect course to siblings and cousins
+  - orbit size slider in controls for testing
+  - spiral anim for outermost relatives
+  - adjusted cluster center b/c was a little left when shifted
+
+### v0.1.23
+
+#### *4/28/24 1 hr*
+
+- family reunion
+  - added more springs to keep shape
+  - selected course only cares about center
+- alpha slider in controls
+
+next:
+- technology --> tech in cluster display
+- course info
+  - example image
+  - (strapi research)
+  - other info
+- keywords
+  - should do a family mode toggle
+  - spiral anim
+- dragging node (how if click is toggle...)
+- keyword panel spacing
+- click areas during bounce
+- test accumulating nodeDist dir before applying force
+- add latest courses
+- clock mode?
+- courses object
+
+### v0.1.22
+
+#### *4/27/24 3 hrs*
+
+- rainbow selection anim
+  - go away when not visible
+  - increase hue shift offset
+- family reunion
+  - spring connections WIP
+  - using magSq now, but maybe shouldn't... (edit: bug in center orbit, removed)
+
+### v0.1.21
+
+#### *4/25/24 1.75hrs*
+
+- family reunion keyword state
+  - placeholder relationship sort based on minimum of 6 per orbit
+  - check and go methods
+  - working click toggle to activate family reunion mode, but spacing is weird
+- organized courseNode constructor sections
+
 ### v0.1.20
 
 #### *4/24/24 2.5hrs*
@@ -11,18 +70,6 @@
   - added design controls
     - font select (doesn't change buttons or fontsize)
     - color tester (inputs then color picker, with hex updating)
-  
-todo:
-- technology --> tech in cluster display
-- example image
-- keywords
-  - added family state
-  - fixed relationship sorting
-  - placeholder sibling/cousin/relative split
-  - updating click function
-  - should do a family mode toggle
-  - node anim functions -- checkFamilyPosition() and goFamilyReunion() (check vs go...)
-- panel spacing
 
 ### v0.1.19
 

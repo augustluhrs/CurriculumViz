@@ -18,12 +18,13 @@ let title; //ca title logo
 let canvas, coursePanel, coursePanelButton;
 let courseInfo = {}; //stores the divs for the diff class info stuff in the coursePanel
 let panelLeftEdge; //TODO should have all the course panel stuff in own object
-let clusterCenter; //center of cluster web, is shifted by panels opening
+// let clusterCenter;
 let bounceDelay; //stores the interval ID to clear the physics toggle in bounceToggle
 let keywordPanel, keywordPanelButton;
 let keywordCheckboxes = {};
 let blobControlDiv, blobUnitDiv, wobbleOffsetDiv, wobbleMaxDiv, wobbleSpeedDiv; 
 let wobbleSpeedSlider, wobbleOffsetSlider, wobbleMaxSlider, blobUnitSlider;
+let otherDiv, familyControlDiv, familyNumDiv, familyNumSlider, alphaDiv, alphaSlider;
 let designDiv, fontsDropdown, fontLoader;
 let colorInputs = {};
 
@@ -33,15 +34,17 @@ let warningText = "";
 let masterSheet;
 let courses = []; //stores the cNodes
 let clusters = {}; //stores the vector locations of the web clusters by area
+let reunion = {}; //stores course relationships by name as key
 
-//defaults --> settings
+//MARK: defaults
+//defaults --> settings // not mutable besides in control panel
 let defaults = {
   allowedDistFromCluster: null, //will change in setup
-  bg: null,
   blobUnit: null, //scale of blobWobble/petals
   boundaryForce: null,
   clusterOffset: null,
   fadeAlpha: 0.03, // the hidden nodes alpha value
+  familyOrbitSize: 4, //the minimum number of siblings and cousins
   frictionStart: 0.99,
   fontName: "tiltneon",
   forceMax: 2,
@@ -51,6 +54,11 @@ let defaults = {
   nodeScale: 0.09, //9% of shorter side of window
   nodeSize: null,
   nodeSize_px: null,
+  orbitRadius: null, //familyReunion spacing, even for now
+  // orbitDistMax: null,
+  outlineMax: 1.7, //for rainbow anim
+  outlineSpeed: 5,
+  rainbowSpacing: 6, //hueOffset
   speedMax: 4,
   speedStart: 0.8,
   subSteps: 8,
@@ -81,8 +89,11 @@ options.isAlphaPaint = true;
 options.isMoving = true;
 options.isPhysics = true;
 
+//MARK: state
 let state = { //need to refactor this vs options
+  bg: null,
   bgAlpha: 0.1,
+  clusterCenter: null,  //center of cluster web, is shifted by panels opening
   selectedKeywords: [],
   selectedCluster: null,
   selectedCourse: null,
@@ -120,10 +131,10 @@ function setup() {
   colorMode(HSB, 360, 100, 100, 1);
   // colorMode(HSB, 1, 1, 1, 1); //normalizing for color _array
   // bg = color("#616708"); //olive
-  defaults.bg = color("#aaef74"); //light pale green
-  // defaults.bg = color('#aaff55'); // light green
+  state.bg = color("#aaef74"); //light pale green
+  // state.bg = color('#aaff55'); // light green
   if(options.isAlphaPaint){
-    defaults.bg.setAlpha(state.bgAlpha);
+    state.bg.setAlpha(state.bgAlpha);
   }
   
   //mobile warning
@@ -154,10 +165,11 @@ function setup() {
   defaults.mouseRepel = defaults.idealSeparation * 4;
   defaults.boundaryForce = 1000;
   defaults.allowedDistFromCluster = defaults.nodeSize * 2.5;
-  // shiftCenterPos = createVector(width * 0.31, height/2);
-  clusterCenter = createVector(width/2, height/2);
+  // shiftCenterPos = createVector(width * 0.36, height/2);
+  state.clusterCenter = createVector(width/2, height/2);
   panelLeftEdge = width * .72; //course panel
   panelRightEdge = width * .1; //keyword panel
+  defaults.orbitRadius = defaults.nodeSize * 1.5;
 
   //blob anim
   defaults.blobUnit = defaults.nodeSize / 4;
@@ -180,7 +192,7 @@ function setup() {
  */
 
 function draw() {
-  background(defaults.bg);
+  background(state.bg);
   //CA logo in top left corner
   image(title, 10, 10, defaults.titleSize, defaults.titleSize * defaults.titleRatio);
 
@@ -237,6 +249,7 @@ function initClusters(){
   pop();
 }
 
+//MARK: controlUI
 function initControlUI(){
   //control UI
   // buttonsDiv = createDiv()
@@ -276,6 +289,27 @@ function initControlUI(){
   //set all CNode physics variables here based on slider defaults
   updateNodePhysics();
 
+  //misc controls
+
+  otherDiv = createDiv("OTHER CONTROLS").parent("controlDiv").id("otherDiv").class("controls");
+  createDiv("- - - - - - - - - ").parent("otherDiv").elt.style.setProperty('width', '100%');
+  familyControlDiv = createDiv().parent("otherDiv").id("familyControlDiv");
+  familyNumDiv = createDiv(`num family members per orbit: ${defaults.familyOrbitSize}`).parent("familyControlDiv").id("familyNumDiv");
+  familyNumSlider = createSlider(1, 12, defaults.familyOrbitSize, 1).parent("familyControlDiv").changed(()=>{
+    defaults.familyOrbitSize = familyNumSlider.value();
+    familyNumDiv.html(`num family members per orbit: ${defaults.familyOrbitSize}`);
+    for (let cNode of courses){
+      //TODO refactor
+      cNode.familyMember = null; //will get reset immediately in checkFamilyPosition()
+      cNode.generateFamilyReunion();
+    }
+  });
+  createDiv("- - - - - - - - - ").parent("otherDiv").elt.style.setProperty('width', '100%');
+  alphaDiv = createDiv("background transparency").parent("otherDiv").id("alphaDiv");
+  alphaSlider = createSlider(0, 1, state.bgAlpha, 0.01).parent("alphaDiv").changed(()=>{
+    state.bgAlpha = alphaSlider.value();
+    state.bg.setAlpha(state.bgAlpha);
+  });
   //design testing controls
   designDiv = createDiv("DESIGN TESTING").parent("controlDiv").id("designDiv").class("controls");
   createDiv("- - - - - - - - - ").parent("designDiv").elt.style.setProperty('width', '100%');
@@ -421,13 +455,13 @@ function initPanelUI(){
     keywordCheck();
 
     if (options.isShowingKeywords){
-      // clusterCenter.x += panelRightEdge;
+      // state.clusterCenter.x += panelRightEdge;
       if(options.isShowingPanel){shiftClusters()};
       keywordPanel.show();
       keywordPanelButton.html('<<<');
       keywordPanelButton.position(panelRightEdge, keywordPanelHeight);
     } else {
-      // clusterCenter.x -= panelRightEdge;
+      // state.clusterCenter.x -= panelRightEdge;
       options.isShowingPanel ? shiftClusters() : shiftClustersHome();
       keywordPanel.hide();
       keywordPanelButton.html('KEYWORDS >>>');
@@ -464,13 +498,14 @@ function keywordCheck(){
 function mousePressed(){
   //just using for cluster highlight atm
   if ( state.mode !== "default" ){ return; }
+
   for (let i = 0; i < 10; i++){
     if (i == 1){continue;};//skipping soul, is dumb b/c i dumb
     if (p5.Vector.dist(clusters[areas[i][0]].pos, mousePos) < defaults.nodeSize * 0.6){
       //TODO this is dumb, but want to reset canvas when clicking area to remove ghosts
-      defaults.bg.setAlpha(1);
-      background(defaults.bg);
-      defaults.bg.setAlpha(state.bgAlpha); //ugh defaults vs state...
+      state.bg.setAlpha(1);
+      background(state.bg);
+      state.bg.setAlpha(state.bgAlpha); //ugh defaults vs state...
       // console.log(areas[i]);
       if (state.selectedCluster == null){
         state.selectedCluster = areas[i][0];
@@ -485,28 +520,10 @@ function mousePressed(){
   }
 }
 
+//MARK: click
 function nodeClick(node) {
   //when a node is clicked... as the name suggests...
-
-  // if(state.selectedCourse == null){
-    // state.selectedCourse = node.course;
-    // state.mode = "family";
-    //deselect any existing nodes, the one that's clicked will select itself
-    for (let cNode of courses){ //ugh TODO redo 'cNode' naming
-      cNode.isSelected = false;
-    }
-    // console.log(node.course);
-    coursePanel.show();
-    courseInfo.courseTitle.html(node.course);
-    courseInfo.courseProfessor.html(node.professor);
-    courseInfo.courseShort.html(node.short);
-    courseInfo.courseKeywords.html(node.keywords);
-
-    options.isShowingPanel = true;
-    shiftClusters();
-  // } 
-  /*
-  if(state.selectedCourse == null){
+  if(state.selectedCourse !== node.course){
     state.selectedCourse = node.course;
     state.mode = "family";
     //deselect any existing nodes, the one that's clicked will select itself
@@ -528,12 +545,13 @@ function nodeClick(node) {
     state.mode = "default";
     for (let cNode of courses){ //ugh TODO redo 'cNode' naming
       cNode.isSelected = false;
+      cNode.shouldCheckCollision = true;
     }
     coursePanel.hide();
     shiftClustersHome();
     options.isShowingPanel = false;
   }
-  */
+  
 }
 
 function nodeUpdates(){
@@ -545,7 +563,7 @@ function nodeUpdates(){
 
 function rotationCoords(x, y, angle){
   //getting vector from rotation around center
-  //thanks chat-gpt
+  //something something polar coordinates
   let newX = x * cos(angle) - y * sin(angle);
   let newY = x * sin(angle) + y * cos(angle);
   return createVector(newX, newY);
@@ -554,22 +572,22 @@ function rotationCoords(x, y, angle){
 function shiftClusters(){
   //when side panel opens, move the clusters
   if (options.isShowingPanel){
-    clusterCenter.x = width * 0.31;
+    state.clusterCenter.x = width * 0.36;
     if (options.isShowingKeywords){
-      clusterCenter.x += panelRightEdge;
+      state.clusterCenter.x += panelRightEdge;
     }
   }
   
   push();
-  // translate(clusterCenter.x, clusterCenter.y); //hmm
-  clusters["CORE"].pos = clusterCenter;
-  clusters["SOUL"].pos = clusterCenter;
+  // translate(state.clusterCenter.x, state.clusterCenter.y); //hmm
+  clusters["CORE"].pos = state.clusterCenter;
+  clusters["SOUL"].pos = state.clusterCenter;
 
   let angle = 360/8;
   for (let i = 2; i < 10; i++){ //skipping core and soul
     let clusterPos = rotationCoords(defaults.webOffset, 0, angle);
-    clusterPos.x += clusterCenter.x; //so we don't have to translate anymore
-    clusterPos.y += clusterCenter.y;
+    clusterPos.x += state.clusterCenter.x; //so we don't have to translate anymore
+    clusterPos.y += state.clusterCenter.y;
     clusters[areas[i][0]].pos = clusterPos;
 
     angle += 360/8;
@@ -579,12 +597,12 @@ function shiftClusters(){
 
 function shiftClustersHome(){
   //when side panel closes, move the clusters back home
-  clusterCenter.x = width/2;
+  state.clusterCenter.x = width/2;
 
   push();
   translate(width/2, height/2); //hmm
-  clusters["CORE"].pos = clusterCenter;
-  clusters["SOUL"].pos = clusterCenter;
+  clusters["CORE"].pos = state.clusterCenter;
+  clusters["SOUL"].pos = state.clusterCenter;
 
   let angle = 360/8;
   for (let i = 2; i < 10; i++){ //skipping core and soul
@@ -598,8 +616,9 @@ function shiftClustersHome(){
   pop();
 }
 
+//MARK: show
 function showClusters(){
-  if (state.mode == "relationships"){return;}//don't show if in keywords mode
+  if (state.mode == "family"){return;}//don't show if in keywords mode
   push();
   noStroke();
   if (state.selectedCluster == null){ //need to figure out what the mode vs options pattern is...
@@ -619,10 +638,10 @@ function showClusters(){
     //TODO refactor, add cluster class and fix the center pos / shift stuff
     if (options.isShowingPanel){
       fill(clusters[state.selectedCluster].color);
-      rect(clusterCenter.x, clusterCenter.y, defaults.nodeSize);
+      rect(state.clusterCenter.x, state.clusterCenter.y, defaults.nodeSize);
       noStroke();
       fill(0);
-      text(state.selectedCluster, clusterCenter.x, clusterCenter.y, defaults.nodeSize);
+      text(state.selectedCluster, state.clusterCenter.x, state.clusterCenter.y, defaults.nodeSize);
     } else {
       fill(clusters[state.selectedCluster].color);
       rect(width/2, height/2, defaults.nodeSize);
@@ -701,7 +720,7 @@ function toggleBounce(){
 
       //make the background no alpha so we get trails
       // if(options.isAlphaPaint){
-        defaults.bg.setAlpha(0);
+        state.bg.setAlpha(0);
       // }
 
       //hiding physics button to not get confused
@@ -717,7 +736,7 @@ function toggleBounce(){
       // togglePhysics();
       updateNodePhysics();
       if(options.isAlphaPaint){
-        defaults.bg.setAlpha(state.bgAlpha);
+        state.bg.setAlpha(state.bgAlpha);
       }
       // physicsButton.show();
       // mouseAvoidButton.show();
