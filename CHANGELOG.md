@@ -2,6 +2,18 @@
 
 ## v0
 
+### v0.1.24
+
+#### *4/28/24 20 mins and 4/30/24 2hrs*
+
+- family reunion
+  - abandoned spring body system because i'm a dingus that forgot big picture, doing same distribution method as cluster
+  - evenly spaced around orbit, second layer offset by 45 degrees
+  - links connect course to siblings and cousins
+  - orbit size slider in controls for testing
+  - spiral anim for outermost relatives
+  - adjusted cluster center b/c was a little left when shifted
+
 ### v0.1.23
 
 #### *4/28/24 1 hr*
@@ -26,6 +38,7 @@ next:
 - test accumulating nodeDist dir before applying force
 - add latest courses
 - clock mode?
+- courses object
 
 ### v0.1.22
 

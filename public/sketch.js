@@ -24,7 +24,7 @@ let keywordPanel, keywordPanelButton;
 let keywordCheckboxes = {};
 let blobControlDiv, blobUnitDiv, wobbleOffsetDiv, wobbleMaxDiv, wobbleSpeedDiv; 
 let wobbleSpeedSlider, wobbleOffsetSlider, wobbleMaxSlider, blobUnitSlider;
-let otherDiv, alphaDiv, alphaSlider;
+let otherDiv, familyControlDiv, familyNumDiv, familyNumSlider, alphaDiv, alphaSlider;
 let designDiv, fontsDropdown, fontLoader;
 let colorInputs = {};
 
@@ -35,7 +35,7 @@ let clusters = {}; //stores the vector locations of the web clusters by area
 let reunion = {}; //stores course relationships by name as key
 
 //MARK: defaults
-//defaults --> settings
+//defaults --> settings // not mutable besides in control panel
 let defaults = {
   allowedDistFromCluster: null, //will change in setup
   blobUnit: null, //scale of blobWobble/petals
@@ -52,7 +52,7 @@ let defaults = {
   nodeScale: 0.09, //9% of shorter side of window
   nodeSize: null,
   nodeSize_px: null,
-  orbitDiameter: null, //familyReunion spacing, even for now
+  orbitRadius: null, //familyReunion spacing, even for now
   // orbitDistMax: null,
   outlineMax: 1.7, //for rainbow anim
   outlineSpeed: 5,
@@ -87,6 +87,7 @@ options.isAlphaPaint = true;
 options.isMoving = true;
 options.isPhysics = true;
 
+//MARK: state
 let state = { //need to refactor this vs options
   bg: null,
   bgAlpha: 0.1,
@@ -154,11 +155,11 @@ function setup() {
   defaults.mouseRepel = defaults.idealSeparation * 4;
   defaults.boundaryForce = 1000;
   defaults.allowedDistFromCluster = defaults.nodeSize * 2.5;
-  // shiftCenterPos = createVector(width * 0.31, height/2);
+  // shiftCenterPos = createVector(width * 0.36, height/2);
   state.clusterCenter = createVector(width/2, height/2);
   panelLeftEdge = width * .72; //course panel
   panelRightEdge = width * .1; //keyword panel
-  defaults.orbitDiameter = defaults.nodeSize * 1.5;
+  defaults.orbitRadius = defaults.nodeSize * 1.5;
 
   //blob anim
   defaults.blobUnit = defaults.nodeSize / 4;
@@ -281,11 +282,23 @@ function initControlUI(){
 
   otherDiv = createDiv("OTHER CONTROLS").parent("controlDiv").id("otherDiv").class("controls");
   createDiv("- - - - - - - - - ").parent("otherDiv").elt.style.setProperty('width', '100%');
-  alphaDiv = createDiv("").parent("otherDiv").id("alphaDiv");
+  familyControlDiv = createDiv().parent("otherDiv").id("familyControlDiv");
+  familyNumDiv = createDiv(`num family members per orbit: ${defaults.familyOrbitSize}`).parent("familyControlDiv").id("familyNumDiv");
+  familyNumSlider = createSlider(1, 12, defaults.familyOrbitSize, 1).parent("familyControlDiv").changed(()=>{
+    defaults.familyOrbitSize = familyNumSlider.value();
+    familyNumDiv.html(`num family members per orbit: ${defaults.familyOrbitSize}`);
+    for (let cNode of courses){
+      //TODO refactor
+      cNode.familyMember = null; //will get reset immediately in checkFamilyPosition()
+      cNode.generateFamilyReunion();
+    }
+  });
+  createDiv("- - - - - - - - - ").parent("otherDiv").elt.style.setProperty('width', '100%');
+  alphaDiv = createDiv("background transparency").parent("otherDiv").id("alphaDiv");
   alphaSlider = createSlider(0, 1, state.bgAlpha, 0.01).parent("alphaDiv").changed(()=>{
     state.bgAlpha = alphaSlider.value();
     state.bg.setAlpha(state.bgAlpha);
-  })
+  });
   //design testing controls
   designDiv = createDiv("DESIGN TESTING").parent("controlDiv").id("designDiv").class("controls");
   createDiv("- - - - - - - - - ").parent("designDiv").elt.style.setProperty('width', '100%');
@@ -539,7 +552,7 @@ function nodeUpdates(){
 
 function rotationCoords(x, y, angle){
   //getting vector from rotation around center
-  //thanks chat-gpt
+  //something something polar coordinates
   let newX = x * cos(angle) - y * sin(angle);
   let newY = x * sin(angle) + y * cos(angle);
   return createVector(newX, newY);
@@ -548,7 +561,7 @@ function rotationCoords(x, y, angle){
 function shiftClusters(){
   //when side panel opens, move the clusters
   if (options.isShowingPanel){
-    state.clusterCenter.x = width * 0.31;
+    state.clusterCenter.x = width * 0.36;
     if (options.isShowingKeywords){
       state.clusterCenter.x += panelRightEdge;
     }
