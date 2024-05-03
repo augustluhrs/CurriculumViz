@@ -2,6 +2,18 @@
 
 ## v0
 
+### v0.1.25
+
+#### *5/2/24 1.25hrs*
+
+- keyword panel shifted up and width increased from 10% to 15% (reduced shift center by half)
+- added the warning text for mobile that was just on glitch previously
+- csv updates
+  - tweaked capstone entry in csv to be "final cohort experience" and added one-liner
+  - updated steven's entries and added Performing Anatomy keywords and short
+- closing panels shift all family orbits and still wobbles selected
+- changed cohort to be all spiral
+
 ### v0.1.24
 
 #### *4/28/24 20 mins and 4/30/24 2hrs*

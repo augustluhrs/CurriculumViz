@@ -28,6 +28,8 @@ let otherDiv, familyControlDiv, familyNumDiv, familyNumSlider, alphaDiv, alphaSl
 let designDiv, fontsDropdown, fontLoader;
 let colorInputs = {};
 
+let warningText = "";
+
 //csv variables
 let masterSheet;
 let courses = []; //stores the cNodes
@@ -99,7 +101,7 @@ let state = { //need to refactor this vs options
 }
 
 function preload(){
-  masterSheet = loadTable("data/master_4-8.csv", "csv", "header");
+  masterSheet = loadTable("data/master_5-1.csv", "csv", "header");
   title = loadImage("assets/brand/ca_title.png");
   fonts["tiltneon"] = {name: "tiltneon", font: loadFont("assets/fonts/fontTests/tiltneon.ttf")};
   fonts["yk_med"] = {name: "yk_med", font: loadFont("assets/fonts/fontTests/yk_med.ttf")};
@@ -112,7 +114,7 @@ function preload(){
  *  SETUP
  * 
  */
-
+//MARK:setup
 function setup() {
   //background and UI
   canvas = createCanvas(windowWidth, windowHeight);//stretches to fit whatever windowSize the user has
@@ -136,6 +138,11 @@ function setup() {
   defaults.titleSize = width/8;
   defaults.titleRatio = title.height / title.width;
 
+  //mobile warning
+  if (width < height){
+    warningText = "NOT READY FOR MOBILE, PLEASE CHECK THIS OUT ON A COMPUTER";
+  }
+
   //setup the css element properties
   //get the relative node size
   if (width > height) { 
@@ -158,7 +165,7 @@ function setup() {
   // shiftCenterPos = createVector(width * 0.36, height/2);
   state.clusterCenter = createVector(width/2, height/2);
   panelLeftEdge = width * .72; //course panel
-  panelRightEdge = width * .1; //keyword panel
+  panelRightEdge = width * .15; //keyword panel
   defaults.orbitRadius = defaults.nodeSize * 1.5;
 
   //blob anim
@@ -180,12 +187,15 @@ function setup() {
  *  DRAW
  * 
  */
-
+//MARK: draw
 function draw() {
   background(state.bg);
   //CA logo in top left corner
   image(title, 10, 10, defaults.titleSize, defaults.titleSize * defaults.titleRatio);
-
+  push();
+  textSize(width/40)
+  text(warningText, width/2, 25);
+  pop();
   //draw the clusters (checks for mode first)
   showClusters();
 
@@ -283,10 +293,10 @@ function initControlUI(){
   otherDiv = createDiv("OTHER CONTROLS").parent("controlDiv").id("otherDiv").class("controls");
   createDiv("- - - - - - - - - ").parent("otherDiv").elt.style.setProperty('width', '100%');
   familyControlDiv = createDiv().parent("otherDiv").id("familyControlDiv");
-  familyNumDiv = createDiv(`num family members per orbit: ${defaults.familyOrbitSize}`).parent("familyControlDiv").id("familyNumDiv");
+  familyNumDiv = createDiv(`min family members per orbit: ${defaults.familyOrbitSize}`).parent("familyControlDiv").id("familyNumDiv");
   familyNumSlider = createSlider(1, 12, defaults.familyOrbitSize, 1).parent("familyControlDiv").changed(()=>{
     defaults.familyOrbitSize = familyNumSlider.value();
-    familyNumDiv.html(`num family members per orbit: ${defaults.familyOrbitSize}`);
+    familyNumDiv.html(`min family members per orbit: ${defaults.familyOrbitSize}`);
     for (let cNode of courses){
       //TODO refactor
       cNode.familyMember = null; //will get reset immediately in checkFamilyPosition()
@@ -397,6 +407,7 @@ function initCourseNodes(){
   }
 }
 
+//MARK:panelUI
 function initPanelUI(){
   //course panel UI
   coursePanel = createDiv().class("panels").id("coursePanel").parent("mainContainer");
@@ -412,7 +423,7 @@ function initPanelUI(){
     
     //reset the selected node (TODO, just store which is selected?)
     for (let cNode of courses){
-      cNode.isSelected = false;
+      // cNode.isSelected = false; //turning off for panel to be optional for family reunion
     }
   })
 
@@ -425,7 +436,7 @@ function initPanelUI(){
   courseInfo["courseKeywords"] = createDiv().parent("coursePanel").class("infoDivs");
 
   //keyword panel UI
-  keywordPanelHeight = 1 * height / 3;
+  keywordPanelHeight = height / 8;
   keywordPanel = createDiv().class("panels").id("keywordPanel").parent("mainContainer");
   keywordPanel.size(panelRightEdge, height - keywordPanelHeight);
   keywordPanel.position(0, keywordPanelHeight);
@@ -563,7 +574,14 @@ function shiftClusters(){
   if (options.isShowingPanel){
     state.clusterCenter.x = width * 0.36;
     if (options.isShowingKeywords){
-      state.clusterCenter.x += panelRightEdge;
+      state.clusterCenter.x += panelRightEdge/2; //TODO issue with new width
+    }
+  }
+
+  //have all the nodes refresh if in family mode
+  if (state.selectedCourse !== null) {
+    for (let cNode of courses) {
+      cNode.needsUpdate = true;
     }
   }
   
@@ -587,6 +605,13 @@ function shiftClusters(){
 function shiftClustersHome(){
   //when side panel closes, move the clusters back home
   state.clusterCenter.x = width/2;
+
+  //have all the nodes refresh if in family mode
+  if (state.selectedCourse !== null) {
+    for (let cNode of courses) {
+      cNode.needsUpdate = true;
+    }
+  }
 
   push();
   translate(width/2, height/2); //hmm
