@@ -102,7 +102,10 @@ let state = { //need to refactor this vs options
 
 function preload(){
   masterSheet = loadTable("data/master_5-1.csv", "csv", "header");
-  title = loadImage("assets/brand/ca_title.png");
+  title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
+  font = loadFont("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662");
+
+  // title = loadImage("assets/brand/ca_title.png");
   fonts["tiltneon"] = {name: "tiltneon", font: loadFont("assets/fonts/fontTests/tiltneon.ttf")};
   fonts["yk_med"] = {name: "yk_med", font: loadFont("assets/fonts/fontTests/yk_med.ttf")};
   fonts["ibmPlex_sans_med"] = {name: "ibmPlex_sans_med", font: loadFont("assets/fonts/fontTests/ibmPlex_sans_med.ttf")};
@@ -132,6 +135,11 @@ function setup() {
   // state.bg = color('#aaff55'); // light green
   if(options.isAlphaPaint){
     state.bg.setAlpha(state.bgAlpha);
+  }
+  
+  //mobile warning
+  if (width < height){
+    warningText = "NOT READY FOR MOBILE, PLEASE CHECK THIS OUT ON A COMPUTER";
   }
 
   //title logo
@@ -207,6 +215,7 @@ function draw() {
   if (options.isMoving){ 
     //run the physics updates
     nodeUpdates();
+
   }
   for (let cNode of courses) {
     //draw the nodes
