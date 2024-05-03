@@ -86,6 +86,9 @@ class CNode { //courseNode
     this.hasCollisions = true; //for ignoring other nodes
     this.shouldCheckCollision = false; //so the collision only gets turned off once per big event, to prevent edge bugs
 
+    //should use this for a check for anything that needs updating TODO
+    this.needsUpdate = false;
+
     //family reunion keyword mode
     this.familyMember = null; //the focus of the family reunion
     this.orbit = 0;
@@ -306,8 +309,8 @@ class CNode { //courseNode
   checkFamilyPosition(){
     //assigns itself an orbit based on relationship to currentCourse
     //hmm what changes would happen here, as in, why am i calling this every loop?
-    if (this.familyMember == state.selectedCourse){return;}
-    
+    if (this.familyMember == state.selectedCourse && !this.needsUpdate){return;}
+    this.needsUpdate = false;
     this.familyMember = state.selectedCourse;
 
     //reset springs
@@ -566,21 +569,29 @@ class CNode { //courseNode
       this.relationships.cousins, //1
       this.relationships.relatives //2
     ]
-    let currentOrbit = 0;
-    for (let i = 0; i < family.length; i++){
-      //add all at top to siblings, increasing tally threshold until minimum is met, then move to cousins
-      if (family[i][1] >= k_threshold){
-        familyOrbits[currentOrbit].push(family[i]);
-      } else {
-        k_threshold--;
-        if (familyOrbits[currentOrbit].length < orbitMinMembers || currentOrbit == 2){
-          familyOrbits[currentOrbit].push(family[i]);
-        } else {
-          currentOrbit++;
-          familyOrbits[currentOrbit].push(family[i]);
-        }
+    //temp. cohort class change for 5/3
+    if (this.course == "Final Cohort Experience"){
+      for (let member of family){
+        familyOrbits[2].push(member);
       }
       reunion[this.course] = familyOrbits;
+    } else {
+      let currentOrbit = 0;
+      for (let i = 0; i < family.length; i++){
+        //add all at top to siblings, increasing tally threshold until minimum is met, then move to cousins
+        if (family[i][1] >= k_threshold){
+          familyOrbits[currentOrbit].push(family[i]);
+        } else {
+          k_threshold--;
+          if (familyOrbits[currentOrbit].length < orbitMinMembers || currentOrbit == 2){
+            familyOrbits[currentOrbit].push(family[i]);
+          } else {
+            currentOrbit++;
+            familyOrbits[currentOrbit].push(family[i]);
+          }
+        }
+        reunion[this.course] = familyOrbits;
+      }
     }
   }
 
