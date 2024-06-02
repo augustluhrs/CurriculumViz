@@ -30,6 +30,11 @@ let colorInputs = {};
 
 let warningText = "";
 
+//now that design is on own page, but want to keep changes up to date, 
+//need to update prefix for path related strings
+let pagePrefix = ( window.location.pathname == "/" ) ? "" : "../"; //hmm.... ../ works on main... why....
+let isMainSite = ( window.location.pathname == "/" );
+
 //csv variables
 let masterSheet;
 let courses = []; //stores the cNodes
@@ -101,12 +106,12 @@ let state = { //need to refactor this vs options
 }
 
 function preload(){
-  masterSheet = loadTable("data/master_5-1.csv", "csv", "header");
-  title = loadImage("assets/brand/ca_title.png");
-  fonts["tiltneon"] = {name: "tiltneon", font: loadFont("assets/fonts/fontTests/tiltneon.ttf")};
-  fonts["yk_med"] = {name: "yk_med", font: loadFont("assets/fonts/fontTests/yk_med.ttf")};
-  fonts["ibmPlex_sans_med"] = {name: "ibmPlex_sans_med", font: loadFont("assets/fonts/fontTests/ibmPlex_sans_med.ttf")};
-  fonts["ibmPlex_mono_med"] = {name: "ibmPlex_mono_med", font: loadFont("assets/fonts/fontTests/ibmPlex_mono_med.ttf")};
+  masterSheet = loadTable(`${pagePrefix}data/master_5-1.csv`, "csv", "header");
+  title = loadImage(`${pagePrefix}assets/brand/ca_title.png`);
+  fonts["tiltneon"] = {name: "tiltneon", font: loadFont(`${pagePrefix}assets/fonts/fontTests/tiltneon.ttf`)};
+  fonts["yk_med"] = {name: "yk_med", font: loadFont(`${pagePrefix}assets/fonts/fontTests/yk_med.ttf`)};
+  fonts["ibmPlex_sans_med"] = {name: "ibmPlex_sans_med", font: loadFont(`${pagePrefix}assets/fonts/fontTests/ibmPlex_sans_med.ttf`)};
+  fonts["ibmPlex_mono_med"] = {name: "ibmPlex_mono_med", font: loadFont(`${pagePrefix}assets/fonts/fontTests/ibmPlex_mono_med.ttf`)};
 }
 
 /**
@@ -180,6 +185,14 @@ function setup() {
   initCourseNodes();
   initPanelUI();
   initControlUI();
+
+  //hmm, easiest way to turn off testing stuff without errors?
+  if (isMainSite) {
+    document.getElementById("footer").style.display = "none";
+    physicsButton.hide();
+    bounceButton.hide();
+    mouseAvoidButton.hide(); 
+  }
 }
 
 /**
