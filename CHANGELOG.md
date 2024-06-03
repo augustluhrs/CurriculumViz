@@ -2,6 +2,25 @@
 
 ## v0
 
+### v0.2.1
+
+#### *6/2/24 45* 630
+
+- link to site and QR code
+  - [bit.ly/collabartswebsite](https://bit.ly/collabartswebsite)
+- researched CSS libraries
+- clean up beta / add testing site
+  - made a new '/test' namespace for what the old version looked like
+  - added flag for not showing control stuff on main site
+
+### v0.2.0
+
+#### *5/19/24 30 mins*
+
+- updated TODO with new version tasks
+- researched touch gesture canvas zoom/pan options
+- researched strapi CMS hosting on glitch
+
 ### v0.1.25
 
 #### *5/2/24 1.25hrs*
@@ -26,15 +45,6 @@
   - spiral anim for outermost relatives
   - adjusted cluster center b/c was a little left when shifted
 
-### v0.1.23
-
-#### *4/28/24 1 hr*
-
-- family reunion
-  - added more springs to keep shape
-  - selected course only cares about center
-- alpha slider in controls
-
 next:
 - technology --> tech in cluster display
 - course info
@@ -51,6 +61,15 @@ next:
 - add latest courses
 - clock mode?
 - courses object
+
+### v0.1.23
+
+#### *4/28/24 1 hr*
+
+- family reunion
+  - added more springs to keep shape
+  - selected course only cares about center
+- alpha slider in controls
 
 ### v0.1.22
 

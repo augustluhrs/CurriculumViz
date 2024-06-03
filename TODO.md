@@ -1,6 +1,51 @@
 # TODO
 
-## v0.1
+## v0.2 -- Mobile
+
+- [ ] mobile view
+  - [ ] touch gesture
+    - [ ] pan
+    - [ ] zoom
+      - [ ] pinch to scale main view
+      - [ ] no double tap?
+    - [ ] panel scroll
+  - [ ] UI changes
+    - [ ] panel on bottom for all panel types (with tabs?)
+  - [ ] style fixes
+    - [ ] font
+    - [ ] font size
+- [ ] testing page
+  - [ ] move design controls to separate namespace
+- [ ] updates
+  - [ ] csv
+    - [ ] all classes and keywords
+  - [ ] CSS
+    - [ ] research libraries
+  - [ ] add linter to code
+- [ ] media
+  - [ ] test display desktop
+  - [ ] test display mobile
+  - [ ] formatting
+    - [ ] CLI format script
+  - [ ] hosting
+    - [ ] upload to new drive or repo with server
+    - [ ] research strapi
+  - [ ] functionality
+    - [ ] click to cycle
+  - [ ] test video
+  - [ ] test gifs/webp
+- [ ] tools
+  - [ ] more hands off way to handle form to master integration?
+  - [ ] same but for media?
+- [ ] brand
+  - [ ] color palette
+  - [ ] principles on site somewhere?
+- [ ] overall site
+  - [ ] glitch for now -- new CA acct?
+  - [ ] landing page or just node map?
+  - [ ] what other things do we want
+
+## v0.1 -- Node Web Feature Playground
 
 - [ ] new master sheet with formatted csv
   - [X] main keywords
@@ -141,7 +186,7 @@
   - [ ] proofread descriptions
   - [ ] format media and reupload/relink
 
-## v0 init
+## v0 -- Project Init and Testing Table
 
 - [ ] Project Setup
   - [X] git init
