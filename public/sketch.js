@@ -99,6 +99,7 @@ let state = { //need to refactor this vs options
   bg: null,
   bgAlpha: 0.1,
   clusterCenter: null,  //center of cluster web, is shifted by panels opening
+  isMobile: checkIfMobile(),
   selectedKeywords: [],
   selectedCluster: null,
   selectedCourse: null,
@@ -160,6 +161,7 @@ function setup() {
   // colorMode(HSB, 1, 1, 1, 1); //normalizing for color _array
   // bg = color("#616708"); //olive
   state.bg = color("#aaef74"); //light pale green
+  // (state.isMobile) ? state.bg = color("#aaef74") : state.bg = color("#74eeff");
   // state.bg = color('#aaff55'); // light green
   if(options.isAlphaPaint){
     state.bg.setAlpha(state.bgAlpha);
@@ -223,6 +225,8 @@ function setup() {
     physicsButton.hide();
     bounceButton.hide();
     mouseAvoidButton.hide(); 
+  } else {
+    state.bg = color("#74eeff"); //blue color for test site
   }
 }
 
@@ -830,4 +834,9 @@ function updateNodePhysics(){
     cNode.maxForce = forceSlider.value();
     cNode.friction = frictionSlider.value();
   }
+}
+
+//MARK: mobile functions
+function checkIfMobile(){
+  return /Mobi|Android/i.test(navigator.userAgent);
 }

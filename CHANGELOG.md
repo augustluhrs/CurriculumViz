@@ -2,9 +2,35 @@
 
 ## v0
 
+### v0.2.4
+
+#### *10/9/24 1hr && 10/13/24 1hr*
+
+- design sketches for fishtank and remote control page
+- miro flowchart for planning out fishtank tasks/schedule
+- started namespaces/folders for fishtank and remote
+- installed socket.io
+- changed background color of test site to a light blue
+
+### v0.2.3
+
+#### *9/15/24 1hr*
+
+- added pink circle logo
+- committing misc changes from summer leftover
+- testing strapi for headless CMS
+
+### v0.2.2
+
+#### *6/3/24 1 hr*
+
+- mobile beta
+  - flag that is set based on portrait or landscape
+  - researched feature detection library [Modernizr](https://modernizr.com/docs/#what-is-modernizr) but just using navigator.userAgent for now.
+
 ### v0.2.1
 
-#### *6/2/24 45* 630
+#### *6/2/24 45 mins*
 
 - link to site and QR code
   - [bit.ly/collabartswebsite](https://bit.ly/collabartswebsite)
