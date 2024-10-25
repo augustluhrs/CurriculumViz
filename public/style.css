@@ -1,6 +1,6 @@
 /* 
 *
-*   STYLEEEEE
+*   STYLEEEEE I HATE CSS
 *
 */
 
@@ -30,6 +30,23 @@ html, body {
 canvas {
   display: block;
 } 
+
+html, body, a, button, input {
+  /* for custom cursor */
+  cursor: url('assets/brand/ca_cursor.png'), auto;
+}
+
+/* Style for the custom cursor */
+#custom-cursor {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background-image: url('assets/brand/ca_cursor.png'); /* Your cursor image */
+  background-size: contain;
+  pointer-events: none; /* So it doesn't block other elements */
+  transform: translate(-35%, 0%); 
+  z-index: 9999;
+}
 
 /* https://dev.to/ashwamegh/how-to-hide-scrollbar-from-any-html-element-dae */
 /* https://www.w3schools.com/css/css_pseudo_elements.asp */

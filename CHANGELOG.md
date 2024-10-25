@@ -4,6 +4,20 @@
 
 ### v0.2.4
 
+#### *10/25/25 2 hrs*
+
+- remote mouse control tests
+- made custom cursor with [https://www.pixilart.com/](https://www.pixilart.com/) and made it the default across all pages
+- turned off cursor by default on fish tank, using remote to control virtual cursor
+- added socket logic on server and admin UI plugin
+- remote joystick tests, sending cursor move direction as vector heading and magnitude (scaled for speed)
+
+#### TODO
+
+- bind functions to all elements for click simulation events
+- make main sketch a p5 instance for use across pages
+- keyword exclusion mode
+
 #### *10/9/24 1hr && 10/13/24 1hr*
 
 - design sketches for fishtank and remote control page
