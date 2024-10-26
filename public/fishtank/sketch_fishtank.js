@@ -8,8 +8,16 @@
 
 
 //FOR FISHTANK -- EVENTUALLY WILL USE INSTANCE, PLACEHOLDER
-let hand; //png of cursor
+// let hand; //png of cursor
 let handX, handY; //mouseX mouseY
+let hand = {
+  cursor: null,
+  width: 0,
+  height: 0,
+  pos: null,
+  vel: null,
+  acc: null
+}
 
 // MARK: SOCKET STUFF
 //open and connect the input socket
@@ -28,8 +36,10 @@ socket.on('connect', () => {
 socket.on('mouseMoved', (data) => {
   //should add relative amount so multiple people can control at once
   console.log('mouse moved');
-  handX += data.x;
-  handY += data.y;
+  //remote sending heading and mag
+
+  // handX += data.x;
+  // handY += data.y;
 })
 
 
@@ -266,9 +276,9 @@ function setup() {
   // cursor(hand);
   // cursor(`${pagePrefix}assets/brand/ca_cursor.png`);
   noCursor(); //using drawn one instead
-  hand = new p5.Element(document.getElementById("custom-cursor"));
-  handX = width * 0.15;
-  handY = height * 0.05;
+  hand.cursor = new p5.Element(document.getElementById("custom-cursor"));
+  hand.width = width * 0.15;
+  hand.height = height * 0.05;
 }
 
 /**
@@ -305,7 +315,7 @@ function draw() {
 
   //remote controlled cursor
   // image(hand, handX, handY, 80, 80);
-  hand.position(handX, handY);
+  hand.cursor.position(hand.width, hand.height);
 
 };
 

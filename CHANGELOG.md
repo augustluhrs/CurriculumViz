@@ -2,7 +2,7 @@
 
 ## v0
 
-### v0.2.4
+### v0.25
 
 #### *10/25/25 2 hrs*
 
@@ -17,6 +17,8 @@
 - bind functions to all elements for click simulation events
 - make main sketch a p5 instance for use across pages
 - keyword exclusion mode
+
+### v0.2.4
 
 #### *10/9/24 1hr && 10/13/24 1hr*
 

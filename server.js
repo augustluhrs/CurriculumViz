@@ -77,6 +77,11 @@ let remote = io.of('/remote');
 remote.on('connection', (socket) => {
   console.log('remote connected: ' + socket.id);
 
+  socket.on('mouseMoved', (data) => {
+    console.log(data);
+    fishtank.emit('mouseMoved', data);
+  }) 
+   
   socket.on('disconnect', () => {
     console.log('remote disconnected: ' + socket.id + "\n");
   });
