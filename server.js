@@ -78,9 +78,14 @@ remote.on('connection', (socket) => {
   console.log('remote connected: ' + socket.id);
 
   socket.on('mouseMoved', (data) => {
-    console.log(data);
+    // console.log(data);
     fishtank.emit('mouseMoved', data);
-  }) 
+  }); 
+
+  socket.on('mouseClicked', ()=>{
+    console.log('click');
+    fishtank.emit('mouseClicked');
+  });
    
   socket.on('disconnect', () => {
     console.log('remote disconnected: ' + socket.id + "\n");

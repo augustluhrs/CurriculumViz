@@ -16,8 +16,10 @@ let hand = {
   height: 0,
   pos: null,
   vel: null,
-  acc: null
+  acc: null,
+  forces: [],
 }
+let hasClicked = false;
 
 // MARK: SOCKET STUFF
 //open and connect the input socket
@@ -37,10 +39,21 @@ socket.on('mouseMoved', (data) => {
   //should add relative amount so multiple people can control at once
   console.log('mouse moved');
   //remote sending heading and mag
-
+  // console.log(data.heading, data.mag)
   // handX += data.x;
   // handY += data.y;
-})
+  // moveCursor(data.heading, data.mag);
+  hand.forces.push([data.heading, data.mag]);
+});
+
+socket.on('mouseClicked', ()=>{
+  console.log('mouse clicked');
+  //check to see if cursor is over a clickable element
+  //TODO
+  //https://stackoverflow.com/questions/3277369/how-to-simulate-a-click-by-using-x-y-coordinates-in-javascript
+  document.elementFromPoint(hand.pos.x, hand.pos.y).click();
+  console.log(document.elementFromPoint(hand.pos.x, hand.pos.y));
+});
 
 
 
@@ -279,6 +292,9 @@ function setup() {
   hand.cursor = new p5.Element(document.getElementById("custom-cursor"));
   hand.width = width * 0.15;
   hand.height = height * 0.05;
+  hand.pos = createVector(100, 100)
+  hand.acc = createVector(0, 0);
+  hand.vel = createVector(0, 0);
 }
 
 /**
@@ -315,9 +331,50 @@ function draw() {
 
   //remote controlled cursor
   // image(hand, handX, handY, 80, 80);
-  hand.cursor.position(hand.width, hand.height);
-
+  // hand.cursor.position(hand.width, hand.height);
+  //vector movement
+  cursorUpdates();
 };
+
+// MARK: cursor socket functions
+function cursorUpdates(){
+  //want to avoid weird issues when acc is coming in as movement updates are applied, so:
+  push(); //idk this feels wrong, should refactor TODO
+  angleMode(RADIANS);
+  if (hand.forces.length > 0){
+    for (let i = hand.forces.length - 1; i >= 0; i--){
+      let dir = createVector(0, 1);
+      dir.setHeading(hand.forces[i][0]);
+      dir.setMag(hand.forces[i][1]);
+      hand.acc.add(dir);
+      // console.log(dir);
+      hand.forces.splice(i, 1);
+    }
+  }
+
+  // hand.acc.mult(1); //incase want to do stepsize later
+  // hand.acc.limit(1); //TODO check maxForce
+  hand.vel.add(hand.acc);
+  hand.vel.limit(20); //TODO check maxSpeed
+  hand.vel.mult(0.90); //TODO check friction
+  if (hand.vel.mag() < 1){hand.vel.mult(hand.vel.mag());} //make sure the force is big enough, avoid the vibrating when in final position
+  hand.acc.mult(0); //reset the forces for the next loop
+  hand.pos.add(hand.vel); //move the cursor
+  hand.cursor.position(hand.pos.x, hand.pos.y);
+
+  //check boundaries and flip if over "pacman"
+  if (hand.pos.x > width) {
+    hand.pos.x -= width;
+  } else if (hand.pos.x < 0){
+    hand.pos.x += width;
+  } else if (hand.pos.y > height){
+    hand.pos.y -= height;
+  } else if (hand.pos.y < 0){
+    hand.pos.y += height;
+  }
+
+  push();
+}
 
 function initClusters(){
   //get the web cluster locations per area
@@ -368,7 +425,6 @@ function initControlUI(){
     mouseAvoidButton.html(options.isAvoidingMouse ? "IGNORE MOUSE" : "AVOID MOUSE");
   });
 
-
   physicsDiv = createDiv("PHYSICS TESTING").parent("controlDiv").id("physicsDiv").class("controls");
   createDiv("- - - - - - - - - ").parent("physicsDiv").elt.style.setProperty('width', '100%');
   speedDiv = createDiv("maxSpeed").parent("physicsDiv").id("speedDiv");
@@ -389,6 +445,7 @@ function initControlUI(){
       cNode.friction = frictionSlider.value();
     }
   });
+  physicsDiv.hide();
 
   //set all CNode physics variables here based on slider defaults
   updateNodePhysics();
@@ -414,6 +471,7 @@ function initControlUI(){
     state.bgAlpha = alphaSlider.value();
     state.bg.setAlpha(state.bgAlpha);
   });
+  otherDiv.hide();
   //design testing controls
   designDiv = createDiv("DESIGN TESTING").parent("controlDiv").id("designDiv").class("controls");
   createDiv("- - - - - - - - - ").parent("designDiv").elt.style.setProperty('width', '100%');
@@ -433,7 +491,7 @@ function initControlUI(){
     console.log(fonts[fontsDropdown.selected()])
   });
   createDiv("- - - - - - - - - ").parent("designDiv").elt.style.setProperty('width', '100%');
-
+  designDiv.hide();
   for (let area of Object.keys(areaColors)){
     let colorSwatch = createDiv(area).parent("designDiv").class("colorSwatch").id(`colorSwatch-${area}`);
     let colorHex = createDiv(areaColors[area]).parent("designDiv").class("colorSwatch").id(`colorHex-${area}`);
@@ -471,6 +529,8 @@ function initControlUI(){
     defaults.wobbleSpeed = wobbleSpeedSlider.value();
     wobbleSpeedDiv.html(`wobbleSpeed: ${defaults.wobbleSpeed}`);
   });
+  blobControlDiv.hide();
+  // document.getElementById("controlDiv").style.display = "hidden"
 }
 
 function initCourseNodes(){
