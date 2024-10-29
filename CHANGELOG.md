@@ -8,8 +8,9 @@
 
 - set up raspi on nyu wifi
 - got 12th floor monitor up and running (socket dead)
-- remote control QR code
+- remote control QR code on fishtank
 - link to main site on remote
+- removed mobile warning on fishtank
 
 ### v0.2.7
 

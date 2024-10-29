@@ -346,10 +346,11 @@ function draw() {
   background(state.bg);
   //CA logo in top left corner
   image(title, 10, 10, defaults.titleSize, defaults.titleSize * defaults.titleRatio);
-  push();
+  /*push();
   textSize(width/40)
   text(warningText, width/2, 25);
   pop();
+  */
   //draw the clusters (checks for mode first)
   showClusters();
 
