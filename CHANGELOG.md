@@ -2,9 +2,83 @@
 
 ## v0
 
+### v0.2.8
+
+#### *10/29/24 145 *
+
+- set up raspi on nyu wifi
+- got 12th floor monitor up and running (socket dead)
+- remote control QR code on fishtank
+- link to main site on remote
+- removed mobile warning on fishtank
+
+### v0.2.7
+
+#### *10/28/24 30 mins*
+
+- .click() event bypassed, now using MouseEvent dispatch on the element
+  
+### v0.2.6
+
+#### *10/27/24 3.5 hrs*
+
+- added socket event sending mouse heading and dir
+- hand object on fishtank
+- vector based cursor movement
+- pacman boundary check
+- joystick UI with knob / colors / deadzones
+- click button
+- checking .click() event
+
+#### TODO
+
+- bind functions to all elements for click simulation events
+- make main sketch a p5 instance for use across pages
+- keyword exclusion mode
+- timer for modes/events activated
+- fishtank mode with flocking
+- QR code at bottom
+- ask Sarah D. about left-handed remote usability
+
+### v0.2.5
+
+#### *10/25/24 2 hrs*
+
+- remote mouse control tests
+- made custom cursor with [https://www.pixilart.com/](https://www.pixilart.com/) and made it the default across all pages
+- turned off cursor by default on fish tank, using remote to control virtual cursor
+- added socket logic on server and admin UI plugin
+- remote joystick tests, sending cursor move direction as vector heading and magnitude (scaled for speed)
+
+### v0.2.4
+
+#### *10/9/24 1hr && 10/13/24 1hr*
+
+- design sketches for fishtank and remote control page
+- miro flowchart for planning out fishtank tasks/schedule
+- started namespaces/folders for fishtank and remote
+- installed socket.io
+- changed background color of test site to a light blue
+
+### v0.2.3
+
+#### *9/15/24 1hr*
+
+- added pink circle logo
+- committing misc changes from summer leftover
+- testing strapi for headless CMS
+
+### v0.2.2
+
+#### *6/3/24 1 hr*
+
+- mobile beta
+  - flag that is set based on portrait or landscape
+  - researched feature detection library [Modernizr](https://modernizr.com/docs/#what-is-modernizr) but just using navigator.userAgent for now.
+
 ### v0.2.1
 
-#### *6/2/24 45* 630
+#### *6/2/24 45 mins*
 
 - link to site and QR code
   - [bit.ly/collabartswebsite](https://bit.ly/collabartswebsite)
