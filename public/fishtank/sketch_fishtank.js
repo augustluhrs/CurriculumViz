@@ -20,6 +20,7 @@ let hand = {
   forces: [],
 }
 let hasClicked = false;
+let remoteLink;
 
 // MARK: SOCKET STUFF
 //open and connect the input socket
@@ -193,7 +194,7 @@ let state = { //need to refactor this vs options
 function preload(){
   // hand = loadImage(`${pagePrefix}assets/brand/ca_cursor.png`);
   masterSheet = loadTable(`${pagePrefix}data/master_5-1.csv`, "csv", "header");
-  
+  // remoteLink = loadImage('../assets/qr/bit.ly_cacv-remote.png');
   // title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
   font = loadFont("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662");
 
@@ -242,6 +243,7 @@ function setup() {
   textFont(fonts[defaults.fontName].font); //default
   ellipseMode(CENTER);
   rectMode(CENTER);
+  // imageMode(CENTER);
   angleMode(DEGREES); //just for 360/7 areas
   colorMode(HSB, 360, 100, 100, 1);
   // colorMode(HSB, 1, 1, 1, 1); //normalizing for color _array
@@ -328,6 +330,10 @@ function setup() {
   hand.pos = createVector(100, 100)
   hand.acc = createVector(0, 0);
   hand.vel = createVector(0, 0);
+
+  remoteLink = new p5.Element(document.getElementById("qr-remote"));
+  remoteLink.size(width/5, width/5);
+  remoteLink.position(width * .85, height * .75);
 }
 
 /**
@@ -367,6 +373,9 @@ function draw() {
   // hand.cursor.position(hand.width, hand.height);
   //vector movement
   cursorUpdates();
+
+  //show remote control QR
+  // image(remoteLink, width * .85, height * .85, width/5, width/5);
 };
 
 // MARK: cursor socket functions

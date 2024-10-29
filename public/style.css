@@ -48,6 +48,18 @@ html, body, a, button, input {
   z-index: 9999;
 }
 
+/* Style for the qr code, just for top level z-index */
+#qr-remote {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background-image: url('assets/qr/bit.ly_cacv-remote.png'); 
+  background-size: contain;
+  pointer-events: none;
+  transform: translate(-50%, 50%); 
+  z-index: 9999;
+}
+
 /* https://dev.to/ashwamegh/how-to-hide-scrollbar-from-any-html-element-dae */
 /* https://www.w3schools.com/css/css_pseudo_elements.asp */
 .scroll-hide::-webkit-scrollbar { 

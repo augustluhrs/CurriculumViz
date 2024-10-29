@@ -40,6 +40,7 @@ let mouseSpeedScale = 0.03;
   // pos: null,
   // radius: 0
 // }
+let linkButt;
 let clickButt, clickButtPos;
 let joystick = {
   // xPos: 0, 
@@ -81,13 +82,22 @@ function setup(){
   mousePos = createVector();
 
   //click button UI
-  clickButt = createButton("CLICK").class("buttons").position(width * .15, height * .3);
+  clickButt = createButton("CLICK").class("buttons").position(width * .15, height * .5);
   clickButt.size(width/4, height/10);
   clickButt.mousePressed(()=>{
     console.log("click");
     socket.emit("mouseClicked");
   });
   clickButtPos = createVector(width * .15, height * .3);
+
+  //link to main site
+  linkButt = createButton("GO TO MAIN SITE").class("buttons").position(width * .65, height * .15);
+  linkButt.size(width/4, height/10);
+  linkButt.mousePressed(()=>{
+    console.log("link");
+    window.location = "https://ca-curriculum-viz.glitch.me";
+  });
+
 
   fill(joyCol);
 

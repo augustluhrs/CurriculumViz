@@ -2,6 +2,15 @@
 
 ## v0
 
+### v0.2.8
+
+#### *10/29/24 145 *
+
+- set up raspi on nyu wifi
+- got 12th floor monitor up and running (socket dead)
+- remote control QR code
+- link to main site on remote
+
 ### v0.2.7
 
 #### *10/28/24 30 mins*
