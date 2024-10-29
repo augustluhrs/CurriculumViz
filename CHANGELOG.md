@@ -2,6 +2,12 @@
 
 ## v0
 
+### v0.2.7
+
+#### *10/28/24 30 mins*
+
+- .click() event bypassed, now using MouseEvent dispatch on the element
+  
 ### v0.2.6
 
 #### *10/27/24 3.5 hrs*

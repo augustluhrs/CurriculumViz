@@ -61,7 +61,9 @@ let joystick = {
 function setup(){
   createCanvas(windowWidth, windowHeight);//stretches to fit whatever windowSize the user has
   noStroke();
-  angleMode(RADIANS);
+  // angleMode(RADIANS);
+  angleMode(DEGREES);
+
 
   bg = color("#99c80011");
   joyCol = color("#db7093");

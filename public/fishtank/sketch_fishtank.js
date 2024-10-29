@@ -53,6 +53,39 @@ socket.on('mouseClicked', ()=>{
   //https://stackoverflow.com/questions/3277369/how-to-simulate-a-click-by-using-x-y-coordinates-in-javascript
   document.elementFromPoint(hand.pos.x, hand.pos.y).click();
   console.log(document.elementFromPoint(hand.pos.x, hand.pos.y));
+
+  //didn't work, here's ChatGPT:
+  let e = document.elementFromPoint(hand.pos.x, hand.pos.y);
+
+  if (e) {
+    //uses mouse events b/c more "robust" and "bubbles"
+    const triggerEvent = (type) => {
+      e.dispatchEvent(new MouseEvent(type, {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+        clientX: hand.pos.x,
+        clientY: hand.pos.y,
+      }));
+    };
+    // const mouseEvent = new MouseEvent('click', {
+    //   view: window,
+    //   bubbles: true,
+    //   cancelable: true,
+    //   clientX: hand.pos.x,
+    //   clientY: hand.pos.y,
+    // });
+    e.focus();
+    triggerEvent('pointerdown');
+    triggerEvent('mousedown');
+    triggerEvent('pointerup');
+    triggerEvent('mouseup');
+    triggerEvent('click');
+
+    // e.dispatchEvent(mouseEvent);
+    console.log(e);
+    // console.log(mouseEvent);
+  }
 });
 
 
@@ -339,8 +372,8 @@ function draw() {
 // MARK: cursor socket functions
 function cursorUpdates(){
   //want to avoid weird issues when acc is coming in as movement updates are applied, so:
-  push(); //idk this feels wrong, should refactor TODO
-  angleMode(RADIANS);
+  // push(); //idk this feels wrong, should refactor TODO
+  // angleMode(RADIANS);
   if (hand.forces.length > 0){
     for (let i = hand.forces.length - 1; i >= 0; i--){
       let dir = createVector(0, 1);
@@ -373,7 +406,7 @@ function cursorUpdates(){
     hand.pos.y += height;
   }
 
-  push();
+  // pop();
 }
 
 function initClusters(){
