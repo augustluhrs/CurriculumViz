@@ -10,7 +10,9 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@socket.io/admin-ui": "^0.5.1",
     "express": "^4.18.2",
-    "highcharts": "^11.3.0"
+    "highcharts": "^11.3.0",
+    "socket.io": "^4.8.0"
   }
 }

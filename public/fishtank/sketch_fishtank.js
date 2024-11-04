@@ -6,6 +6,95 @@
     August Luhrs and Despina Papadopolous
 */
 
+
+//FOR FISHTANK -- EVENTUALLY WILL USE INSTANCE, PLACEHOLDER
+// let hand; //png of cursor
+let handX, handY; //mouseX mouseY
+let hand = {
+  cursor: null,
+  width: 0,
+  height: 0,
+  pos: null,
+  vel: null,
+  acc: null,
+  forces: [],
+}
+let hasClicked = false;
+let remoteLink;
+
+// MARK: SOCKET STUFF
+//open and connect the input socket
+let socket = io('/fishtank', {
+  withCredentials: true
+});
+
+//listen for the confirmation of connection 
+socket.on('connect', () => {
+    console.log('now connected to server');
+    if (socket.recovered) {
+      console.log('previous connection reestablished')
+    }
+});
+
+socket.on('mouseMoved', (data) => {
+  //should add relative amount so multiple people can control at once
+  // console.log('mouse moved');
+  //remote sending heading and mag
+  // console.log(data.heading, data.mag)
+  // handX += data.x;
+  // handY += data.y;
+  // moveCursor(data.heading, data.mag);
+  hand.forces.push([data.heading, data.mag]);
+});
+
+socket.on('reset', ()=>{
+  location.reload();
+});
+
+socket.on('mouseClicked', ()=>{
+  // console.log('mouse clicked');
+  //check to see if cursor is over a clickable element
+  //TODO
+  //https://stackoverflow.com/questions/3277369/how-to-simulate-a-click-by-using-x-y-coordinates-in-javascript
+  document.elementFromPoint(hand.pos.x, hand.pos.y).click();
+  // console.log(document.elementFromPoint(hand.pos.x, hand.pos.y));
+
+  //didn't work, here's ChatGPT:
+  let e = document.elementFromPoint(hand.pos.x, hand.pos.y);
+
+  if (e) {
+    //uses mouse events b/c more "robust" and "bubbles"
+    const triggerEvent = (type) => {
+      e.dispatchEvent(new MouseEvent(type, {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+        clientX: hand.pos.x,
+        clientY: hand.pos.y,
+      }));
+    };
+    // const mouseEvent = new MouseEvent('click', {
+    //   view: window,
+    //   bubbles: true,
+    //   cancelable: true,
+    //   clientX: hand.pos.x,
+    //   clientY: hand.pos.y,
+    // });
+    e.focus();
+    triggerEvent('pointerdown');
+    triggerEvent('mousedown');
+    triggerEvent('pointerup');
+    triggerEvent('mouseup');
+    triggerEvent('click');
+
+    // e.dispatchEvent(mouseEvent);
+    console.log(e);
+    // console.log(mouseEvent);
+  }
+});
+
+
+
 //design/UI variables
 let fonts = {};
 // let testColors = areaColors;
@@ -107,12 +196,13 @@ let state = { //need to refactor this vs options
 }
 
 function preload(){
+  // hand = loadImage(`${pagePrefix}assets/brand/ca_cursor.png`);
   masterSheet = loadTable(`${pagePrefix}data/master_5-1.csv`, "csv", "header");
-  // title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
+  // remoteLink = loadImage('../assets/qr/bit.ly_cacv-remote.png');
   title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_pink_logo.png?v=1730229378674");
   font = loadFont("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662");
 
-  // title = loadImage(`${pagePrefix}assets/brand/ca_title.png`);
+  // title = loadImage(`${pagePrefix}assets/brand/ca_pink_logo.png`);
   fonts["tiltneon"] = {name: "tiltneon", font: loadFont(`${pagePrefix}assets/fonts/fontTests/tiltneon.ttf`)};
   fonts["yk_med"] = {name: "yk_med", font: loadFont(`${pagePrefix}assets/fonts/fontTests/yk_med.ttf`)};
   fonts["ibmPlex_sans_med"] = {name: "ibmPlex_sans_med", font: loadFont(`${pagePrefix}assets/fonts/fontTests/ibmPlex_sans_med.ttf`)};
@@ -157,6 +247,7 @@ function setup() {
   textFont(fonts[defaults.fontName].font); //default
   ellipseMode(CENTER);
   rectMode(CENTER);
+  // imageMode(CENTER);
   angleMode(DEGREES); //just for 360/7 areas
   colorMode(HSB, 360, 100, 100, 1);
   // colorMode(HSB, 1, 1, 1, 1); //normalizing for color _array
@@ -174,7 +265,7 @@ function setup() {
   }
 
   //title logo
-  defaults.titleSize = width/8;
+  // defaults.titleSize = width/8;
   defaults.titleRatio = title.height / title.width;
 
   //mobile warning
@@ -192,7 +283,10 @@ function setup() {
   //turn to string for css
   defaults.nodeSize_px = defaults.nodeSize.toString();
   defaults.nodeSize_px += 'px';
-  textSize(defaults.nodeSize / 6);
+  textSize(defaults.nodeSize / 5);
+
+  defaults.titleSize = defaults.nodeSize * 2;
+
 
   //distances from clusters to center of web and nodes to clusters
   defaults.webOffset = (-defaults.nodeSize * 4);
@@ -229,6 +323,22 @@ function setup() {
   } else {
     state.bg = color("#74eeff"); //blue color for test site
   }
+
+  //cursor for fishtank control
+  // cursor(hand);
+  // cursor(`${pagePrefix}assets/brand/ca_cursor.png`);
+  noCursor(); //using drawn one instead
+  hand.cursor = new p5.Element(document.getElementById("custom-cursor"));
+  hand.width = width * 0.15;
+  hand.height = height * 0.05;
+  hand.pos = createVector(width/2, height/10)
+  hand.acc = createVector(0, 0);
+  hand.vel = createVector(0, 0);
+
+  remoteLink = new p5.Element(document.getElementById("qr-remote"));
+  remoteLink.size(width/5, width/5);
+  remoteLink.position(width * .85, height * .75);
+  
 }
 
 /**
@@ -241,10 +351,11 @@ function draw() {
   background(state.bg);
   //CA logo in top left corner
   image(title, 10, 10, defaults.titleSize, defaults.titleSize * defaults.titleRatio);
-  push();
+  /*push();
   textSize(width/40)
   text(warningText, width/2, 25);
   pop();
+  */
   //draw the clusters (checks for mode first)
   showClusters();
 
@@ -262,6 +373,58 @@ function draw() {
     //draw the nodes
     cNode.show(); 
   } 
+
+  //remote controlled cursor
+  // image(hand, handX, handY, 80, 80);
+  // hand.cursor.position(hand.width, hand.height);
+  //vector movement
+  cursorUpdates();
+
+  //show remote control QR
+  // image(remoteLink, width * .85, height * .85, width/5, width/5);
+  
+  text("REMOTE CONTROL THIS PAGE FROM YOUR PHONE \n (VERY SLOW, WILL FIX)", width * .85, height * .95, width / 4, height / 5);
+  
+};
+
+// MARK: cursor socket functions
+function cursorUpdates(){
+  //want to avoid weird issues when acc is coming in as movement updates are applied, so:
+  // push(); //idk this feels wrong, should refactor TODO
+  // angleMode(RADIANS);
+  if (hand.forces.length > 0){
+    for (let i = hand.forces.length - 1; i >= 0; i--){
+      let dir = createVector(0, 1);
+      dir.setHeading(hand.forces[i][0]);
+      dir.setMag(hand.forces[i][1]);
+      hand.acc.add(dir);
+      // console.log(dir);
+      hand.forces.splice(i, 1);
+    }
+  }
+
+  // hand.acc.mult(1); //incase want to do stepsize later
+  // hand.acc.limit(1); //TODO check maxForce
+  hand.vel.add(hand.acc);
+  hand.vel.limit(20); //TODO check maxSpeed
+  hand.vel.mult(0.90); //TODO check friction
+  if (hand.vel.mag() < 1){hand.vel.mult(hand.vel.mag());} //make sure the force is big enough, avoid the vibrating when in final position
+  hand.acc.mult(0); //reset the forces for the next loop
+  hand.pos.add(hand.vel); //move the cursor
+  hand.cursor.position(hand.pos.x, hand.pos.y);
+
+  //check boundaries and flip if over "pacman"
+  if (hand.pos.x > width) {
+    hand.pos.x -= width;
+  } else if (hand.pos.x < 0){
+    hand.pos.x += width;
+  } else if (hand.pos.y > height){
+    hand.pos.y -= height;
+  } else if (hand.pos.y < 0){
+    hand.pos.y += height;
+  }
+
+  // pop();
 }
 
 function initClusters(){
@@ -302,18 +465,18 @@ function initClusters(){
 function initControlUI(){
   //control UI
   // buttonsDiv = createDiv()
-  physicsButton = createButton("TURN MOTION OFF").class("buttons").position(20, height - 50).mousePressed(()=>{
+  physicsButton = createButton("TURN MOTION OFF").class("buttons").position(20, height * 0.9).mousePressed(()=>{
     togglePhysics();
   });
-  bounceButton = createButton("BOUNCE HOUSE ON").class("buttons").position(300, height - 50).mousePressed(()=>{
+  bounceButton = createButton("BOUNCE HOUSE ON").class("buttons").position(300, height * 0.9).mousePressed(()=>{
     toggleBounce();
   });
-  mouseAvoidButton = createButton(options.isAvoidingMouse ? "IGNORE MOUSE" : "AVOID MOUSE").class("buttons").position(600, height - 50).mousePressed(()=>{
+  mouseAvoidButton = createButton(options.isAvoidingMouse ? "IGNORE MOUSE" : "AVOID MOUSE").class("buttons").position(600, height * 0.9).mousePressed(()=>{
     options.isAvoidingMouse = !options.isAvoidingMouse;
     mouseAvoidButton.html(options.isAvoidingMouse ? "IGNORE MOUSE" : "AVOID MOUSE");
   });
-
-
+  mouseAvoidButton.hide();
+  
   physicsDiv = createDiv("PHYSICS TESTING").parent("controlDiv").id("physicsDiv").class("controls");
   createDiv("- - - - - - - - - ").parent("physicsDiv").elt.style.setProperty('width', '100%');
   speedDiv = createDiv("maxSpeed").parent("physicsDiv").id("speedDiv");
@@ -334,6 +497,7 @@ function initControlUI(){
       cNode.friction = frictionSlider.value();
     }
   });
+  physicsDiv.hide();
 
   //set all CNode physics variables here based on slider defaults
   updateNodePhysics();
@@ -359,6 +523,7 @@ function initControlUI(){
     state.bgAlpha = alphaSlider.value();
     state.bg.setAlpha(state.bgAlpha);
   });
+  otherDiv.hide();
   //design testing controls
   designDiv = createDiv("DESIGN TESTING").parent("controlDiv").id("designDiv").class("controls");
   createDiv("- - - - - - - - - ").parent("designDiv").elt.style.setProperty('width', '100%');
@@ -378,7 +543,7 @@ function initControlUI(){
     console.log(fonts[fontsDropdown.selected()])
   });
   createDiv("- - - - - - - - - ").parent("designDiv").elt.style.setProperty('width', '100%');
-
+  designDiv.hide();
   for (let area of Object.keys(areaColors)){
     let colorSwatch = createDiv(area).parent("designDiv").class("colorSwatch").id(`colorSwatch-${area}`);
     let colorHex = createDiv(areaColors[area]).parent("designDiv").class("colorSwatch").id(`colorHex-${area}`);
@@ -416,6 +581,8 @@ function initControlUI(){
     defaults.wobbleSpeed = wobbleSpeedSlider.value();
     wobbleSpeedDiv.html(`wobbleSpeed: ${defaults.wobbleSpeed}`);
   });
+  blobControlDiv.hide();
+  // document.getElementById("controlDiv").style.display = "hidden"
 }
 
 function initCourseNodes(){
@@ -437,7 +604,7 @@ function initCourseNodes(){
         [rowArr[12], rowArr[13]]
       ]
     }
-    let newCourse = new CNode(courseInfo, nodeClick);
+    let newCourse = new CNode(courseInfo, nodeClick, "fishtank");
     courses.push(newCourse);
   }
 
@@ -486,7 +653,7 @@ function initPanelUI(){
   courseInfo["courseKeywords"] = createDiv().parent("coursePanel").class("infoDivs");
 
   //keyword panel UI
-  keywordPanelHeight = height * 0.25;
+  keywordPanelHeight = height / 8;
   keywordPanel = createDiv().class("panels").id("keywordPanel").parent("mainContainer");
   keywordPanel.size(panelRightEdge, height - keywordPanelHeight);
   keywordPanel.position(0, keywordPanelHeight);

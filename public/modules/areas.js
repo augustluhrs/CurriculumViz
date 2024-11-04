@@ -12,7 +12,7 @@ let areaColors = { //my adjustments 4-19
   "TECHNOLOGY": "#38b000", //
   "WRITING": "#2D99C8", //
   "VISUAL ART": "#d90368", // 
-  "STUDIES": "#ffd407", //
+  "STUDIES": "#ffd407", //z
 };
 
 // let areaColors = { //despina 4/18

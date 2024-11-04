@@ -1,6 +1,51 @@
 # TODO
 
-## v0.1
+## v0.2 -- Mobile
+
+- [ ] mobile view
+  - [ ] touch gesture
+    - [ ] pan
+    - [ ] zoom
+      - [ ] pinch to scale main view
+      - [ ] no double tap?
+    - [ ] panel scroll
+  - [ ] UI changes
+    - [ ] panel on bottom for all panel types (with tabs?)
+  - [ ] style fixes
+    - [ ] font
+    - [ ] font size
+- [ ] testing page
+  - [ ] move design controls to separate namespace
+- [ ] updates
+  - [ ] csv
+    - [ ] all classes and keywords
+  - [ ] CSS
+    - [ ] research libraries
+  - [ ] add linter to code
+- [ ] media
+  - [ ] test display desktop
+  - [ ] test display mobile
+  - [ ] formatting
+    - [ ] CLI format script
+  - [ ] hosting
+    - [ ] upload to new drive or repo with server
+    - [ ] research strapi
+  - [ ] functionality
+    - [ ] click to cycle
+  - [ ] test video
+  - [ ] test gifs/webp
+- [ ] tools
+  - [ ] more hands off way to handle form to master integration?
+  - [ ] same but for media?
+- [ ] brand
+  - [ ] color palette
+  - [ ] principles on site somewhere?
+- [ ] overall site
+  - [ ] glitch for now -- new CA acct?
+  - [ ] landing page or just node map?
+  - [ ] what other things do we want
+
+## v0.1 -- Node Web Feature Playground
 
 - [ ] new master sheet with formatted csv
   - [X] main keywords
@@ -33,6 +78,7 @@
     - [ ] click to show (mobile)
     - [X] click to show (desktop)
       - [X] click to hide
+      - [ ] click node again to hide
     - [X] shift clusters to side
       - [X] nodes avoid panel
     - [X] basic info
@@ -71,19 +117,21 @@
   - [ ] features
     - [X] add alpha party mode toggle (bounce house)
     - [ ] scale nodes and cluster radius
-    - [ ] click area to highlight those, show/hide
+    - [X] click area to highlight those, show/hide
     - [ ] drag courses toggle
-    - [ ] courses ignore each other if too far from home cluster
-    - [ ] highlight course
+    - [X] courses ignore each other if too far from home cluster
+    - [X] highlight course
       - [X] stroke
       - [ ] red if mismatch keywords
         - [ ] diff color / texture (cross hatch)
-      - [ ] rainbow fade animation
-      - [ ] blob outline wobble
+      - [X] rainbow fade animation
+      - [ ] new blob shape
+        - [ ] blob outline wobble
   - [ ] control panel
     - [ ] clean up mode buttons and space/layout
     - [ ] show/hide chevron
     - [ ] dropdown of mode toggle
+    - [ ] font dropdown
     - [ ] refactor mode loop and have mode manager function
   - [ ] design
     - [ ] font
@@ -93,22 +141,28 @@
       - [X] new area palette
     - [X] area changes
       - [X] move writing inbetween studies and image
-    - [ ] selected node
-      - [ ] new blob shape
       - [X] rainbow/neon fade highlight
+    - [ ] logo in corner
+      - [X] placeholder
+      - [ ] updated logo (circle from IG?)
+      - [ ] click to go to website
   - [ ] misc
     - [X] default to no shake on slider
     - [ ] set up asset hosting so don't have to upload to glitch
     - [ ] learn react...
+    - [ ] beautify/lint
+      - [ ] vscode auto collapse on open? or hotkey?
     - [ ] clean up sketch code
     - [ ] easter egg button
+    - [ ] change Technology to Tech (needs sheet, courseNode.js and areas.js)
     - [ ] physics updates
-      - [ ] substepping
+      - [X] substepping
       - [ ] shader
     - [ ] other controls
       - [ ] cluster spacing radius slider
       - [ ] node diameter slider
       - [ ] opacity slider
+      - [X] blob anim sliders
   - [ ] bugs
     - [X] nodes stacking if offset = 0
     - [X] panel reset node colors on close
@@ -132,7 +186,7 @@
   - [ ] proofread descriptions
   - [ ] format media and reupload/relink
 
-## v0 init
+## v0 -- Project Init and Testing Table
 
 - [ ] Project Setup
   - [X] git init

@@ -2,6 +2,235 @@
 
 ## v0
 
+### v0.2.10
+
+#### *11/1/24 30 mins*
+
+- fixed cursor link to reflect glitch url
+- added remote reset via socket.emit('reset') -- just resets fishtank
+- moved buttons up on fishtank
+- removed mouse avoid
+- adjusted joystick size and emitted speed
+- updated logo on main site and moved keyword pos down
+
+TODO:
+
+- scale and reposition the buttons for vertical
+- figure out performance hack for raspi or get new computer
+- mode buttons (test motion off cursor)
+- mode timers
+- updated classes
+- spring schedule
+- if multiple fishtanks, need server cursor pos, not clientside
+
+### v0.2.9
+
+#### *10/29/24 2.5hrs*
+
+Glitch:
+
+- added asset paths
+- changed remote window scaling touch stuff to prevent moving window
+- font size updates for fishtank
+- control text for qr code
+- logo scale
+- raspi monitor doesn't sleep
+
+
+### v0.2.8
+
+#### *10/29/24 1 hr*
+
+- set up raspi on nyu wifi
+- got 12th floor monitor up and running (socket dead)
+- remote control QR code on fishtank
+- link to main site on remote
+- removed mobile warning on fishtank
+
+### v0.2.7
+
+#### *10/28/24 30 mins*
+
+- .click() event bypassed, now using MouseEvent dispatch on the element
+  
+### v0.2.6
+
+#### *10/27/24 3.5 hrs*
+
+- added socket event sending mouse heading and dir
+- hand object on fishtank
+- vector based cursor movement
+- pacman boundary check
+- joystick UI with knob / colors / deadzones
+- click button
+- checking .click() event
+
+#### TODO
+
+- bind functions to all elements for click simulation events
+- make main sketch a p5 instance for use across pages
+- keyword exclusion mode
+- timer for modes/events activated
+- fishtank mode with flocking
+- QR code at bottom
+- ask Sarah D. about left-handed remote usability
+
+### v0.2.5
+
+#### *10/25/24 2 hrs*
+
+- remote mouse control tests
+- made custom cursor with [https://www.pixilart.com/](https://www.pixilart.com/) and made it the default across all pages
+- turned off cursor by default on fish tank, using remote to control virtual cursor
+- added socket logic on server and admin UI plugin
+- remote joystick tests, sending cursor move direction as vector heading and magnitude (scaled for speed)
+
+### v0.2.4
+
+#### *10/9/24 1hr && 10/13/24 1hr*
+
+- design sketches for fishtank and remote control page
+- miro flowchart for planning out fishtank tasks/schedule
+- started namespaces/folders for fishtank and remote
+- installed socket.io
+- changed background color of test site to a light blue
+
+### v0.2.3
+
+#### *9/15/24 1hr*
+
+- added pink circle logo
+- committing misc changes from summer leftover
+- testing strapi for headless CMS
+
+### v0.2.2
+
+#### *6/3/24 1 hr*
+
+- mobile beta
+  - flag that is set based on portrait or landscape
+  - researched feature detection library [Modernizr](https://modernizr.com/docs/#what-is-modernizr) but just using navigator.userAgent for now.
+
+### v0.2.1
+
+#### *6/2/24 45 mins*
+
+- link to site and QR code
+  - [bit.ly/collabartswebsite](https://bit.ly/collabartswebsite)
+- researched CSS libraries
+- clean up beta / add testing site
+  - made a new '/test' namespace for what the old version looked like
+  - added flag for not showing control stuff on main site
+
+### v0.2.0
+
+#### *5/19/24 30 mins*
+
+- updated TODO with new version tasks
+- researched touch gesture canvas zoom/pan options
+- researched strapi CMS hosting on glitch
+
+### v0.1.25
+
+#### *5/2/24 1.25hrs*
+
+- keyword panel shifted up and width increased from 10% to 15% (reduced shift center by half)
+- added the warning text for mobile that was just on glitch previously
+- csv updates
+  - tweaked capstone entry in csv to be "final cohort experience" and added one-liner
+  - updated steven's entries and added Performing Anatomy keywords and short
+- closing panels shift all family orbits and still wobbles selected
+- changed cohort to be all spiral
+
+### v0.1.24
+
+#### *4/28/24 20 mins and 4/30/24 2hrs*
+
+- family reunion
+  - abandoned spring body system because i'm a dingus that forgot big picture, doing same distribution method as cluster
+  - evenly spaced around orbit, second layer offset by 45 degrees
+  - links connect course to siblings and cousins
+  - orbit size slider in controls for testing
+  - spiral anim for outermost relatives
+  - adjusted cluster center b/c was a little left when shifted
+
+next:
+- technology --> tech in cluster display
+- course info
+  - example image
+  - (strapi research)
+  - other info
+- keywords
+  - should do a family mode toggle
+  - spiral anim
+- dragging node (how if click is toggle...)
+- keyword panel spacing
+- click areas during bounce
+- test accumulating nodeDist dir before applying force
+- add latest courses
+- clock mode?
+- courses object
+
+### v0.1.23
+
+#### *4/28/24 1 hr*
+
+- family reunion
+  - added more springs to keep shape
+  - selected course only cares about center
+- alpha slider in controls
+
+### v0.1.22
+
+#### *4/27/24 3 hrs*
+
+- rainbow selection anim
+  - go away when not visible
+  - increase hue shift offset
+- family reunion
+  - spring connections WIP
+  - using magSq now, but maybe shouldn't... (edit: bug in center orbit, removed)
+
+### v0.1.21
+
+#### *4/25/24 1.75hrs*
+
+- family reunion keyword state
+  - placeholder relationship sort based on minimum of 6 per orbit
+  - check and go methods
+  - working click toggle to activate family reunion mode, but spacing is weird
+- organized courseNode constructor sections
+
+### v0.1.20
+
+#### *4/24/24 2.5hrs*
+
+- control updates
+  - spaced out div sections
+  - added design controls
+    - font select (doesn't change buttons or fontsize)
+    - color tester (inputs then color picker, with hex updating)
+
+### v0.1.19
+
+#### *4/23/24 3.75 hrs*
+
+- changed physics toggle to motion toggle
+  - bounce mode no longer has timeout, can pause in bounce mode
+  - hasCollisions inconsistent in bounce mode, but i like it
+- added isVisible to nodes
+  - can't click on invisible node for panel info
+  - simplifies checkVisibility's effects
+- fixed alpha of bg ellipse not reset for core classes
+  - cluster col reference --> new Color()
+  - .col vs .color...
+  - had to create colors off .toString()
+- changed "keywords" state to "relationships" to remove overlap with keywords checks
+- refresh background on area click
+- added blob shape and animation to selected course
+  - [p5 editor blob sketch](https://editor.p5js.org/augustluhrs/sketches/_AEKGMMOXB)
+  - increased radius of rainbow fade
+
 ### v0.1.18
 
 #### *4/21/24 3hrs*
