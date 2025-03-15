@@ -49,7 +49,7 @@ let defaults = {
   boundaryForce: null,
   clusterOffset: null,
   fadeAlpha: 0.03, // the hidden nodes alpha value
-  familyOrbitSize: 2, //the minimum number of siblings and cousins
+  familyOrbitSize: 3, //the minimum number of siblings and cousins
   frictionStart: 0.99,
   fontName: "tiltneon",
   forceMax: 2,
@@ -240,7 +240,6 @@ function setup() {
 //MARK: draw
 function draw() {
   background(state.bg);
-  
   //CA logo in top left corner
   image(title, 10, 10, defaults.titleSize, defaults.titleSize * defaults.titleRatio);
   push();
@@ -552,7 +551,7 @@ function mousePressed(){
   if (mouseX < defaults.titleSize && mouseY < defaults.titleSize * defaults.titleRatio){
     window.location.reload();
   }
-  
+
   //just using for cluster highlight atm
   if ( state.mode !== "default" ){ return; }
 
@@ -706,6 +705,7 @@ function showClusters(){
   } else { //if clicked on one
     stroke(0);
     strokeWeight(2);
+
     //TODO refactor, add cluster class and fix the center pos / shift stuff
     if (options.isShowingPanel){
       fill(clusters[state.selectedCluster].color);
