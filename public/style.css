@@ -26,14 +26,21 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: "tiltneon";
+/*   disable scrolling, only issue is refresh... https://discourse.processing.org/t/disable-scrolling-on-mobile/20719/2 */
+  user-select: none;
+  touch-action: none;
+  -webkit-user-select: none;
+/*   height: 100%;  
+  overflow: hidden; */
 }
+
 canvas {
   display: block;
 } 
 
 html, body, a, button, input {
   /* for custom cursor */
-  cursor: url('assets/brand/ca_cursor.png'), auto;
+  cursor: url('https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_cursor.png?v=1730229446948'), auto;
 }
 
 /* Style for the custom cursor */
@@ -41,7 +48,7 @@ html, body, a, button, input {
   position: absolute;
   width: 80px;
   height: 80px;
-  background-image: url('assets/brand/ca_cursor.png'); /* Your cursor image */
+  background-image: url('https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_cursor.png?v=1730229446948'); /* Your cursor image */
   background-size: contain;
   pointer-events: none; /* So it doesn't block other elements */
   transform: translate(-35%, 0%); 
@@ -53,7 +60,7 @@ html, body, a, button, input {
   position: absolute;
   width: 80px;
   height: 80px;
-  background-image: url('assets/qr/bit.ly_cacv-remote.png'); 
+  background-image: url('https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/bit.ly_cacv-remote.png?v=1730229372663'); 
   background-size: contain;
   pointer-events: none;
   transform: translate(-50%, 50%); 
@@ -104,6 +111,21 @@ html, body, a, button, input {
   /* line-height: 200%; */
   display: inline-block;
   margin: auto;
+  font-size: 80%;
+  font-family: "tiltneon";
+  transform: translate(-50%, -50%); /*center button */
+}
+
+.cNode-soul {
+  border: 2px solid black;
+  border-radius: 50%;
+  /* width: 7%; */
+  /* height: 7%; */
+  /* padding: 3% 1%; */
+  text-align: center;
+  /* line-height: 200%; */
+  display: inline-block;
+  margin: auto;
   font-size: 110%;
   font-family: "tiltneon";
   transform: translate(-50%, -50%); /*center button */
@@ -113,7 +135,7 @@ html, body, a, button, input {
   margin: 10px;
   background-color: rgb(108,112,45);
   color: white;
-  font-size: 150%;
+  font-size: 100%;
   font-family: "tiltneon";
   text-align: center;
   border-radius: 12px;

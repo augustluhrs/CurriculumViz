@@ -34,7 +34,7 @@ let bg;
 let joyCol, knobCol;
 // let joystick = {};
 let mousePos;
-let mouseSpeedScale = 0.03;
+let mouseSpeedScale = 0.01;
 // let click = {
   // butt: null,
   // pos: null,
@@ -77,7 +77,7 @@ function setup(){
   // joystick.y = height * .75;
   joystick.pos = createVector(width * .66, height * .75);
   joystick.knob.pos = joystick.pos;
-  joystick.radius = width / 4;
+  joystick.radius = width / 2;
   joystick.knob.radius = joystick.radius / 2;
   mousePos = createVector();
 
@@ -91,7 +91,7 @@ function setup(){
   clickButtPos = createVector(width * .15, height * .3);
 
   //link to main site
-  linkButt = createButton("GO TO MAIN SITE").class("buttons").position(width * .65, height * .15);
+  linkButt = createButton("GO TO MAIN SITE").class("buttons").position(width * .65, height * .25);
   linkButt.size(width/4, height/10);
   linkButt.mousePressed(()=>{
     console.log("link");
@@ -142,7 +142,7 @@ function mouseDragged(){
   let dist = joystick.pos.dist(mousePos);
   dist *= mouseSpeedScale;
   console.log(dist);
-  if (dist < .15) {return;} //prevent weird behavior when knob beginning to move
+  if (dist < .1) {return;} //prevent weird behavior when knob beginning to move
 
   let dir = p5.Vector.sub(mousePos, joystick.pos).heading();
 

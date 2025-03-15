@@ -1,6 +1,6 @@
 class CNode { //courseNode
   // constructor(data, pos){
-  constructor(data, clickCallback){
+  constructor(data, clickCallback, mode="default"){
     //data from table: Course,Professor,Area,Credits,Semester,Keywords,Short,Long,Media,Credit,Media,Credit,Media,Credit
     this.course = data.course;
     this.professor = data.professor;
@@ -27,6 +27,9 @@ class CNode { //courseNode
     this.color2 = null; //only soul/core have 2
     this.cluster.count++;
     this.button.elt.style.background = this.color;
+    if (mode == "fishtank"){
+      this.button.style("font-size","35px");
+    }
 
     //cluster position info
     //core classes have dual cluster homes
@@ -54,6 +57,7 @@ class CNode { //courseNode
     } else if (this.area == "SOUL") {
       this.color2 = color(clusters["CORE"].color.toString());
       this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
+      this.button.class('cNode-soul');
     }
     
     //other display info
@@ -76,6 +80,42 @@ class CNode { //courseNode
     this.blob = [];
     this.initBlob();
 
+    //for keyword/panel modes
+    this.isVisible = true;
+    this.isSelected = false;
+    this.fitsKeywords = true;
+    this.haveKeywordsChanged = false;
+    this.hasClusterSelectionChanged = false;
+    this.keyArr = this.keywords.split(",");
+    this.hasCollisions = true; //for ignoring other nodes
+    this.shouldCheckCollision = false; //so the collision only gets turned off once per big event, to prevent edge bugs
+
+    //should use this for a check for anything that needs updating TODO
+    this.needsUpdate = false;
+
+    //family reunion keyword mode
+    this.familyMember = null; //the focus of the family reunion
+    this.orbit = 0;
+    this.relationships = {
+      tally: {},//holds the number of similar keywords by course
+      unsorted: [],
+      sorted: [],
+      siblings: [],
+      cousins: [],
+      relatives: [], //the "others"
+    };
+    this.links = {siblings: [], cousins: []}
+    // this.springs = []; // the reunion spacing forces
+    this.orbitSlot; //the sibling/cousin spot around the orbit for springs
+    this.familySpot = createVector(0, 0); //the spot around the orbit they want to be in (just siblings/cousins)
+    
+    //MARK:construct
+    //animations
+    this.rainbowOffset = 0; //for selection animation
+    this.outlineOffset = 0;
+    this.blob = [];
+    this.initBlob();
+    
     //for keyword/panel modes
     this.isVisible = true;
     this.isSelected = false;
@@ -671,10 +711,8 @@ class CNode { //courseNode
     //     }
     //   }
     // }
-    
-
   }
-
+  
   initBlob(){
     let blobUnit = defaults.blobUnit;
     for (let i = 0; i < 8; i++){
