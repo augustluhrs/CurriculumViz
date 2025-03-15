@@ -62,7 +62,7 @@ let defaults = {
   boundaryForce: null,
   clusterOffset: null,
   fadeAlpha: 0.03, // the hidden nodes alpha value
-  familyOrbitSize: 4, //the minimum number of siblings and cousins
+  familyOrbitSize: 3, //the minimum number of siblings and cousins
   frictionStart: 0.99,
   fontName: "tiltneon",
   forceMax: 2,
@@ -119,9 +119,10 @@ let state = { //need to refactor this vs options
   mode: "default" //default, keyword, bounce
 }
 
-function preload(){
-  masterSheet = loadTable(`${pagePrefix}data/master_5-1.csv`, "csv", "header");
-  title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
+function preload(){  
+  masterSheet = loadTable(`${pagePrefix}data/master_12-15.csv`, "csv", "header");
+  // title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
+  title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_pink_logo.png?v=1730229378674");
   font = loadFont("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662");
 
   // title = loadImage(`${pagePrefix}assets/brand/ca_title.png`);
@@ -173,7 +174,8 @@ function setup() {
   colorMode(HSB, 360, 100, 100, 1);
   // colorMode(HSB, 1, 1, 1, 1); //normalizing for color _array
   // bg = color("#616708"); //olive
-  state.bg = color("#aaef74"); //light pale green
+  // state.bg = color("#aaef74"); //light pale green
+  state.bg = color("#eeffff"); //ithai rev. Nov 24 -- light grey
   // (state.isMobile) ? state.bg = color("#aaef74") : state.bg = color("#74eeff");
   // state.bg = color('#aaff55'); // light green
   if(options.isAlphaPaint){
@@ -498,7 +500,7 @@ function initPanelUI(){
   courseInfo["courseKeywords"] = createDiv().parent("coursePanel").class("infoDivs");
 
   //keyword panel UI
-  keywordPanelHeight = height / 8;
+  keywordPanelHeight = height * 0.25;
   keywordPanel = createDiv().class("panels").id("keywordPanel").parent("mainContainer");
   keywordPanel.size(panelRightEdge, height - keywordPanelHeight);
   keywordPanel.position(0, keywordPanelHeight);
@@ -558,6 +560,11 @@ function keywordCheck(){
 }
 
 function mousePressed(){
+  //TODO -- this is just a temp fix for clicking logo to reset
+  if (mouseX < defaults.titleSize && mouseY < defaults.titleSize * defaults.titleRatio){
+    window.location.reload();
+  }
+
   //just using for cluster highlight atm
   if ( state.mode !== "default" ){ return; }
 
@@ -700,8 +707,8 @@ function showClusters(){
   if (state.selectedCluster == null){ //need to figure out what the mode vs options pattern is...
     for (let cluster of Object.keys(clusters)){
       if (cluster == "SOUL") {continue;}
-      stroke(255);
-      strokeWeight(4);
+      stroke(0);
+      strokeWeight(2);
       fill(clusters[cluster].color);
       rect(clusters[cluster].pos.x, clusters[cluster].pos.y, defaults.nodeSize);
       noStroke();
@@ -709,8 +716,9 @@ function showClusters(){
       text(cluster, clusters[cluster].pos.x, clusters[cluster].pos.y, defaults.nodeSize);
     }
   } else { //if clicked on one
-    stroke(255);
-    strokeWeight(4);
+    stroke(0);
+    strokeWeight(2);
+
     //TODO refactor, add cluster class and fix the center pos / shift stuff
     if (options.isShowingPanel){
       fill(clusters[state.selectedCluster].color);

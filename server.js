@@ -111,6 +111,11 @@ remote.on('connection', (socket) => {
     console.log('click');
     fishtank.emit('mouseClicked');
   });
+  
+  socket.on('reset', ()=>{
+    console.log('resetting');
+    fishtank.emit('reset');
+  });
    
   socket.on('disconnect', () => {
     console.log('remote disconnected: ' + socket.id + "\n");

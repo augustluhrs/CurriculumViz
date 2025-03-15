@@ -38,7 +38,7 @@ socket.on('connect', () => {
 
 socket.on('mouseMoved', (data) => {
   //should add relative amount so multiple people can control at once
-  console.log('mouse moved');
+  // console.log('mouse moved');
   //remote sending heading and mag
   // console.log(data.heading, data.mag)
   // handX += data.x;
@@ -47,13 +47,17 @@ socket.on('mouseMoved', (data) => {
   hand.forces.push([data.heading, data.mag]);
 });
 
+socket.on('reset', ()=>{
+  location.reload();
+});
+
 socket.on('mouseClicked', ()=>{
-  console.log('mouse clicked');
+  // console.log('mouse clicked');
   //check to see if cursor is over a clickable element
   //TODO
   //https://stackoverflow.com/questions/3277369/how-to-simulate-a-click-by-using-x-y-coordinates-in-javascript
   document.elementFromPoint(hand.pos.x, hand.pos.y).click();
-  console.log(document.elementFromPoint(hand.pos.x, hand.pos.y));
+  // console.log(document.elementFromPoint(hand.pos.x, hand.pos.y));
 
   //didn't work, here's ChatGPT:
   let e = document.elementFromPoint(hand.pos.x, hand.pos.y);
@@ -195,10 +199,10 @@ function preload(){
   // hand = loadImage(`${pagePrefix}assets/brand/ca_cursor.png`);
   masterSheet = loadTable(`${pagePrefix}data/master_5-1.csv`, "csv", "header");
   // remoteLink = loadImage('../assets/qr/bit.ly_cacv-remote.png');
-  // title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
+  title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_pink_logo.png?v=1730229378674");
   font = loadFont("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662");
 
-  title = loadImage(`${pagePrefix}assets/brand/ca_pink_logo.png`);
+  // title = loadImage(`${pagePrefix}assets/brand/ca_pink_logo.png`);
   fonts["tiltneon"] = {name: "tiltneon", font: loadFont(`${pagePrefix}assets/fonts/fontTests/tiltneon.ttf`)};
   fonts["yk_med"] = {name: "yk_med", font: loadFont(`${pagePrefix}assets/fonts/fontTests/yk_med.ttf`)};
   fonts["ibmPlex_sans_med"] = {name: "ibmPlex_sans_med", font: loadFont(`${pagePrefix}assets/fonts/fontTests/ibmPlex_sans_med.ttf`)};
@@ -279,9 +283,9 @@ function setup() {
   //turn to string for css
   defaults.nodeSize_px = defaults.nodeSize.toString();
   defaults.nodeSize_px += 'px';
-  textSize(defaults.nodeSize / 6);
+  textSize(defaults.nodeSize / 5);
 
-  defaults.titleSize = defaults.nodeSize;
+  defaults.titleSize = defaults.nodeSize * 2;
 
 
   //distances from clusters to center of web and nodes to clusters
@@ -327,13 +331,14 @@ function setup() {
   hand.cursor = new p5.Element(document.getElementById("custom-cursor"));
   hand.width = width * 0.15;
   hand.height = height * 0.05;
-  hand.pos = createVector(100, 100)
+  hand.pos = createVector(width/2, height/10)
   hand.acc = createVector(0, 0);
   hand.vel = createVector(0, 0);
 
   remoteLink = new p5.Element(document.getElementById("qr-remote"));
   remoteLink.size(width/5, width/5);
   remoteLink.position(width * .85, height * .75);
+  
 }
 
 /**
@@ -377,6 +382,9 @@ function draw() {
 
   //show remote control QR
   // image(remoteLink, width * .85, height * .85, width/5, width/5);
+  
+  text("REMOTE CONTROL THIS PAGE FROM YOUR PHONE \n (VERY SLOW, WILL FIX)", width * .85, height * .95, width / 4, height / 5);
+  
 };
 
 // MARK: cursor socket functions
@@ -457,17 +465,18 @@ function initClusters(){
 function initControlUI(){
   //control UI
   // buttonsDiv = createDiv()
-  physicsButton = createButton("TURN MOTION OFF").class("buttons").position(20, height - 50).mousePressed(()=>{
+  physicsButton = createButton("TURN MOTION OFF").class("buttons").position(20, height * 0.9).mousePressed(()=>{
     togglePhysics();
   });
-  bounceButton = createButton("BOUNCE HOUSE ON").class("buttons").position(300, height - 50).mousePressed(()=>{
+  bounceButton = createButton("BOUNCE HOUSE ON").class("buttons").position(300, height * 0.9).mousePressed(()=>{
     toggleBounce();
   });
-  mouseAvoidButton = createButton(options.isAvoidingMouse ? "IGNORE MOUSE" : "AVOID MOUSE").class("buttons").position(600, height - 50).mousePressed(()=>{
+  mouseAvoidButton = createButton(options.isAvoidingMouse ? "IGNORE MOUSE" : "AVOID MOUSE").class("buttons").position(600, height * 0.9).mousePressed(()=>{
     options.isAvoidingMouse = !options.isAvoidingMouse;
     mouseAvoidButton.html(options.isAvoidingMouse ? "IGNORE MOUSE" : "AVOID MOUSE");
   });
-
+  mouseAvoidButton.hide();
+  
   physicsDiv = createDiv("PHYSICS TESTING").parent("controlDiv").id("physicsDiv").class("controls");
   createDiv("- - - - - - - - - ").parent("physicsDiv").elt.style.setProperty('width', '100%');
   speedDiv = createDiv("maxSpeed").parent("physicsDiv").id("speedDiv");
@@ -595,7 +604,7 @@ function initCourseNodes(){
         [rowArr[12], rowArr[13]]
       ]
     }
-    let newCourse = new CNode(courseInfo, nodeClick);
+    let newCourse = new CNode(courseInfo, nodeClick, "fishtank");
     courses.push(newCourse);
   }
 

@@ -26,6 +26,53 @@ TODO:
 
 - misc airtable work/config/setup w/ Despina
 
+### v0.2.11
+
+#### *12/15/24 1.5 hrs*
+
+- color updates from Ithai
+- placeholder soul and area border strokes
+- added courses to areas, but TODO descriptions and keywords
+- reduced font size of buttons and cnodes (left soul tho... TBD)
+
+#### *11/??/24 30 mins*
+
+- minor tweaks after brand meeting
+
+### v0.2.10
+
+#### *11/1/24 30 mins*
+
+- fixed cursor link to reflect glitch url
+- added remote reset via socket.emit('reset') -- just resets fishtank
+- moved buttons up on fishtank
+- removed mouse avoid
+- adjusted joystick size and emitted speed
+- updated logo on main site and moved keyword pos down
+
+TODO:
+
+- scale and reposition the buttons for vertical
+- figure out performance hack for raspi or get new computer
+- mode buttons (test motion off cursor)
+- mode timers
+- updated classes
+- spring schedule
+- if multiple fishtanks, need server cursor pos, not clientside
+
+### v0.2.9
+
+#### *10/29/24 2.5hrs*
+
+Glitch:
+
+- added asset paths
+- changed remote window scaling touch stuff to prevent moving window
+- font size updates for fishtank
+- control text for qr code
+- logo scale
+- raspi monitor doesn't sleep
+
 ### v0.2.8
 
 #### *10/29/24 2hrs*
@@ -424,4 +471,3 @@ next:
 - basic p5 template
 - testing airtable csv load
 - auto-populate nodes with titles and motion
-  
