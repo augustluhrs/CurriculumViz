@@ -2,18 +2,31 @@
 * common AREA info across apps/sites
 */
 
-let areaColors = { //my adjustments 4-19
-  "CORE": "#f72585", //
-  "SOUL": "#eeeeff", //
-  "IMAGE": "#cd20ff", //
-  "ACTING": "#d64933", //
-  "MOVEMENT": "#ff7900", //
+let areaColors = { //Ithai adjustments Nov 24
+  "CORE": "#ffffff", //
+  "SOUL": "#ffffff", //
+  "IMAGE": "#edadff", //
+  "ACTING": "#fb4b4b", //
+  "MOVEMENT": "#ffd08f", //
   "SOUND": "#2ec4b6", //
-  "TECHNOLOGY": "#38b000", //
-  "WRITING": "#2D99C8", //
+  "TECHNOLOGY": "#9bff94", //
+  "WRITING": "#7aa7ff", //
   "VISUAL ART": "#d90368", // 
-  "STUDIES": "#ffd407", //z
+  "STUDIES": "#fcff52", //
 };
+
+// let areaColors = { //my adjustments 4-19
+//   "CORE": "#f72585", //
+//   "SOUL": "#eeeeff", //
+//   "IMAGE": "#cd20ff", //
+//   "ACTING": "#d64933", //
+//   "MOVEMENT": "#ff7900", //
+//   "SOUND": "#2ec4b6", //
+//   "TECHNOLOGY": "#38b000", //
+//   "WRITING": "#2D99C8", //
+//   "VISUAL ART": "#d90368", // 
+//   "STUDIES": "#ffd407", //
+// };
 
 // let areaColors = { //despina 4/18
 //   "CORE": "#f72585", //

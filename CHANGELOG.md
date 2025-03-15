@@ -2,6 +2,19 @@
 
 ## v0
 
+### v0.2.11
+
+#### *12/15/24 1.5 hrs*
+
+- color updates from Ithai
+- placeholder soul and area border strokes
+- added courses to areas, but TODO descriptions and keywords
+- reduced font size of buttons and cnodes (left soul tho... TBD)
+
+#### *11/??/24 30 mins*
+
+- minor tweaks after brand meeting
+
 ### v0.2.10
 
 #### *11/1/24 30 mins*

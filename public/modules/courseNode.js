@@ -58,6 +58,7 @@ class CNode { //courseNode
     } else if (this.area == "SOUL") {
       this.color2 = color(clusters["CORE"].color.toString());
       this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
+      this.button.class('cNode-soul');
     }
     
     //other display info
@@ -72,14 +73,14 @@ class CNode { //courseNode
     this.maxSpeed = 1; //speed of movement
     this.maxForce = .2; //speed of change to movement
     this.friction = 0.9; //drags to stop
-
+    
     //MARK:construct
     //animations
     this.rainbowOffset = 0; //for selection animation
     this.outlineOffset = 0;
     this.blob = [];
     this.initBlob();
-
+    
     //for keyword/panel modes
     this.isVisible = true;
     this.isSelected = false;
@@ -708,6 +709,7 @@ class CNode { //courseNode
   }
 
   show(){
+    
     //show spring lines
     if (state.mode == "family") {
       push();
