@@ -2,9 +2,33 @@
 
 ## v0
 
+### v0.3.0
+
+#### *3/14/25 2hrs*
+
+- testing airtable img links
+- airtable.js web api install and test call
+- database and search research
+- node-cache for local storage of json response
+- dotenv added for airtable api key
+- .env in gitignore
+- installed lodash as dependency b/c airtable.js apparently requires it?
+- the image URLs may not work because they intentionally use URLs that expire after a couple hours
+
+API call est.: 7
+
+TODO:
+
+- cNode-soul:hidden stroke
+- merge with glitch version
+
+#### *Feb+Mar 3hrs*
+
+- misc airtable work/config/setup w/ Despina
+
 ### v0.2.8
 
-#### *10/29/24 145 *
+#### *10/29/24 2hrs*
 
 - set up raspi on nyu wifi
 - got 12th floor monitor up and running (socket dead)

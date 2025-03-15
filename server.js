@@ -42,19 +42,44 @@ httpServer.listen(port, function(){
   console.log('Server is listening at port: ', port);
 });
 
-/*
-let port = process.env.PORT || 8000;
-let express = require('express');
-const e = require('express');
-let app = express();
-let server = require('http').createServer(app).listen(port, function(){
-  console.log('Server is listening at port: ', port);
+// node cache -- storing json from api in memory
+const NodeCache = require('node-cache');
+const ClassCache = new NodeCache();
+require('dotenv').config();
+
+//airtable api
+const Airtable = require('airtable');
+// Airtable.configure({ apiKey: process.env.AIRTABLE_API_KEY, endpointUrl: 'https://api.airtable.com'});
+// Airtable.base('appcobkaG3sQ76P9k');
+var base = new Airtable({apiKey: process.env.AIRTABLE_API_KEY}).base('appcobkaG3sQ76P9k');
+//testing api --> cache
+// const https = require('node:https');
+
+// ClassCache.set("testJSON", )
+// loadTable();
+let testCache = {};
+
+//https://airtable.com/appcobkaG3sQ76P9k/api/docs#javascript/
+base('apitest').select({
+    maxRecords: 100,
+  }).eachPage(function page(records, fetchNextPage) {
+      // This function (`page`) will get called for each page of records.
+      // ClassCache.set('testRecords', records);
+      records.forEach(function(record) {
+          // console.log('Retrieved', record.get('Course'));
+          testCache[`${record.fields.Course}`] = record.fields;
+          // console.log(record.fields.Image);
+      });
+      // console.log(ClassCache.get('testRecords'))
+      fetchNextPage(); //built in?
+  }, function done(err) {
+      if (err) { console.error(err); return; }
 });
 
-//where we look for files
-app.use(express.static('public'));
-*/
-
+//send client test json with fetch
+app.get("/data", (req, res) => {
+  res.json(testCache);
+});
 //
 //  SOCKET STUFF
 //

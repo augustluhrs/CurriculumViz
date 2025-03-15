@@ -6,6 +6,19 @@
     August Luhrs and Despina Papadopolous
 */
 
+//testing
+
+async function getCache(){
+  try {
+    const response = await fetch("/data"); // Fetch JSON from the server
+    const data = await response.json(); // Convert response to JSON
+    console.log("Received Data:", data); // Debugging output
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+
 //design/UI variables
 let fonts = {};
 // let testColors = areaColors;

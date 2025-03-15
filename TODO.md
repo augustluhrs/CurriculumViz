@@ -44,6 +44,8 @@
   - [ ] glitch for now -- new CA acct?
   - [ ] landing page or just node map?
   - [ ] what other things do we want
+- [ ] fun
+  - [ ] [soft body nodes](https://www.youtube.com/watch?v=GXh0Vxg7AnQ)
 
 ## v0.1 -- Node Web Feature Playground
 
