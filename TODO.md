@@ -1,6 +1,97 @@
 # TODO
 
-## v0.2 -- Mobile
+## v0.3
+
+### March 2025 --> April 2025
+
+- [ ] updates for Fall registration
+  - [ ] filter by semester
+    - [ ] transparency vs removal
+  - [ ] search
+    - [ ] rudimentary DIY algorithm
+    - [ ] search box
+    - [ ] search box results in scrollable list (color by area)
+    - [ ] search filtering the course nodes
+  - [ ] simple mobile view
+    - [ ] air table placeholder?
+    - [ ] simple html scrolling list with filters/search
+  - [ ] keyword algorithm updates
+    - [X] new keywords
+    - [X] updated keywords per course
+    - [X] keywords in airtable
+    - [ ] new weights/sorting algorithm
+  - [ ] UI / bugs / tweaks
+    - [ ] soul stroke removal
+    - [ ] info panel copy adjustment
+    - [ ] keywords adjustment
+    - [ ] course node font scaling
+    - [ ] spiral
+      - [ ] on rollover, pause animation
+      - [ ] add spacing desire
+      - [ ] sort by color?
+      - [ ] area squares move to side and become a legend
+    - [ ] soul/core
+      - [ ] inner diameter of white larger
+      - [ ] stroke/wiggle/aura
+- [ ] new SSOT database -- The Source
+  - [X] airtable data migration
+  - [X] api test using airtable.js
+  - [ ] convert csv load to api load, or save csv as placeholder
+  - [ ] automated staging / approval process
+    - [ ] research automations
+  - [ ] SSOT table with no edit access
+  - [ ] update form for existing and new courses
+  - [ ] pipeline process solidified and implemented
+  - [ ] alt-text for images
+- [ ] storage / hosting / image pipeline
+  - [X] airtable image hosting research
+  - [ ] host options research (digital ocean vs AWS etc.)
+  - [X] local database? ~~node-cache~~ nedb vs mongodb
+  - [ ] glitch --> another cloud host
+  - [ ] cdn? drive vs actual cdn vs other
+  - [ ] image download to host machine and bundle/pack research
+  - [ ] data flow graph visual aid
+- [ ] images
+  - [X] go through existing images and flagging/reaching out for missing (Despina)
+  - [X] airtable image pull test
+  - [ ] display
+    - [ ] info panel single image
+    - [ ] info panel carousel
+    - [ ] test on nodes themselves
+  - [ ] student credit?
+  - [ ] alt-text implemented
+  - [ ] click for full screen pop-up
+  - [ ] ffmpeg / CLI batch process and format
+    - [ ] diff sizes for dynamic loading?
+    - [ ] resolution
+    - [ ] orientation / crop
+- [ ] refactoring
+  - [ ] instance mode / modularity plan
+  - [ ] code cleanup
+- [ ] testing
+  - [ ] mobile
+    - [ ] chrome
+    - [ ] safari
+    - [ ] old phone
+    - [ ] newer phone
+  - [ ] desktop
+    - [ ] windows
+    - [ ] mac
+    - [ ] older
+    - [ ] newer
+    - [ ] chrome
+    - [ ] firefox or alt.
+    - [ ] safari
+- [ ] stretch
+  - [ ] mobile scaling window
+  - [ ] fishtank in hallway
+  - [ ] max appreciation section easter egg
+  - [ ] soft body area blob physics
+  - [ ] some sort of hardware test to auto display appropriate version?
+  - [ ] quality preset selection (auto adjusts animations / rendering for slower machines)
+  - [ ] faculty search / connections web
+
+## v0.2
 
 - [ ] mobile view
   - [ ] touch gesture
@@ -14,8 +105,8 @@
   - [ ] style fixes
     - [ ] font
     - [ ] font size
-- [ ] testing page
-  - [ ] move design controls to separate namespace
+- [X] testing page
+  - [X] move design controls to separate namespace
 - [ ] updates
   - [ ] csv
     - [ ] all classes and keywords

@@ -2,6 +2,22 @@
 
 ## v0
 
+### v0.3.1
+
+#### *3/25/25 2.5hrs*
+
+- server checks if table has been updated today, replaces db doc if not
+- removed node-cache, added nedb
+- updated tasks and deliverables timeline
+- cleaned areas.js of commented sections
+- [local database research](https://rxdb.info/alternatives.html)
+
+#### *3/15/25 1hr*
+
+- merged glitch branch into main and dev
+- typesense and cloud storage research
+- diy search and storage plan/notes
+
 ### v0.3.0
 
 #### *3/14/25 2hrs*
@@ -20,11 +36,10 @@ API call est.: 7
 TODO:
 
 - cNode-soul:hidden stroke
-- merge with glitch version
 
-#### *Feb+Mar 3hrs*
+#### *Feb+Mar 2hrs*
 
-- misc airtable work/config/setup w/ Despina
+- misc airtable work/config/setup
 
 ### v0.2.11
 

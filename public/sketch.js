@@ -8,7 +8,7 @@
 
 //testing
 
-async function getCache(){
+async function getTable(){
   try {
     const response = await fetch("/data"); // Fetch JSON from the server
     const data = await response.json(); // Convert response to JSON

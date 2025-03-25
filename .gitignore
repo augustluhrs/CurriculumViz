@@ -1,6 +1,7 @@
 Node_Modules/
 .DS_Store
 .env
+**/data/
 
 # Visual Studio cache directory
 .vs/
