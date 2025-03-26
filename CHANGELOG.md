@@ -2,6 +2,17 @@
 
 ## v0
 
+### v0.3.2
+
+#### *3/26/25 1.5hrs*
+
+- updated server to pull from SOURCE instead of apitest
+- changed TECHNOLOGY to TECH
+- created UPDATES and SOURCE tables on AirTable, the former added by automations checking for changes to NEW MASTER. Also added Subtitle and ShortTitle fields.
+- courseNodes created from new json tableCourses, needs keyword update to fully implement
+- tableCourses created (json object) from db / api, sent to client instead of csv load
+- rough pass at data format guidelines on notion
+
 ### v0.3.1
 
 #### *3/25/25 2.5hrs*

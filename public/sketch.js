@@ -1,22 +1,11 @@
 /*
     CA Curriculum Visualization
-    Prototype v1
+    Prototype v0
     
-    node map generation from masterSheet csv
     August Luhrs and Despina Papadopolous
 */
 
-//testing
-
-async function getTable(){
-  try {
-    const response = await fetch("/data"); // Fetch JSON from the server
-    const data = await response.json(); // Convert response to JSON
-    console.log("Received Data:", data); // Debugging output
-  } catch (err) {
-    console.log(err);
-  }
-}
+//MARK: testing
 
 
 //design/UI variables
@@ -48,8 +37,9 @@ let warningText = "";
 let pagePrefix = ( window.location.pathname == "/" ) ? "" : "../"; //hmm.... ../ works on main... why....
 let isMainSite = ( window.location.pathname == "/" );
 
-//csv variables
-let masterSheet;
+//table variables
+// let masterSheet;
+let tableCourses = {}; //from the server, loaded from db / api
 let courses = []; //stores the cNodes
 let clusters = {}; //stores the vector locations of the web clusters by area
 let reunion = {}; //stores course relationships by name as key
@@ -120,7 +110,7 @@ let state = { //need to refactor this vs options
 }
 
 function preload(){  
-  masterSheet = loadTable(`${pagePrefix}data/master_12-15.csv`, "csv", "header");
+  // masterSheet = loadTable(`${pagePrefix}data/master_12-15.csv`, "csv", "header");
   // title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
   title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_pink_logo.png?v=1730229378674");
   font = loadFont("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662");
@@ -247,10 +237,10 @@ function setup() {
 
 /**
  * 
- *  DRAW
+ *  MARK: DRAW
  * 
  */
-//MARK: draw
+
 function draw() {
   background(state.bg);
   //CA logo in top left corner
@@ -432,7 +422,26 @@ function initControlUI(){
   });
 }
 
-function initCourseNodes(){
+async function getTableCourses(){
+  try {
+    const response = await fetch("/data"); // Fetch JSON from the server
+    const data = await response.json(); // Convert response to JSON
+    console.log("Received Data:", data); // Debugging output
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function initCourseNodes(){
+  //tableCourses fetched from server, json object of course info
+  tableCourses = await getTableCourses();
+  for (let [course, courseInfo] of Object.entries(tableCourses)){
+    let newCourse = new CNode(courseInfo, nodeClick);
+    courses.push(newCourse);
+  }
+  
+  /* old method
     //cycle through the table to generate the CNodes
     for (let r = 0; r < masterSheet.getRowCount(); r++){
     let rowArr = masterSheet.rows[r].arr;
@@ -451,13 +460,12 @@ function initCourseNodes(){
         [rowArr[12], rowArr[13]]
       ]
     }
-    let newCourse = new CNode(courseInfo, nodeClick);
-    courses.push(newCourse);
   }
+  */
 
   //get relationships for keyword comparison
   for (let cNode of courses) {
-    cNode.checkRelationships(courses);
+    // cNode.checkRelationships(courses); //TODO keyword update
   }
 
   //get web positions from cluster count

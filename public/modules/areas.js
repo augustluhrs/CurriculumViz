@@ -9,7 +9,7 @@ let areaColors = { //Ithai adjustments Nov 24
   "ACTING": "#fb4b4b", //
   "MOVEMENT": "#ffd08f", //
   "SOUND": "#2ec4b6", //
-  "TECHNOLOGY": "#9bff94", //
+  "TECH": "#9bff94", //
   "WRITING": "#7aa7ff", //
   "VISUAL ART": "#d90368", // 
   "STUDIES": "#fcff52", //
@@ -22,7 +22,7 @@ let areas = [
   ["ACTING", areaColors["ACTING"]], 
   ["MOVEMENT", areaColors["MOVEMENT"]], 
   ["SOUND", areaColors["SOUND"]], 
-  ["TECHNOLOGY", areaColors["TECHNOLOGY"]], 
+  ["TECH", areaColors["TECH"]], 
   ["VISUAL ART", areaColors["VISUAL ART"]], 
   ["STUDIES", areaColors["STUDIES"]], 
   ["WRITING", areaColors["WRITING"]], 

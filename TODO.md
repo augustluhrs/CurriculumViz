@@ -25,6 +25,7 @@
     - [ ] info panel copy adjustment
     - [ ] keywords adjustment
     - [ ] course node font scaling
+    - [ ] speed / flocking value tweaks
     - [ ] spiral
       - [ ] on rollover, pause animation
       - [ ] add spacing desire
@@ -36,13 +37,18 @@
 - [ ] new SSOT database -- The Source
   - [X] airtable data migration
   - [X] api test using airtable.js
-  - [ ] convert csv load to api load, or save csv as placeholder
+  - [X] server stores latest api data
+  - [X] convert csv load to api load, or save csv as placeholder
+    - [X] server should have the data and client makes a call for it
   - [ ] automated staging / approval process
     - [ ] research automations
-  - [ ] SSOT table with no edit access
+    - [X] updates table with automation for now
+  - [X] SSOT table with no edit access
   - [ ] update form for existing and new courses
   - [ ] pipeline process solidified and implemented
   - [ ] alt-text for images
+  - [X] alternative title/subtitle fields for long course names
+  - [ ] data format guidelines in notion
 - [ ] storage / hosting / image pipeline
   - [X] airtable image hosting research
   - [ ] host options research (digital ocean vs AWS etc.)
@@ -68,6 +74,7 @@
 - [ ] refactoring
   - [ ] instance mode / modularity plan
   - [ ] code cleanup
+  - [ ] get rid of old data/tables
 - [ ] testing
   - [ ] mobile
     - [ ] chrome

@@ -1,17 +1,19 @@
 class CNode { //courseNode
-  // constructor(data, pos){
+  //MARK: constructor
   constructor(data, clickCallback, mode="default"){
-    //data from table: Course,Professor,Area,Credits,Semester,Keywords,Short,Long,Media,Credit,Media,Credit,Media,Credit
-    this.course = data.course;
-    this.professor = data.professor;
-    this.area = data.area;
-    this.credits = data.credits;
-    this.semester = data.semester;
-    this.keywords = data.keywords;
-    this.short = data.short;
-    this.long = data.long; 
-    this.media = data.media;
-    //this.skills,
+    //case sensitive so defaulting to air table field names
+    this.course = data.Course;
+    this.professor = data.Professor;
+    this.area = data.Area;
+    this.credits = data.Credits;
+    this.semester = data.Semester || "OCCASIONAL";
+    this.keywords = data.Keywords || null;
+    this.primaryKeywords = data.PrimaryKeywords || null;
+    this.secondaryKeywords = data.SecondaryKeywords || null;
+    this.short = data.Short || "missing short description";
+    this.long = data.Long || "missing long description"; 
+    this.media = data.Media || [];
+    this.images = data.Images || []; //TODO credits and alt text
 
     //css element
     // this.button = createButton(this.course).class("cNode").parent("mainContainer");
@@ -40,11 +42,11 @@ class CNode { //courseNode
       } else if (this.course == "Cinematic Narratives") {
         this.secondCluster = clusters["IMAGE"];
       } else if (this.course == "Tech in Action") {
-        this.secondCluster = clusters["TECHNOLOGY"];
+        this.secondCluster = clusters["TECH"];
       } else if (this.course == "Music for Media") {
         this.secondCluster = clusters["SOUND"];
       } else if (this.course == "Tech in Action") {
-        this.secondCluster = clusters["TECHNOLOGY"];
+        this.secondCluster = clusters["TECH"];
       } else if (this.course == "Performance: Body / Movement") {
         this.secondCluster = clusters["MOVEMENT"];
       } else if (this.course == "Performance: Voice / Text") {
@@ -73,7 +75,6 @@ class CNode { //courseNode
     this.maxForce = .2; //speed of change to movement
     this.friction = 0.9; //drags to stop
 
-    //MARK:construct
     //animations
     this.rainbowOffset = 0; //for selection animation
     this.outlineOffset = 0;
@@ -86,7 +87,7 @@ class CNode { //courseNode
     this.fitsKeywords = true;
     this.haveKeywordsChanged = false;
     this.hasClusterSelectionChanged = false;
-    this.keyArr = this.keywords.split(",");
+    // this.keyArr = this.keywords.split(","); //TODO keyword update
     this.hasCollisions = true; //for ignoring other nodes
     this.shouldCheckCollision = false; //so the collision only gets turned off once per big event, to prevent edge bugs
 
@@ -108,43 +109,6 @@ class CNode { //courseNode
     // this.springs = []; // the reunion spacing forces
     this.orbitSlot; //the sibling/cousin spot around the orbit for springs
     this.familySpot = createVector(0, 0); //the spot around the orbit they want to be in (just siblings/cousins)
-    
-    //MARK:construct
-    //animations
-    this.rainbowOffset = 0; //for selection animation
-    this.outlineOffset = 0;
-    this.blob = [];
-    this.initBlob();
-    
-    //for keyword/panel modes
-    this.isVisible = true;
-    this.isSelected = false;
-    this.fitsKeywords = true;
-    this.haveKeywordsChanged = false;
-    this.hasClusterSelectionChanged = false;
-    this.keyArr = this.keywords.split(",");
-    this.hasCollisions = true; //for ignoring other nodes
-    this.shouldCheckCollision = false; //so the collision only gets turned off once per big event, to prevent edge bugs
-
-    //should use this for a check for anything that needs updating TODO
-    this.needsUpdate = false;
-
-    //family reunion keyword mode
-    this.familyMember = null; //the focus of the family reunion
-    this.orbit = 0;
-    this.relationships = {
-      tally: {},//holds the number of similar keywords by course
-      unsorted: [],
-      sorted: [],
-      siblings: [],
-      cousins: [],
-      relatives: [], //the "others"
-    };
-    this.links = {siblings: [], cousins: []}
-    // this.springs = []; // the reunion spacing forces
-    this.orbitSlot; //the sibling/cousin spot around the orbit for springs
-    this.familySpot = createVector(0, 0); //the spot around the orbit they want to be in (just siblings/cousins)
-    
   }
 
    /**
@@ -170,7 +134,7 @@ class CNode { //courseNode
       // this.hasCollisions = false;
     } else if(state.mode == "family"){
       //check for updated pos stuff?
-      this.checkFamilyPosition(); //hmm only run once?
+      // this.checkFamilyPosition(); //hmm only run once? //TODO keyword update
     }
 
     if (this.hasClusterSelectionChanged){
@@ -493,6 +457,7 @@ class CNode { //courseNode
     }
   }
 
+  //TODO keyword update
   checkRelationships(courses){ //issue with parameter being global name?
     //tally up number of same keywords
     for (let cNode of courses){

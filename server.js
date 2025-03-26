@@ -1,9 +1,12 @@
 /*
     ~ * ~ * ~ * 
     SERVER
+    CA Curriculum Visualization
+    Prototype v0
+    
+    August Luhrs and Despina Papadopolous
     ~ * ~ * ~ * 
 */
-
 
 //create server
 let port = process.env.PORT || 8000;
@@ -42,7 +45,7 @@ httpServer.listen(port, function(){
   console.log('Server is listening at port: ', port);
 });
 
-
+// MARK: db and api
 //database [nedb]
 var Datastore = require('nedb')
   , db = new Datastore({filename: './data/table.db', autoload: true});
@@ -54,8 +57,10 @@ const Airtable = require('airtable');
 // Airtable.base('appcobkaG3sQ76P9k');
 var base = new Airtable({apiKey: process.env.AIRTABLE_API_KEY}).base('appcobkaG3sQ76P9k');
 
+//stores the object that's created from the db/api and sent to clients on start
+let tableCourses = {};
 
-//for now, just checks once a day
+//for now, just checks api for updates once a day
 const date = new Date();
 let day = (date.getMonth() * 100) + date.getDate(); //shh 100 is workaround for variable days per month
 // db.insert({log: "v0.3", data: {lastUpdated: 0}}, function(err, newDocs){
@@ -85,8 +90,10 @@ db.find({log: "v0.3"}, async function (err, docs){
           return;
         }
         db.update({log: "v0.3"}, { $set: {"data.lastUpdated" : day} }, {upsert: true}, function(err, numUpdated, wasUpserted){
-          console.log(numUpdated);
-          console.log(wasUpserted);
+          console.log("docs updated: " + numUpdated);
+          // console.log(wasUpserted);
+          tableCourses = courses;
+          console.log("tableCourses created from api");
           if (err) {
             console.log(err);
           }
@@ -94,6 +101,10 @@ db.find({log: "v0.3"}, async function (err, docs){
       });
     } else {
       console.log('already updated table today');
+      db.find({table: "v0.3"}, async function (err, docs){
+        tableCourses = docs[0].courses;
+        console.log("tableCourses loaded from db");
+      });
     }
 
   } else {
@@ -105,14 +116,13 @@ db.find({log: "v0.3"}, async function (err, docs){
 });
 
 
-
 //https://airtable.com/appcobkaG3sQ76P9k/api/docs#javascript/
 async function updateTable(){
   console.log("updating table");
   let courses = {};
   // await async function(){
   await new Promise((resolve) => {
-    base('apitest').select({
+    base('SOURCE').select({
       maxRecords: 100,
     }).eachPage(async function page(records, fetchNextPage) {
         // This function (`page`) will get called for each page of records.
@@ -135,7 +145,7 @@ async function updateTable(){
 
 //send client test json with fetch
 app.get("/data", (req, res) => {
-  // res.json(testCache);
+  res.json(tableCourses);
 });
 //
 //  SOCKET STUFF
