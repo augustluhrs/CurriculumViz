@@ -8,8 +8,8 @@ class CNode { //courseNode
     this.credits = data.Credits;
     this.semester = data.Semester || "OCCASIONAL";
     this.keywords = data.Keywords || null;
-    this.primaryKeywords = data.PrimaryKeywords || null;
-    this.secondaryKeywords = data.SecondaryKeywords || null;
+    this.primaryKeywords = data.PrimaryKeywords || null; //null for keyArr generation flag
+    this.secondaryKeywords = data.SecondaryKeywords || ""; //not null for keyword check
     this.short = data.Short || "missing short description";
     this.long = data.Long || "missing long description"; 
     this.media = data.Media || [];
@@ -32,7 +32,7 @@ class CNode { //courseNode
     if (mode == "fishtank"){
       this.button.style("font-size","35px");
     }
-
+    
     //cluster position info
     //core classes have dual cluster homes
     if (this.area == "CORE"){
@@ -55,10 +55,10 @@ class CNode { //courseNode
         this.secondCluster = clusters["VISUAL ART"];
       }
       this.color2 = color(this.secondCluster.color.toString());
-      this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
+      this.button.elt.style.background = `radial-gradient(${this.color} 42%, ${this.color2}, ${this.color})`;
     } else if (this.area == "SOUL") {
       this.color2 = color(clusters["CORE"].color.toString());
-      this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
+      // this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`; //just white, so not needed anymore
       this.button.class('cNode-soul');
     }
     
@@ -71,9 +71,9 @@ class CNode { //courseNode
     this.vel = createVector(0,0); //current movement
 
     //overwritten immediately by slider defaults
-    this.maxSpeed = 1; //speed of movement
-    this.maxForce = .2; //speed of change to movement
-    this.friction = 0.9; //drags to stop
+    this.maxSpeed = 0.8; //speed of movement
+    this.maxForce = 0.3; //speed of change to movement
+    this.friction = 0.99; //drags to stop
 
     //animations
     this.rainbowOffset = 0; //for selection animation
@@ -87,7 +87,17 @@ class CNode { //courseNode
     this.fitsKeywords = true;
     this.haveKeywordsChanged = false;
     this.hasClusterSelectionChanged = false;
-    // this.keyArr = this.keywords.split(","); //TODO keyword update
+    this.keyArrPrimary = []; //hack for courses missing keywords
+    this.keyArrSecondary = [];
+    if (this.primaryKeywords !== null){
+      //hack for getting spaces out of process / iteration TODO (format in airtable or do this?)
+      this.primaryKeywords = this.primaryKeywords.replace(/\s+/g, '');//regex magic removing spaces
+      this.secondaryKeywords = this.secondaryKeywords.replace(/\s+/g, '');
+
+      this.keyArrPrimary = this.primaryKeywords.split(","); 
+      this.keyArrSecondary = this.secondaryKeywords.split(",");
+    }
+  
     this.hasCollisions = true; //for ignoring other nodes
     this.shouldCheckCollision = false; //so the collision only gets turned off once per big event, to prevent edge bugs
 
@@ -134,7 +144,7 @@ class CNode { //courseNode
       // this.hasCollisions = false;
     } else if(state.mode == "family"){
       //check for updated pos stuff?
-      // this.checkFamilyPosition(); //hmm only run once? //TODO keyword update
+      this.checkFamilyPosition(); //hmm only run once? TODO refactor
     }
 
     if (this.hasClusterSelectionChanged){
@@ -409,7 +419,9 @@ class CNode { //courseNode
     this.fitsKeywords = true;
     for (let keybox of Object.keys(keywordCheckboxes)){
       if (keywordCheckboxes[keybox].checked()){
-        if (!this.keywords.includes(keybox)){
+        // dumb hack for keyword spaces issue TODO 
+        keybox = keybox.replace(/\s+/g,"");
+        if (!this.secondaryKeywords.includes(keybox)){
           this.fitsKeywords = false;
         }
       }
@@ -457,18 +469,37 @@ class CNode { //courseNode
     }
   }
 
-  //TODO keyword update
   checkRelationships(courses){ //issue with parameter being global name?
     //tally up number of same keywords
     for (let cNode of courses){
       if (cNode.course == this.course){continue;}
       this.relationships.tally[cNode.course] = 0;
-      for (let keyword of this.keyArr){
-        if (cNode.keyArr.includes(keyword)){
-          this.relationships.tally[cNode.course]++;
+      //for now, skipping soul // TODO separate
+      if(cNode.area == "SOUL"){continue;}
+
+      //three scores in keyword comparison
+      //this is silly, gotta be a better way TODO
+      for (let keyword of this.keyArrSecondary){
+        if (cNode.keyArrSecondary.includes(keyword)){
+          if (this.keyArrPrimary.includes(keyword)){
+            if (cNode.keyArrPrimary.includes(keyword)){
+              //shared primaries
+              this.relationships.tally[cNode.course] += defaults.keywordWeights.besties;
+            } else {
+              //my primary is their secondary
+              this.relationships.tally[cNode.course] += defaults.keywordWeights.pals;
+            }
+          } else {
+            this.relationships.tally[cNode.course] += defaults.keywordWeights.workfriends;
+          }
         }
       }
     }
+    // if (cNode.keyArrPrimary.includes(keyword)){
+        //   this.relationships.tally[cNode.course] += 5; //arbitrary weight for now
+        // } else if (cNode.keyArrSecondary.includes(keyword)){
+        //   this.relationships.tally[cNode.course]++;
+        // }
 
     //turn to array and sort by tally
     for (let [key, value] of Object.entries(this.relationships.tally)){
@@ -476,37 +507,17 @@ class CNode { //courseNode
     }
     this.relationships.sorted = this.relationships.unsorted.sort((a, b)=>{return b[1] - a[1]}); 
 
-    this.generateFamilyReunion();
-    /*
-    //get the siblings and cousins from the sorted array
-    //first see where to draw the line between siblings/cousins/others
-    // let siblingMin = 5;
-    // let cousinMin = 8;
-    let orbitMinMembers = defaults.familyOrbitSize; //hmm
-    let k_threshold = this.relationships.sorted[0][1]; //the highest number of same keywords
-    let family = this.relationships.sorted;
-    let familyOrbits = [
-      this.relationships.siblings, //0
-      this.relationships.cousins, //1
-      this.relationships.relatives //2
-    ]
-    let currentOrbit = 0;
-    for (let i = 0; i < family.length; i++){
-      //add all at top to siblings, increasing tally threshold until minimum is met, then move to cousins
-      if (family[i][1] >= k_threshold){
-        familyOrbits[currentOrbit].push(family[i]);
-      } else {
-        k_threshold--;
-        if (familyOrbits[currentOrbit].length < orbitMinMembers || currentOrbit == 2){
-          familyOrbits[currentOrbit].push(family[i]);
-        } else {
-          currentOrbit++;
-          familyOrbits[currentOrbit].push(family[i]);
-        }
-      }
-      reunion[this.course] = familyOrbits;
+    //normalize the tallys so that those with less words aren't penalized
+    //before, just grabbing the top ones did this sort of, but now want to test
+    //doing a more fine grained comparison (desired distance range mapped normalized)
+    //though... still favors classes with more keywords... as they should? hmm TODO discuss
+    let maxTally = this.relationships.sorted[0][1];
+    for (let rel of this.relationships.sorted){
+      //normalize
+      rel[1] /= maxTally;
     }
-    */
+    //still have the old method so can test both keyword sorts
+    this.generateFamilyReunion();
   }
 
   checkVisibility(){
@@ -574,29 +585,23 @@ class CNode { //courseNode
       this.relationships.cousins, //1
       this.relationships.relatives //2
     ]
-    //temp. cohort class change for 5/3
-    if (this.course == "Final Cohort Experience"){
-      for (let member of family){
-        familyOrbits[2].push(member);
-      }
-      reunion[this.course] = familyOrbits;
-    } else {
-      let currentOrbit = 0;
-      for (let i = 0; i < family.length; i++){
-        //add all at top to siblings, increasing tally threshold until minimum is met, then move to cousins
-        if (family[i][1] >= k_threshold){
+
+    let currentOrbit = 0;
+    for (let i = 0; i < family.length; i++){
+      //add all at top to siblings, increasing tally threshold until minimum is met, then move to cousins
+      if (family[i][1] >= k_threshold){
+        familyOrbits[currentOrbit].push(family[i]);
+      } else {
+        // k_threshold--; //changing b/c now tallys are normalized
+        while(family[i][1] > k_threshold){k_threshold -= 0.01};
+        if (familyOrbits[currentOrbit].length < orbitMinMembers || currentOrbit == 2){
           familyOrbits[currentOrbit].push(family[i]);
         } else {
-          k_threshold--;
-          if (familyOrbits[currentOrbit].length < orbitMinMembers || currentOrbit == 2){
-            familyOrbits[currentOrbit].push(family[i]);
-          } else {
-            currentOrbit++;
-            familyOrbits[currentOrbit].push(family[i]);
-          }
+          currentOrbit++;
+          familyOrbits[currentOrbit].push(family[i]);
         }
-        reunion[this.course] = familyOrbits;
       }
+      reunion[this.course] = familyOrbits;
     }
   }
 

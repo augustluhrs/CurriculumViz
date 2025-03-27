@@ -19,13 +19,21 @@
     - [X] new keywords
     - [X] updated keywords per course
     - [X] keywords in airtable
+    - [X] areas.js keywords update
+    - [ ] keywords panel update
     - [ ] new weights/sorting algorithm
+      - [X] three weights in defaults object
+      - [ ] add weights tweak UI to /test
+      - [ ] toggle between reunion and heat map (?)
+    - [ ] take soul classes and move them away (or else always near)
   - [ ] UI / bugs / tweaks
     - [ ] soul stroke removal
     - [ ] info panel copy adjustment
     - [ ] keywords adjustment
     - [ ] course node font scaling
     - [ ] speed / flocking value tweaks
+    - [ ] "click to reset" around logo
+    - [ ] modes dog-ear(?)
     - [ ] spiral
       - [ ] on rollover, pause animation
       - [ ] add spacing desire
@@ -44,7 +52,7 @@
     - [ ] research automations
     - [X] updates table with automation for now
   - [X] SSOT table with no edit access
-  - [ ] update form for existing and new courses
+  - [ ] update input form for existing and new courses
   - [ ] pipeline process solidified and implemented
   - [ ] alt-text for images
   - [X] alternative title/subtitle fields for long course names
@@ -92,11 +100,13 @@
 - [ ] stretch
   - [ ] mobile scaling window
   - [ ] fishtank in hallway
+    - [ ] auto cycle animation that just selects courses every X seconds?
   - [ ] max appreciation section easter egg
   - [ ] soft body area blob physics
   - [ ] some sort of hardware test to auto display appropriate version?
   - [ ] quality preset selection (auto adjusts animations / rendering for slower machines)
   - [ ] faculty search / connections web
+  - [ ] test controls accessible in main site with secret click
 
 ## v0.2
 

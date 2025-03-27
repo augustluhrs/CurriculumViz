@@ -58,6 +58,12 @@ let defaults = {
   forceMax: 2,
   forceStart: 0.25,
   idealSeparation: null,
+  keywordWeights: {
+    //how much relationships are worth in keyword comparison
+    besties: 10, //share primaries
+    pals: 5, //my primary is their secondary
+    workfriends: 2, //we share secondaries (no check for their primary is intentional)
+  },
   mouseRepel: null,
   nodeScale: 0.09, //9% of shorter side of window
   nodeSize: null,
@@ -92,6 +98,7 @@ let options = {
   isShowingKeywords: false, //ugh naming, this is a panel too...
   isShowingPanel: false,
 };
+//mode toggles for testing
 options.isAlphaPaint = true;
 // options.isAvoidingMouse = true;
 options.isMoving = true;
@@ -441,31 +448,9 @@ async function initCourseNodes(){
     courses.push(newCourse);
   }
   
-  /* old method
-    //cycle through the table to generate the CNodes
-    for (let r = 0; r < masterSheet.getRowCount(); r++){
-    let rowArr = masterSheet.rows[r].arr;
-    let courseInfo = { //Course,Professor,Area,Credits,Semester,Keywords,Short,Long,Media,Credit,Media,Credit,Media,Credit
-      course: rowArr[0],
-      professor: rowArr[1],
-      area: rowArr[2],
-      credits: rowArr[3],
-      semester: rowArr[4],
-      keywords: rowArr[5],
-      short: rowArr[6],
-      long: rowArr[7],
-      media: [ //url, credit text, p5 Image (added later)
-        [rowArr[8], rowArr[9]],
-        [rowArr[10], rowArr[11]],
-        [rowArr[12], rowArr[13]]
-      ]
-    }
-  }
-  */
-
   //get relationships for keyword comparison
   for (let cNode of courses) {
-    // cNode.checkRelationships(courses); //TODO keyword update
+    cNode.checkRelationships(courses); 
   }
 
   //get web positions from cluster count

@@ -2,6 +2,19 @@
 
 ## v0
 
+### v0.3.3
+
+#### *3/26/25 3 hrs*
+
+- removing spaces of keywords when creating cNodes and in keyword check function (annoying, need to figure out if formatting in airtable or here, this is messy)
+- adjusted gradient of core so that more white (42%)
+- skipping SOUL classes in family check, or else art palace always in center
+- new keyword weights, tally normalized
+- courseNode.js keyword updates
+- updated mainkeywords in areas.js (just for checkboxes)
+
+API call est. this month total: 16
+
 ### v0.3.2
 
 #### *3/26/25 1.5hrs*
@@ -12,6 +25,8 @@
 - courseNodes created from new json tableCourses, needs keyword update to fully implement
 - tableCourses created (json object) from db / api, sent to client instead of csv load
 - rough pass at data format guidelines on notion
+
+API call est. this month total: 15
 
 ### v0.3.1
 
