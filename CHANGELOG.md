@@ -2,6 +2,36 @@
 
 ## v0
 
+### v0.3.4
+
+#### *3/29/25 5hrs*
+
+- fixed search div blocking node click -- adjusts z-index in input check
+- prevented first click from stopping orbit until the cursor moves away from orbit layer
+- in family orbit mode, if mouse in outer layer, stops the spiral anim
+- adjusted orbitRadius (reduced) and eliminated adjustments except for original setup declaration and spiralOut
+- reenabled collisions on outer orbit nodes
+- added keyword weights to /test, made relationship properties of cNodes reset when checking each time
+- basic semester view with transparency toggles
+- prototype mode UI panel with semester view toggles
+- simple image default display in info panel (creating an img elt each time, better TODO)
+- curved text around logo for "click to reset"
+- finally fixed the soul stroke
+- changed font size of search input and results
+- [refactoring and pattern research](https://refactoring.guru/design-patterns)
+
+API call est. this month total: 19
+
+#### *3/28/25 2hrs*
+
+- clicking search result acts as if you clicked the cNode
+- search UI style, scrollbar auto showing, background opacity if results only
+- ~~removed scrollbar of results box, need to test for confusion~~
+- search box div w/ input and results box (scrollable)
+- simple search function (all terms must be present at least once across all strings in cNode)
+
+API call est. this month total: 17
+
 ### v0.3.3
 
 #### *3/26/25 3 hrs*

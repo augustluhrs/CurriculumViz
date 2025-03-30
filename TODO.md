@@ -5,13 +5,16 @@
 ### March 2025 --> April 2025
 
 - [ ] updates for Fall registration
-  - [ ] filter by semester
-    - [ ] transparency vs removal
-  - [ ] search
-    - [ ] rudimentary DIY algorithm
-    - [ ] search box
-    - [ ] search box results in scrollable list (color by area)
-    - [ ] search filtering the course nodes
+  - [X] filter by semester
+    - [X] transparency vs removal
+    - [X] simple toggle UI
+  - [X] search
+    - [X] rudimentary DIY algorithm
+    - [X] search box
+    - [X] search box results in scrollable list (color by area)
+    - [X] search filtering the course nodes
+    - [X] click search result to bring up node
+    - [X] fix blocking underlying node clicks
   - [ ] simple mobile view
     - [ ] air table placeholder?
     - [ ] simple html scrolling list with filters/search
@@ -20,28 +23,36 @@
     - [X] updated keywords per course
     - [X] keywords in airtable
     - [X] areas.js keywords update
-    - [ ] keywords panel update
+    - [X] keywords panel update
     - [ ] new weights/sorting algorithm
       - [X] three weights in defaults object
-      - [ ] add weights tweak UI to /test
+      - [X] add weights tweak UI to /test
       - [ ] toggle between reunion and heat map (?)
     - [ ] take soul classes and move them away (or else always near)
+      - [X] for now skip in check
   - [ ] UI / bugs / tweaks
-    - [ ] soul stroke removal
+    - [X] soul stroke removal
     - [ ] info panel copy adjustment
     - [ ] keywords adjustment
     - [ ] course node font scaling
     - [ ] speed / flocking value tweaks
-    - [ ] "click to reset" around logo
+    - [X] "click to reset" around logo
+    - [ ] mode label / instructions?
     - [ ] modes dog-ear(?)
     - [ ] spiral
-      - [ ] on rollover, pause animation
-      - [ ] add spacing desire
+      - [X] on rollover, pause animation
+      - [X] add spacing desire / reenable collisions
+      - [X] adjust orbit radii
       - [ ] sort by color?
-      - [ ] area squares move to side and become a legend
+      - [ ] area squares move to bottom/side and become a legend
     - [ ] soul/core
-      - [ ] inner diameter of white larger
+      - [X] inner diameter of white larger
       - [ ] stroke/wiggle/aura
+    - [ ] area squares
+      - [ ] clicking toggles viz, doesn't make them go to center
+      - [ ] in spiral, move to bottom
+      - [ ] now each a toggle (not exclusive obvs)
+      - [ ] if clicking on course, should reset or fix visibility bugs
 - [ ] new SSOT database -- The Source
   - [X] airtable data migration
   - [X] api test using airtable.js
@@ -69,7 +80,7 @@
   - [X] go through existing images and flagging/reaching out for missing (Despina)
   - [X] airtable image pull test
   - [ ] display
-    - [ ] info panel single image
+    - [X] info panel single image
     - [ ] info panel carousel
     - [ ] test on nodes themselves
   - [ ] student credit?
@@ -82,7 +93,9 @@
 - [ ] refactoring
   - [ ] instance mode / modularity plan
   - [ ] code cleanup
+  - [ ] lint
   - [ ] get rid of old data/tables
+  - [ ] uniform style setting
 - [ ] testing
   - [ ] mobile
     - [ ] chrome
@@ -90,15 +103,18 @@
     - [ ] old phone
     - [ ] newer phone
   - [ ] desktop
-    - [ ] windows
+    - [X] windows
     - [ ] mac
     - [ ] older
     - [ ] newer
-    - [ ] chrome
+    - [X] chrome
     - [ ] firefox or alt.
     - [ ] safari
 - [ ] stretch
+  - [ ] feedback link on site
+    - [ ] google form
   - [ ] mobile scaling window
+  - [ ] design grid for UI / modes
   - [ ] fishtank in hallway
     - [ ] auto cycle animation that just selects courses every X seconds?
   - [ ] max appreciation section easter egg

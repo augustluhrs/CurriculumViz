@@ -8,7 +8,7 @@
 //MARK: testing
 
 
-//design/UI variables
+//design/UI variables -- TODO should just init before their functions... starting to do that
 let fonts = {};
 // let testColors = areaColors;
 let mousePos;
@@ -29,6 +29,8 @@ let wobbleSpeedSlider, wobbleOffsetSlider, wobbleMaxSlider, blobUnitSlider;
 let otherDiv, familyControlDiv, familyNumDiv, familyNumSlider, alphaDiv, alphaSlider;
 let designDiv, fontsDropdown, fontLoader;
 let colorInputs = {};
+let searchDiv, searchInput, searchResults;
+let searchButtons = [];
 
 let warningText = "";
 
@@ -52,7 +54,7 @@ let defaults = {
   boundaryForce: null,
   clusterOffset: null,
   fadeAlpha: 0.03, // the hidden nodes alpha value
-  familyOrbitSize: 3, //the minimum number of siblings and cousins
+  familyOrbitSize: 4, //the minimum number of siblings and cousins
   frictionStart: 0.99,
   fontName: "tiltneon",
   forceMax: 2,
@@ -110,9 +112,12 @@ let state = { //need to refactor this vs options
   bgAlpha: 0.1,
   clusterCenter: null,  //center of cluster web, is shifted by panels opening
   isMobile: checkIfMobile(),
+  isMouseInOrbit: false,
   selectedKeywords: [],
   selectedCluster: null,
   selectedCourse: null,
+  semester: "ALL",
+  shouldCheckOrbit: false,
   mode: "default" //default, keyword, bounce
 }
 
@@ -184,7 +189,7 @@ function setup() {
     warningText = "NOT READY FOR MOBILE, PLEASE CHECK THIS OUT ON A COMPUTER";
   }
 
-  //title logo
+  //title logo and curve
   defaults.titleSize = width/8;
   defaults.titleRatio = title.height / title.width;
 
@@ -216,7 +221,8 @@ function setup() {
   state.clusterCenter = createVector(width/2, height/2);
   panelLeftEdge = width * .72; //course panel
   panelRightEdge = width * .15; //keyword panel
-  defaults.orbitRadius = defaults.nodeSize * 1.5;
+  defaults.orbitRadius = defaults.nodeSize * 1.25;
+
 
   //blob anim
   defaults.blobUnit = defaults.nodeSize / 4;
@@ -230,6 +236,8 @@ function setup() {
   initCourseNodes();
   initPanelUI();
   initControlUI();
+  initSearchUI();
+  initModeUI();
 
   //hmm, easiest way to turn off testing stuff without errors?
   if (isMainSite) {
@@ -254,7 +262,10 @@ function draw() {
   image(title, 10, 10, defaults.titleSize, defaults.titleSize * defaults.titleRatio);
   push();
   textSize(width/40)
-  text(warningText, width/2, 25);
+  text(warningText, width/2, height * .15);
+
+  //curved text along logo
+  showTextCurve("click to reset");
   pop();
   //draw the clusters (checks for mode first)
   showClusters();
@@ -264,10 +275,26 @@ function draw() {
     mousePos.x = mouseX;
     mousePos.y = mouseY;
   // }
+  //check for spiral overlap so orbit stops
+  if (state.mode == "family"){
+    //check for mouse being in outer orbit, if so, stop animations
+    let mDist = dist(mousePos.x, mousePos.y, state.clusterCenter.x, state.clusterCenter.y);
+    // console.log(mDist/width); //.2 - .35 
+    if (mDist/width >= 0.2 && mDist/width <= 0.35){
+      if (state.shouldCheckOrbit){ //need a flag so doesn't do this on first click
+        state.isMouseInOrbit = true;
+      }
+    } else {
+      if (!state.shouldCheckOrbit){
+        state.shouldCheckOrbit = true; //TODO ugh
+      }
+      state.isMouseInOrbit = false;
+    }
+
+  }
   if (options.isMoving){ 
     //run the physics updates
     nodeUpdates();
-
   }
   for (let cNode of courses) {
     //draw the nodes
@@ -310,6 +337,14 @@ function initClusters(){
 }
 
 //MARK: controlUI
+let keywordWeightsDiv;
+let bestiesWeightSlider, palsWeightSlider, workfriendsWeightSlider;
+// keywordWeights: {
+//   //how much relationships are worth in keyword comparison
+//   besties: 10, //share primaries
+//   pals: 5, //my primary is their secondary
+//   workfriends: 2, //we share secondaries (no check for their primary is intentional)
+// },
 function initControlUI(){
   //control UI
   // buttonsDiv = createDiv()
@@ -370,6 +405,40 @@ function initControlUI(){
     state.bgAlpha = alphaSlider.value();
     state.bg.setAlpha(state.bgAlpha);
   });
+  createDiv("- - - - - - - - - ").parent("otherDiv").elt.style.setProperty('width', '100%');
+  keywordWeightsDiv = createDiv("keyword weights").parent("otherDiv").id("keywordWeightsDiv");
+  bestiesDiv = createDiv(`besties: ${defaults.keywordWeights.besties}`).parent("keywordWeightsDiv").id("bestiesDiv");
+  bestiesWeightSlider = createSlider(1, 20, defaults.keywordWeights.besties, 1).parent("keywordWeightsDiv").changed(()=>{
+    defaults.keywordWeights.besties = bestiesWeightSlider.value();
+    bestiesDiv.html(`besties: ${defaults.keywordWeights.besties}`);
+    for (let cNode of courses){
+      //TODO refactor
+      cNode.familyMember = null; //will get reset immediately in checkFamilyPosition()
+      cNode.checkRelationships(courses);
+    }
+  });
+  palsDiv = createDiv(`pals: ${defaults.keywordWeights.pals}`).parent("keywordWeightsDiv").id("palsDiv");
+  palsWeightSlider = createSlider(1, 20, defaults.keywordWeights.pals, 1).parent("keywordWeightsDiv").changed(()=>{
+    defaults.keywordWeights.pals = palsWeightSlider.value();
+    palsDiv.html(`pals: ${defaults.keywordWeights.pals}`);
+    for (let cNode of courses){
+      //TODO refactor
+      cNode.familyMember = null; //will get reset immediately in checkFamilyPosition()
+      cNode.checkRelationships(courses);
+    }
+  });
+  workfriendsDiv = createDiv(`workfriends: ${defaults.keywordWeights.workfriends}`).parent("keywordWeightsDiv").id("workfriendsDiv");
+  workfriendsWeightSlider = createSlider(1, 20, defaults.keywordWeights.workfriends, 1).parent("keywordWeightsDiv").changed(()=>{
+    defaults.keywordWeights.workfriends = workfriendsWeightSlider.value();
+    workfriendsDiv.html(`workfriends: ${defaults.keywordWeights.workfriends}`);
+    for (let cNode of courses){
+      //TODO refactor
+      cNode.familyMember = null; //will get reset immediately in checkFamilyPosition()
+      cNode.checkRelationships(courses);
+    }
+  });
+
+
   //design testing controls
   designDiv = createDiv("DESIGN TESTING").parent("controlDiv").id("designDiv").class("controls");
   createDiv("- - - - - - - - - ").parent("designDiv").elt.style.setProperty('width', '100%');
@@ -440,6 +509,7 @@ async function getTableCourses(){
   }
 }
 
+//MARK: initCourseNodes
 async function initCourseNodes(){
   //tableCourses fetched from server, json object of course info
   tableCourses = await getTableCourses();
@@ -460,6 +530,10 @@ async function initCourseNodes(){
 
   //start to load the images in the cNodes
   for (let cNode of courses){
+    if (cNode.imageDefault == null) {continue;}
+    // cNode.imageDefault.img = loadImage(cNode.imageDefault.url); //doing this as elt instead for now
+
+
     // cNode.media[0].push(loadImage(cNode.media[0][0])); //need public link and CORS stuff
   }
 }
@@ -491,6 +565,9 @@ function initPanelUI(){
   courseInfo["courseShort"] = createDiv().parent("coursePanel").class("infoDivs");
   courseInfo["courseBreak2"] = createDiv().parent("coursePanel").class("infoDivs"); //yeah idk
   courseInfo["courseKeywords"] = createDiv().parent("coursePanel").class("infoDivs");
+  //default image
+  courseInfo["courseImage"] = createDiv().id("courseImage").parent("coursePanel").class("infoDivs");
+  // courseInfo["courseImage"] = createImg().parent("coursePanel").class("infoDivs");
 
   //keyword panel UI
   keywordPanelHeight = height * 0.25;
@@ -516,7 +593,7 @@ function initPanelUI(){
       if(options.isShowingPanel){shiftClusters()};
       keywordPanel.show();
       keywordPanelButton.html('<<<');
-      keywordPanelButton.position(panelRightEdge, keywordPanelHeight);
+      keywordPanelButton.position(panelRightEdge - keywordPanelButton.width, keywordPanelHeight);
     } else {
       // state.clusterCenter.x -= panelRightEdge;
       options.isShowingPanel ? shiftClusters() : shiftClustersHome();
@@ -531,6 +608,134 @@ function initPanelUI(){
     keywordCheckboxes[keyword] = createCheckbox(keyword, false).class("checkboxes").parent("keywordPanel");
     keywordCheckboxes[keyword].changed(keywordCheck);
   }
+
+}
+
+//MARK: mode UI
+//eventually should move keyword from above function to its own
+let modePanel;
+let semesterToggleDiv, fallButton, springButton, occasionalButton; 
+let semesterButtons = [];
+let semesterColors = [ //when toggled on, else just normal button color
+  {bg: "#e1a834", col: "#8a00ed"}, //fall
+  {bg: "#99c800", col: "#0070ed"}, //spring
+  {bg: "#7cf4f1", col: "#ff92fb"}, //occasional
+  {bg: "#f2f2f2", col: "#0097a7"}, //default
+];
+
+function initModeUI(){
+  //for the various mode UI (feature toggles, options)
+  
+  modePanel = createDiv().class("panels").id("modePanel").parent("mainContainer");
+  modePanel.size(width * 0.25, defaults.titleSize * 0.3);
+  modePanel.position(panelLeftEdge - modePanel.width * 1.15, defaults.titleSize * 0.1); 
+  //TODO need to come up with a design grid for this, this is going to get really bad
+  // modePanel.position(defaults.titleSize * 3.15, defaults.titleSize * 0.1);
+  // modePanel.hide();
+
+  semesterToggleDiv = createDiv().class("panels").parent("modePanel").id("semesterToggleDiv");
+  semesterToggleDiv.style("margin", "2%"); //TODO really need to stick to one way/place of setting style
+  semesterToggleDiv.style("padding", "2%");
+  semesterToggleDiv.style("height", "90%");
+
+  // semesterToggleDiv.style("background-color", "#ff0000");
+
+  fallButton = createButton("FALL").class("buttons").parent("semesterToggleDiv");
+  // fallButton.size(semesterToggleDiv.width/4, semesterToggleDiv.height * 0.9);
+  // fallButton.style("width", `${semesterToggleDiv.width/4}px`);
+  // fallButton.style("height", "auto");
+  fallButton.mousePressed(switchSemesterView.bind({semester: "FALL"}));
+
+  springButton = createButton("SPRING").class("buttons").parent("semesterToggleDiv");
+  springButton.mousePressed(switchSemesterView.bind({semester: "SPRING"}));
+
+  occasionalButton = createButton("OCCASIONAL").class("buttons").parent("semesterToggleDiv");
+  occasionalButton.mousePressed(switchSemesterView.bind({semester: "OCCASIONAL"}));
+
+  semesterButtons = [fallButton, springButton, occasionalButton];
+  for (let butt of semesterButtons){ //set all at start to default
+    butt.style("width", `${semesterToggleDiv.width/4}px`);
+    butt.style("height", "auto");
+    butt.style("background-color", semesterColors[3].bg);
+    butt.style("color", semesterColors[3].col);
+  }
+}
+
+function switchSemesterView(){
+  // console.log(this.semester);
+  for (let butt of semesterButtons){
+    //reset all first
+    butt.style("background-color", semesterColors[3].bg);
+    butt.style("color", semesterColors[3].col);
+  }
+  if (state.semester == this.semester){
+    state.semester = "ALL";
+    for (let cNode of courses){
+      cNode.checkVisibility(); //TODO refactor
+    }
+    return; //toggling off b/c clicked same as active
+  } 
+
+  if (this.semester == "FALL"){
+    fallButton.style("background-color", semesterColors[0].bg);
+    fallButton.style("color", semesterColors[0].col);
+    state.semester = "FALL";
+  }
+  if (this.semester == "SPRING"){
+    springButton.style("background-color", semesterColors[1].bg);
+    springButton.style("color", semesterColors[1].col);
+    state.semester = "SPRING";
+  }
+  if (this.semester == "OCCASIONAL"){
+    occasionalButton.style("background-color", semesterColors[2].bg);
+    occasionalButton.style("color", semesterColors[2].col);
+    state.semester = "OCCASIONAL";
+  }
+  for (let cNode of courses){
+      cNode.checkVisibility(); //TODO refactor
+    }
+}
+
+//MARK: search UI
+function initSearchUI(){
+  //let searchWidth
+  searchDiv = createDiv().class("panels").id("searchDiv").parent("mainContainer");
+  searchDiv.size(defaults.titleSize * 2, defaults.titleSize); //orig height defaults.titleSize * defaults.titleRatio but that's same
+  searchDiv.position(defaults.titleSize * 1.25, 0);
+  // searchDiv.hide();
+
+  searchInput = createInput("search").class("inputs").id("searchInput").parent("searchDiv");
+  searchInput.size(defaults.titleSize * 1.8, defaults.titleSize * 0.25);
+  // searchInput.position()
+  searchInput.changed(()=>{
+    for (let sb of searchButtons){
+      sb.remove();
+    }
+    searchButtons = [];
+    searchResults.style("background-color", "rgba(255, 255, 255, 0)");
+    searchDiv.style("z-index", 0);
+    if (searchInput.value() == ""){return;}
+    //search function in modules/search.js
+    let terms = searchInput.value().split(" ");
+    let results = search(terms);
+    if (results.length == 0){return;}
+    searchResults.style("background-color", "rgba(255, 255, 255, 0.83)");
+    searchDiv.style("z-index", 9999);
+
+    for (let result of results){
+      //already sorted, so just make div and add to parent
+      let cN = result[0]; //the course Node is the first element, second is numHits
+      searchButtons.push(
+        createButton(cN.course).class("searchButtons").parent("searchResults").mousePressed(()=>{
+        // cN.click().bind(cN);
+        cN.click();
+        }).style("background-color", areaColors[cN.area])
+      );
+    }
+  });
+
+  searchResults = createDiv().class("scrollBox").id("searchResults").parent("searchDiv");
+  // searchResults.size()
 
 }
 
@@ -552,6 +757,7 @@ function keywordCheck(){
   }
 }
 
+//MARK: mousePressed
 function mousePressed(){
   //TODO -- this is just a temp fix for clicking logo to reset
   if (mouseX < defaults.titleSize && mouseY < defaults.titleSize * defaults.titleRatio){
@@ -597,7 +803,24 @@ function nodeClick(node) {
     courseInfo.courseTitle.html(node.course);
     courseInfo.courseProfessor.html(node.professor);
     courseInfo.courseShort.html(node.short);
-    courseInfo.courseKeywords.html(node.keywords);
+    // courseInfo.courseKeywords.html(node.secondaryKeywords);
+
+    //default image test //second param is alt text TODO
+    // if (courseInfo.courseImage.elt.hasChildNodes()){
+    if (courseInfo.courseImage.elt.children.length > 0){
+      // select("defaultImage").elt.remove();
+      courseInfo.courseImage.elt.children[0].remove(); //i know there's a simpler way, i'm tired
+    }
+
+    if (node.imageDefault != null){
+      createImg(node.imageDefault.url, node.course, 'anonymous')
+      .id("defaultImage") //just so can remove easily later
+      .class("panelImage")
+      .size(coursePanel.width * 0.6, coursePanel.width * 0.6) //TODO do this in class?
+      .parent(courseInfo.courseImage.elt); 
+    }
+    
+    
 
     options.isShowingPanel = true;
     shiftClusters();
@@ -609,6 +832,10 @@ function nodeClick(node) {
       cNode.isSelected = false;
       cNode.shouldCheckCollision = true;
     }
+
+    //default image test
+    // coursePanel.courseImage.elt.getChildren([name])
+    // select("defaultImage").elt.remove();
     coursePanel.hide();
     shiftClustersHome();
     options.isShowingPanel = false;
@@ -730,6 +957,39 @@ function showClusters(){
   pop();
 }
 
+function showTextCurve(phrase){
+  //shows text curved around the logo in the corner
+  //TBD depends on what the logo purpose ends up being
+  push();
+  angleMode(RADIANS);
+  textAlign(CENTER, TOP);
+
+  //split phrase into array, calc arcLength based on how many chars
+  let chars = phrase.split("");
+  // how expensive to do this instead of in setup? TODO
+  let lc = defaults.titleSize / 2; //logo center xy
+  let r = lc * 1.15; //radius from center to top of characters
+  let a = PI/2; //start rotation (bottom of logo)
+  let arcStep = (PI/2) / (chars.length - 1); //amount to rotate between each char
+  textSize(lc * 0.2);
+
+  //for each char, translate, rotate, text()
+  for (let char of chars){
+    push();
+    translate(lc + (r * cos(a)), lc + (r * sin(a)));
+    rotate(a - PI/2);
+    text(char, 0, 0);
+    // ellipse(0, 0, 20);
+    pop();
+    a -= arcStep;
+    // console.log(a);
+  }
+  pop();
+  angleMode(DEGREES);
+  textAlign(CENTER, CENTER);
+}
+
+//MARK: physics
 function subStepUpdate(mousePos, subStep){
   // let stepCourses = structuredClone(coursesCopy);
   // let stepCourses = JSON.parse(JSON.stringify(coursesCopy));

@@ -34,6 +34,10 @@ html, body {
   overflow: hidden; */
 }
 
+/* #mainContainer {
+  font-family: "tiltneon";
+} */
+
 canvas {
   display: block;
 } 
@@ -81,12 +85,19 @@ html, body, a, button, input {
 .panels {
   /* display: inline-block; */
   /* font-family: "tiltneon"; */
+  z-index: 9999;
+
 }
 
 #coursePanel {
   /* position: absolute; */
   /* top: 0; */
   background-color: #fbc6d0;
+}
+
+#modePanel{
+  /* margin-top: 1%; */
+  background-color: rgba(198, 251, 241, .2);
 }
 
 .infoDivs {
@@ -141,10 +152,11 @@ html, body, a, button, input {
   border-radius: 12px;
   transition-duration: 0.4s;
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+  z-index: 9999;
 }
 
 .buttons:hover {
-  background-color: white;
+  background-color: rgb(255, 255, 255);
   color: rgb(108,112,45);
 }
 
@@ -178,4 +190,65 @@ html, body, a, button, input {
 
 .inputs {
   width: auto;
+  margin: 5%;
+  font-family: "tiltneon";
+  font-size: 150%;
+
+}
+
+#searchDiv {
+  z-index: 0;
+}
+
+.searchButtons {
+  margin: 2%;
+  margin-left: 10%;
+  /* background-color: rgb(108,112,45); */
+  color: rgb(0, 0, 0);
+  font-size: 100%;
+  font-family: "tiltneon";
+  text-align: center;
+  /* border-radius: 10%; */
+  transition-duration: 0.4s;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+  z-index: 9999;
+}
+
+.searchButtons:hover {
+  /* background-color: rgb(122, 16, 130); */
+  color: rgb(255, 255, 255);
+}
+
+.scrollBox {
+  width: auto;
+  /* height: auto; */
+  height: 75%;
+  font-size: 150%;
+  /* margin: 2%; */
+  padding: 2%;
+  font-family: "tiltneon";
+  overflow-y: auto;
+  /* background-color: rgba(255, 255, 255, .2) */
+  /* z-index: 9999; */
+
+}
+
+/* .scrollBox::-webkit-scrollbar { 
+  /* width: 0 !important; */
+  /* display: none;  */
+/* } */
+
+.scrollBox::-webkit-scrollbar-track {
+  background: #2c1fb8; /* Track (background behind scrollbar) */
+  border-radius: 4px;
+}
+
+.scrollBox::-webkit-scrollbar-thumb {
+  background: #888; /* Scrollbar handle */
+  border-radius: 4px;
+}
+
+.panelImage {
+  /* for the default images */
+  border: 0; /* just to get rid of error, empty for now */
 }
