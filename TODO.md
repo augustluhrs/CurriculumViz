@@ -8,6 +8,8 @@
   - [X] filter by semester
     - [X] transparency vs removal
     - [X] simple toggle UI
+    - [X] dropdown instead
+    - [X] logic fixes
   - [X] search
     - [X] rudimentary DIY algorithm
     - [X] search box
@@ -15,9 +17,13 @@
     - [X] search filtering the course nodes
     - [X] click search result to bring up node
     - [X] fix blocking underlying node clicks
+    - [X] change box to magnifying glass and line
   - [ ] simple mobile view
     - [ ] air table placeholder?
     - [ ] simple html scrolling list with filters/search
+  - [ ] hallway view
+    - [X] random cycle course every 20 seconds
+    - [ ] only fall classes
   - [ ] keyword algorithm updates
     - [X] new keywords
     - [X] updated keywords per course
@@ -33,12 +39,14 @@
   - [ ] UI / bugs / tweaks
     - [X] soul stroke removal
     - [ ] info panel copy adjustment
-    - [ ] keywords adjustment
+    - [X] keywords adjustment
     - [ ] course node font scaling
     - [ ] speed / flocking value tweaks
     - [X] "click to reset" around logo
     - [ ] mode label / instructions?
     - [ ] modes dog-ear(?)
+    - [ ] need font size consistency and brand guidelines
+    - [ ] need show() and hide() cNode methods and refactor checkVis
     - [ ] spiral
       - [X] on rollover, pause animation
       - [X] add spacing desire / reenable collisions
@@ -81,6 +89,7 @@
   - [X] airtable image pull test
   - [ ] display
     - [X] info panel single image
+      - [X] keep aspect ratio
     - [ ] info panel carousel
     - [ ] test on nodes themselves
   - [ ] student credit?

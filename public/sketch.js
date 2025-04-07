@@ -53,6 +53,7 @@ let defaults = {
   blobUnit: null, //scale of blobWobble/petals
   boundaryForce: null,
   clusterOffset: null,
+  cycleInterval: 20000, //20 seconds cycle
   fadeAlpha: 0.03, // the hidden nodes alpha value
   familyOrbitSize: 4, //the minimum number of siblings and cousins
   frictionStart: 0.99,
@@ -91,6 +92,7 @@ let options = {
   isAlphaPaint: false,
   isAvoidingMouse: false,
   isBounce:false,
+  isCycling: false, // random selection cycle
   isDraggable: false,
   isGravity: false,
   isFlocking: false,
@@ -111,6 +113,8 @@ let state = { //need to refactor this vs options
   bg: null,
   bgAlpha: 0.1,
   clusterCenter: null,  //center of cluster web, is shifted by panels opening
+  // cycleTimer: 0, //counts up to defaults.cycleInterval
+  cycleLastTime: 0,
   isMobile: checkIfMobile(),
   isMouseInOrbit: false,
   selectedKeywords: [],
@@ -118,7 +122,7 @@ let state = { //need to refactor this vs options
   selectedCourse: null,
   semester: "ALL",
   shouldCheckOrbit: false,
-  mode: "default" //default, keyword, bounce
+  mode: "default" //default, keyword, bounce, cycle
 }
 
 function preload(){  
@@ -275,6 +279,17 @@ function draw() {
     mousePos.x = mouseX;
     mousePos.y = mouseY;
   // }
+
+  //cycle mode timer interval
+  if (options.isCycling){
+    if (millis() - state.cycleLastTime >= defaults.cycleInterval){
+      //pick random node and click it
+      let randNode = random(courses);
+      randNode.click();
+      state.cycleLastTime = millis();
+    }
+  }
+
   //check for spiral overlap so orbit stops
   if (state.mode == "family"){
     //check for mouse being in outer orbit, if so, stop animations
@@ -567,12 +582,13 @@ function initPanelUI(){
   courseInfo["courseKeywords"] = createDiv().parent("coursePanel").class("infoDivs");
   //default image
   courseInfo["courseImage"] = createDiv().id("courseImage").parent("coursePanel").class("infoDivs");
+    // .position()
   // courseInfo["courseImage"] = createImg().parent("coursePanel").class("infoDivs");
 
   //keyword panel UI
-  keywordPanelHeight = height * 0.25;
+  keywordPanelHeight = height * 0.4;
   keywordPanel = createDiv().class("panels").id("keywordPanel").parent("mainContainer");
-  keywordPanel.size(panelRightEdge, height - keywordPanelHeight);
+  keywordPanel.size(panelRightEdge, height * 0.5);
   keywordPanel.position(0, keywordPanelHeight);
   keywordPanel.hide();
 
@@ -614,8 +630,9 @@ function initPanelUI(){
 //MARK: mode UI
 //eventually should move keyword from above function to its own
 let modePanel;
-let semesterToggleDiv, fallButton, springButton, occasionalButton; 
-let semesterButtons = [];
+let semesterDropdown;
+// let semesterToggleDiv, fallButton, springButton, occasionalButton; 
+// let semesterButtons = [];
 let semesterColors = [ //when toggled on, else just normal button color
   {bg: "#e1a834", col: "#8a00ed"}, //fall
   {bg: "#99c800", col: "#0070ed"}, //spring
@@ -627,114 +644,176 @@ function initModeUI(){
   //for the various mode UI (feature toggles, options)
   
   modePanel = createDiv().class("panels").id("modePanel").parent("mainContainer");
-  modePanel.size(width * 0.25, defaults.titleSize * 0.3);
-  modePanel.position(panelLeftEdge - modePanel.width * 1.15, defaults.titleSize * 0.1); 
+  modePanel.size(panelRightEdge, defaults.titleSize * 0.3);
+  modePanel.position(0, height * 0.3); 
+  // modePanel.size(width * 0.25, defaults.titleSize * 0.3);
+  // modePanel.position(panelLeftEdge - modePanel.width * 1.15, defaults.titleSize * 0.1); 
   //TODO need to come up with a design grid for this, this is going to get really bad
   // modePanel.position(defaults.titleSize * 3.15, defaults.titleSize * 0.1);
   // modePanel.hide();
 
-  semesterToggleDiv = createDiv().class("panels").parent("modePanel").id("semesterToggleDiv");
-  semesterToggleDiv.style("margin", "2%"); //TODO really need to stick to one way/place of setting style
-  semesterToggleDiv.style("padding", "2%");
-  semesterToggleDiv.style("height", "90%");
+  semesterDiv = createDiv().class("panels").parent("modePanel").id("semesterDiv");
+  semesterDiv.style("margin", "2%"); //TODO really need to stick to one way/place of setting style
+  semesterDiv.style("padding", "2%");
+  semesterDiv.style("height", "90%");
 
-  // semesterToggleDiv.style("background-color", "#ff0000");
+  semesterTextDiv = createDiv("Filter by Semester:").parent("semesterDiv").id("semesterTextDiv");
+  semesterTextDiv.style("font-size", "125%");
 
-  fallButton = createButton("FALL").class("buttons").parent("semesterToggleDiv");
-  // fallButton.size(semesterToggleDiv.width/4, semesterToggleDiv.height * 0.9);
-  // fallButton.style("width", `${semesterToggleDiv.width/4}px`);
-  // fallButton.style("height", "auto");
-  fallButton.mousePressed(switchSemesterView.bind({semester: "FALL"}));
+  semesterDropdown = createSelect().class("dropdowns").parent("semesterDiv");
+  semesterDropdown.option("FALL");
+  semesterDropdown.option("SPRING");
+  semesterDropdown.option("OCCASIONAL");
+  semesterDropdown.option("ALL");
+  semesterDropdown.selected("ALL");
+  semesterDropdown.changed(switchSemesterView);
 
-  springButton = createButton("SPRING").class("buttons").parent("semesterToggleDiv");
-  springButton.mousePressed(switchSemesterView.bind({semester: "SPRING"}));
+  // fallButton = createButton("FALL").class("buttons").parent("semesterToggleDiv");
+  // fallButton.mousePressed(switchSemesterView.bind({semester: "FALL"}));
 
-  occasionalButton = createButton("OCCASIONAL").class("buttons").parent("semesterToggleDiv");
-  occasionalButton.mousePressed(switchSemesterView.bind({semester: "OCCASIONAL"}));
+  // springButton = createButton("SPRING").class("buttons").parent("semesterToggleDiv");
+  // springButton.mousePressed(switchSemesterView.bind({semester: "SPRING"}));
 
-  semesterButtons = [fallButton, springButton, occasionalButton];
-  for (let butt of semesterButtons){ //set all at start to default
-    butt.style("width", `${semesterToggleDiv.width/4}px`);
-    butt.style("height", "auto");
-    butt.style("background-color", semesterColors[3].bg);
-    butt.style("color", semesterColors[3].col);
-  }
+  // occasionalButton = createButton("OCCASIONAL").class("buttons").parent("semesterToggleDiv");
+  // occasionalButton.mousePressed(switchSemesterView.bind({semester: "OCCASIONAL"}));
+
+  // semesterButtons = [fallButton, springButton, occasionalButton];
+  // for (let butt of semesterButtons){ //set all at start to default
+  //   butt.style("width", `${semesterToggleDiv.width/4}px`);
+  //   butt.style("height", "auto");
+  //   butt.style("background-color", semesterColors[3].bg);
+  //   butt.style("color", semesterColors[3].col);
+  // }
 }
 
 function switchSemesterView(){
-  // console.log(this.semester);
-  for (let butt of semesterButtons){
-    //reset all first
-    butt.style("background-color", semesterColors[3].bg);
-    butt.style("color", semesterColors[3].col);
-  }
-  if (state.semester == this.semester){
-    state.semester = "ALL";
-    for (let cNode of courses){
-      cNode.checkVisibility(); //TODO refactor
-    }
-    return; //toggling off b/c clicked same as active
-  } 
 
-  if (this.semester == "FALL"){
-    fallButton.style("background-color", semesterColors[0].bg);
-    fallButton.style("color", semesterColors[0].col);
+  let sem = semesterDropdown.selected();
+  console.log(sem);
+  if (sem == "ALL"){
+    semesterDropdown.style("background-color", semesterColors[3].bg);
+    semesterDropdown.style("color", semesterColors[3].col);
+    state.semester = "ALL";
+  }
+  if (sem == "FALL"){
+    semesterDropdown.style("background-color", semesterColors[0].bg);
+    semesterDropdown.style("color", semesterColors[0].col);
     state.semester = "FALL";
   }
-  if (this.semester == "SPRING"){
-    springButton.style("background-color", semesterColors[1].bg);
-    springButton.style("color", semesterColors[1].col);
+  if (sem == "SPRING"){
+    semesterDropdown.style("background-color", semesterColors[1].bg);
+    semesterDropdown.style("color", semesterColors[1].col);
     state.semester = "SPRING";
   }
-  if (this.semester == "OCCASIONAL"){
-    occasionalButton.style("background-color", semesterColors[2].bg);
-    occasionalButton.style("color", semesterColors[2].col);
+  if (sem == "OCCASIONAL"){
+    semesterDropdown.style("background-color", semesterColors[2].bg);
+    semesterDropdown.style("color", semesterColors[2].col);
     state.semester = "OCCASIONAL";
   }
   for (let cNode of courses){
-      cNode.checkVisibility(); //TODO refactor
-    }
+    cNode.checkVisibility(); //TODO refactor
+  }
+
+    // for (let butt of semesterButtons){
+    //   //reset all first
+    //   butt.style("background-color", semesterColors[3].bg);
+    //   butt.style("color", semesterColors[3].col);
+    // }
+    // if (state.semester == this.semester){
+    //   state.semester = "ALL";
+    //   for (let cNode of courses){
+    //     cNode.checkVisibility(); //TODO refactor
+    //   }
+    //   return; //toggling off b/c clicked same as active
+    // } 
+  
+    // if (this.semester == "FALL"){
+    //   fallButton.style("background-color", semesterColors[0].bg);
+    //   fallButton.style("color", semesterColors[0].col);
+    //   state.semester = "FALL";
+    // }
+    // if (this.semester == "SPRING"){
+    //   springButton.style("background-color", semesterColors[1].bg);
+    //   springButton.style("color", semesterColors[1].col);
+    //   state.semester = "SPRING";
+    // }
+    // if (this.semester == "OCCASIONAL"){
+    //   occasionalButton.style("background-color", semesterColors[2].bg);
+    //   occasionalButton.style("color", semesterColors[2].col);
+    //   state.semester = "OCCASIONAL";
+    // }
 }
 
 //MARK: search UI
+let nodesMatchingSearch = [];
 function initSearchUI(){
   //let searchWidth
+  // searchDiv = createDiv().id("searchDiv").parent("mainContainer");
   searchDiv = createDiv().class("panels").id("searchDiv").parent("mainContainer");
-  searchDiv.size(defaults.titleSize * 2, defaults.titleSize); //orig height defaults.titleSize * defaults.titleRatio but that's same
-  searchDiv.position(defaults.titleSize * 1.25, 0);
+  // searchDiv.size(defaults.titleSize * 2, defaults.titleSize); //orig height defaults.titleSize * defaults.titleRatio but that's same
+  searchDiv.size(panelRightEdge * 0.5, defaults.titleSize * 0.15)
+  searchDiv.position(0, height * 0.25);
+  
+  // searchDiv.position(defaults.titleSize * 1.25, 0);
   // searchDiv.hide();
+  searchIconDiv = createDiv("🔎").id("searchIconDiv").parent("searchDiv");
+  
 
   searchInput = createInput("search").class("inputs").id("searchInput").parent("searchDiv");
-  searchInput.size(defaults.titleSize * 1.8, defaults.titleSize * 0.25);
-  // searchInput.position()
+  // searchInput.size(defaults.titleSize * 1.8, defaults.titleSize * 0.25);
+  // searchInput.size(panelLeftEdge, defaults.titleSize * 0.3);
   searchInput.changed(()=>{
-    for (let sb of searchButtons){
-      sb.remove();
-    }
-    searchButtons = [];
-    searchResults.style("background-color", "rgba(255, 255, 255, 0)");
+    //no more buttons, just store results in global array, then check in courseNode.checkVisibility()
     searchDiv.style("z-index", 0);
-    if (searchInput.value() == ""){return;}
-    //search function in modules/search.js
-    let terms = searchInput.value().split(" ");
-    let results = search(terms);
-    if (results.length == 0){return;}
-    searchResults.style("background-color", "rgba(255, 255, 255, 0.83)");
-    searchDiv.style("z-index", 9999);
-
-    for (let result of results){
-      //already sorted, so just make div and add to parent
-      let cN = result[0]; //the course Node is the first element, second is numHits
-      searchButtons.push(
-        createButton(cN.course).class("searchButtons").parent("searchResults").mousePressed(()=>{
-        // cN.click().bind(cN);
-        cN.click();
-        }).style("background-color", areaColors[cN.area])
-      );
+    if (searchInput.value() == "" || searchInput.value() == "search"){
+      nodesMatchingSearch = [];
+      // return;
+    } else {
+      //search function in modules/search.js
+      let terms = searchInput.value().split(" ");
+      // let results = search(terms);
+      nodesMatchingSearch = search(terms);
     }
-  });
+    
+    if (nodesMatchingSearch.length == 0){
+      for (let course of courses){
+        course.checkVisibility();
+      }
+      return;
+    }
+    searchDiv.style("z-index", 9999);
+    for (let course of courses){
+      course.checkVisibility();
+    }
+  }); 
+  // searchInput.changed(()=>{
+  //   for (let sb of searchButtons){
+  //     sb.remove();
+  //   }
+  //   searchButtons = [];
+  //   searchResults.style("background-color", "rgba(255, 255, 255, 0)");
+  //   searchDiv.style("z-index", 0);
+  //   if (searchInput.value() == ""){return;}
+  //   //search function in modules/search.js
+  //   let terms = searchInput.value().split(" ");
+  //   let results = search(terms);
+  //   if (results.length == 0){return;}
+  //   searchResults.style("background-color", "rgba(255, 255, 255, 0.83)");
+  //   searchDiv.style("z-index", 9999);
 
-  searchResults = createDiv().class("scrollBox").id("searchResults").parent("searchDiv");
+  //   for (let result of results){
+  //     //already sorted, so just make div and add to parent
+  //     let cN = result[0]; //the course Node is the first element, second is numHits
+  //     searchButtons.push(
+  //       createButton(cN.course).class("searchButtons").parent("searchResults").mousePressed(()=>{
+  //       // cN.click().bind(cN);
+  //       cN.click();
+  //       }).style("background-color", areaColors[cN.area])
+  //     );
+  //   }
+  // });
+
+  // searchResults = createDiv().class("scrollBox").id("searchResults").parent("searchDiv");
   // searchResults.size()
 
 }
@@ -760,7 +839,7 @@ function keywordCheck(){
 //MARK: mousePressed
 function mousePressed(){
   //TODO -- this is just a temp fix for clicking logo to reset
-  if (mouseX < defaults.titleSize && mouseY < defaults.titleSize * defaults.titleRatio){
+  if (mouseX < defaults.titleSize * 1.2 && mouseY < defaults.titleSize * 1.2){
     window.location.reload();
   }
 
@@ -788,6 +867,24 @@ function mousePressed(){
   }
 }
 
+function keyPressed(){
+  //using this as a quick secret toggle for fishtank cycle
+  if (keyCode == 187){ //187 is "="
+    if (!options.isCycling){
+      // semesterDropdown.selected("FALL");
+      options.isCycling = true;
+      state.mode = "family";
+      random(courses).click();
+    } else {
+      // semesterDropdown.selected("ALL");
+      options.isCycling = false;
+      // state.cycleTimer = millis();
+      state.cycleLastTime = millis();
+      state.mode = "default";
+    }
+  }
+}
+
 //MARK: click
 function nodeClick(node) {
   //when a node is clicked... as the name suggests...
@@ -801,8 +898,17 @@ function nodeClick(node) {
     // console.log(node.course);
     coursePanel.show();
     courseInfo.courseTitle.html(node.course);
+    if (node.professor == undefined){ 
+      courseInfo.courseShort.html("TBA")
+    } else {
+      courseInfo.courseShort.html(node.professor);
+    }
     courseInfo.courseProfessor.html(node.professor);
-    courseInfo.courseShort.html(node.short);
+    if (node.short == undefined){ 
+      courseInfo.courseShort.html("")
+    } else {
+      courseInfo.courseShort.html(node.short);
+    }
     // courseInfo.courseKeywords.html(node.secondaryKeywords);
 
     //default image test //second param is alt text TODO
@@ -813,11 +919,27 @@ function nodeClick(node) {
     }
 
     if (node.imageDefault != null){
-      createImg(node.imageDefault.url, node.course, 'anonymous')
+      let dfImg = createImg(node.imageDefault.url, node.course, 'anonymous', ()=>{
+        //loaded callback
+        // console.log(dfImg);
+        let aspectRatio = dfImg.width / dfImg.height;
+        // console.log(aspectRatio);
+        // dfImg.size(constrain(aspectRatio * coursePanel.width * 0.6, 0, coursePanel.width), (1/aspectRatio) * coursePanel.width * 0.6 )
+
+        //quick hack
+        if (aspectRatio >= 1){
+          dfImg.size(coursePanel.width * 0.7, (1/aspectRatio) * coursePanel.width * 0.7);
+        } else {
+          dfImg.size(aspectRatio * coursePanel.width * 0.7, coursePanel.width * 0.7);
+
+        }
+
+      })
       .id("defaultImage") //just so can remove easily later
       .class("panelImage")
-      .size(coursePanel.width * 0.6, coursePanel.width * 0.6) //TODO do this in class?
-      .parent(courseInfo.courseImage.elt); 
+      // .size(coursePanel.width * 0.6, coursePanel.width * 0.6) //TODO do this in class?
+      .parent(courseInfo.courseImage.elt);
+      
     }
     
     
