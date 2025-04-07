@@ -2,6 +2,101 @@
 
 ## v0
 
+### v0.3.4
+
+#### *3/29/25 5hrs*
+
+- fixed search div blocking node click -- adjusts z-index in input check
+- prevented first click from stopping orbit until the cursor moves away from orbit layer
+- in family orbit mode, if mouse in outer layer, stops the spiral anim
+- adjusted orbitRadius (reduced) and eliminated adjustments except for original setup declaration and spiralOut
+- reenabled collisions on outer orbit nodes
+- added keyword weights to /test, made relationship properties of cNodes reset when checking each time
+- basic semester view with transparency toggles
+- prototype mode UI panel with semester view toggles
+- simple image default display in info panel (creating an img elt each time, better TODO)
+- curved text around logo for "click to reset"
+- finally fixed the soul stroke
+- changed font size of search input and results
+- [refactoring and pattern research](https://refactoring.guru/design-patterns)
+
+API call est. this month total: 19
+
+#### *3/28/25 2hrs*
+
+- clicking search result acts as if you clicked the cNode
+- search UI style, scrollbar auto showing, background opacity if results only
+- ~~removed scrollbar of results box, need to test for confusion~~
+- search box div w/ input and results box (scrollable)
+- simple search function (all terms must be present at least once across all strings in cNode)
+
+API call est. this month total: 17
+
+### v0.3.3
+
+#### *3/26/25 3 hrs*
+
+- removing spaces of keywords when creating cNodes and in keyword check function (annoying, need to figure out if formatting in airtable or here, this is messy)
+- adjusted gradient of core so that more white (42%)
+- skipping SOUL classes in family check, or else art palace always in center
+- new keyword weights, tally normalized
+- courseNode.js keyword updates
+- updated mainkeywords in areas.js (just for checkboxes)
+
+API call est. this month total: 16
+
+### v0.3.2
+
+#### *3/26/25 1.5hrs*
+
+- updated server to pull from SOURCE instead of apitest
+- changed TECHNOLOGY to TECH
+- created UPDATES and SOURCE tables on AirTable, the former added by automations checking for changes to NEW MASTER. Also added Subtitle and ShortTitle fields.
+- courseNodes created from new json tableCourses, needs keyword update to fully implement
+- tableCourses created (json object) from db / api, sent to client instead of csv load
+- rough pass at data format guidelines on notion
+
+API call est. this month total: 15
+
+### v0.3.1
+
+#### *3/25/25 2.5hrs*
+
+- server checks if table has been updated today, replaces db doc if not
+- removed node-cache, added nedb
+- updated tasks and deliverables timeline
+- cleaned areas.js of commented sections
+- [local database research](https://rxdb.info/alternatives.html)
+
+#### *3/15/25 1hr*
+
+- merged glitch branch into main and dev
+- typesense and cloud storage research
+- diy search and storage plan/notes
+
+### v0.3.0
+
+#### *3/14/25 2hrs*
+
+- testing airtable img links
+- airtable.js web api install and test call
+- database and search research
+- node-cache for local storage of json response
+- dotenv added for airtable api key
+- .env in gitignore
+- installed lodash as dependency b/c airtable.js apparently requires it?
+- the image URLs may not work because they intentionally use URLs that expire after a couple hours
+
+API call est.: 7
+
+TODO:
+
+- cNode-soul:hidden stroke
+
+#### *Feb+Mar 2hrs*
+
+- misc airtable work/config/setup
+
 ### v0.2.11
 
 #### *12/15/24 1.5 hrs*
@@ -49,10 +144,9 @@ Glitch:
 - logo scale
 - raspi monitor doesn't sleep
 
-
 ### v0.2.8
 
-#### *10/29/24 1 hr*
+#### *10/29/24 2hrs*
 
 - set up raspi on nyu wifi
 - got 12th floor monitor up and running (socket dead)

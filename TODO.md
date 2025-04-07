@@ -1,6 +1,130 @@
 # TODO
 
-## v0.2 -- Mobile
+## v0.3
+
+### March 2025 --> April 2025
+
+- [ ] updates for Fall registration
+  - [X] filter by semester
+    - [X] transparency vs removal
+    - [X] simple toggle UI
+  - [X] search
+    - [X] rudimentary DIY algorithm
+    - [X] search box
+    - [X] search box results in scrollable list (color by area)
+    - [X] search filtering the course nodes
+    - [X] click search result to bring up node
+    - [X] fix blocking underlying node clicks
+  - [ ] simple mobile view
+    - [ ] air table placeholder?
+    - [ ] simple html scrolling list with filters/search
+  - [ ] keyword algorithm updates
+    - [X] new keywords
+    - [X] updated keywords per course
+    - [X] keywords in airtable
+    - [X] areas.js keywords update
+    - [X] keywords panel update
+    - [ ] new weights/sorting algorithm
+      - [X] three weights in defaults object
+      - [X] add weights tweak UI to /test
+      - [ ] toggle between reunion and heat map (?)
+    - [ ] take soul classes and move them away (or else always near)
+      - [X] for now skip in check
+  - [ ] UI / bugs / tweaks
+    - [X] soul stroke removal
+    - [ ] info panel copy adjustment
+    - [ ] keywords adjustment
+    - [ ] course node font scaling
+    - [ ] speed / flocking value tweaks
+    - [X] "click to reset" around logo
+    - [ ] mode label / instructions?
+    - [ ] modes dog-ear(?)
+    - [ ] spiral
+      - [X] on rollover, pause animation
+      - [X] add spacing desire / reenable collisions
+      - [X] adjust orbit radii
+      - [ ] sort by color?
+      - [ ] area squares move to bottom/side and become a legend
+    - [ ] soul/core
+      - [X] inner diameter of white larger
+      - [ ] stroke/wiggle/aura
+    - [ ] area squares
+      - [ ] clicking toggles viz, doesn't make them go to center
+      - [ ] in spiral, move to bottom
+      - [ ] now each a toggle (not exclusive obvs)
+      - [ ] if clicking on course, should reset or fix visibility bugs
+- [ ] new SSOT database -- The Source
+  - [X] airtable data migration
+  - [X] api test using airtable.js
+  - [X] server stores latest api data
+  - [X] convert csv load to api load, or save csv as placeholder
+    - [X] server should have the data and client makes a call for it
+  - [ ] automated staging / approval process
+    - [ ] research automations
+    - [X] updates table with automation for now
+  - [X] SSOT table with no edit access
+  - [ ] update input form for existing and new courses
+  - [ ] pipeline process solidified and implemented
+  - [ ] alt-text for images
+  - [X] alternative title/subtitle fields for long course names
+  - [ ] data format guidelines in notion
+- [ ] storage / hosting / image pipeline
+  - [X] airtable image hosting research
+  - [ ] host options research (digital ocean vs AWS etc.)
+  - [X] local database? ~~node-cache~~ nedb vs mongodb
+  - [ ] glitch --> another cloud host
+  - [ ] cdn? drive vs actual cdn vs other
+  - [ ] image download to host machine and bundle/pack research
+  - [ ] data flow graph visual aid
+- [ ] images
+  - [X] go through existing images and flagging/reaching out for missing (Despina)
+  - [X] airtable image pull test
+  - [ ] display
+    - [X] info panel single image
+    - [ ] info panel carousel
+    - [ ] test on nodes themselves
+  - [ ] student credit?
+  - [ ] alt-text implemented
+  - [ ] click for full screen pop-up
+  - [ ] ffmpeg / CLI batch process and format
+    - [ ] diff sizes for dynamic loading?
+    - [ ] resolution
+    - [ ] orientation / crop
+- [ ] refactoring
+  - [ ] instance mode / modularity plan
+  - [ ] code cleanup
+  - [ ] lint
+  - [ ] get rid of old data/tables
+  - [ ] uniform style setting
+- [ ] testing
+  - [ ] mobile
+    - [ ] chrome
+    - [ ] safari
+    - [ ] old phone
+    - [ ] newer phone
+  - [ ] desktop
+    - [X] windows
+    - [ ] mac
+    - [ ] older
+    - [ ] newer
+    - [X] chrome
+    - [ ] firefox or alt.
+    - [ ] safari
+- [ ] stretch
+  - [ ] feedback link on site
+    - [ ] google form
+  - [ ] mobile scaling window
+  - [ ] design grid for UI / modes
+  - [ ] fishtank in hallway
+    - [ ] auto cycle animation that just selects courses every X seconds?
+  - [ ] max appreciation section easter egg
+  - [ ] soft body area blob physics
+  - [ ] some sort of hardware test to auto display appropriate version?
+  - [ ] quality preset selection (auto adjusts animations / rendering for slower machines)
+  - [ ] faculty search / connections web
+  - [ ] test controls accessible in main site with secret click
+
+## v0.2
 
 - [ ] mobile view
   - [ ] touch gesture
@@ -14,8 +138,8 @@
   - [ ] style fixes
     - [ ] font
     - [ ] font size
-- [ ] testing page
-  - [ ] move design controls to separate namespace
+- [X] testing page
+  - [X] move design controls to separate namespace
 - [ ] updates
   - [ ] csv
     - [ ] all classes and keywords
@@ -44,6 +168,8 @@
   - [ ] glitch for now -- new CA acct?
   - [ ] landing page or just node map?
   - [ ] what other things do we want
+- [ ] fun
+  - [ ] [soft body nodes](https://www.youtube.com/watch?v=GXh0Vxg7AnQ)
 
 ## v0.1 -- Node Web Feature Playground
 
