@@ -97,7 +97,7 @@ html, body, a, button, input {
 
 #modePanel{
   /* margin-top: 1%; */
-  background-color: rgba(198, 251, 241, .2);
+  /* background-color: rgba(198, 251, 241, .2); */
 }
 
 .infoDivs {
@@ -190,17 +190,44 @@ html, body, a, button, input {
 
 .inputs {
   width: auto;
-  margin: 5%;
+  margin: 2%;
   font-family: "tiltneon";
   font-size: 150%;
 
 }
 
+.dropdowns {
+  width: auto;
+  font-family: "tiltneon";
+  font-size: 150%;
+}
+
 #searchDiv {
   z-index: 0;
+  display: flex;
+  align-items: left;
+  margin: 1%;
+  /* padding: 0%; */
+}
+
+#searchIconDiv {
+  /* width: 5%; */
+  /* margin: 2%; */
+  font-family: "tiltneon";
+  font-size: 150%;
+}
+
+#searchInput {
+  flex: 1;
+  background-color: rgba(0, 0, 0, 0);
+  border-top: rgba(0, 0, 0, 0);
+  border-left: rgba(0, 0, 0, 0);
+  border-right: rgba(0, 0, 0, 0);
+
 }
 
 .searchButtons {
+  /* no longer using */
   margin: 2%;
   margin-left: 10%;
   /* background-color: rgb(108,112,45); */

@@ -2,6 +2,27 @@
 
 ## v0
 
+### v0.3.5
+
+#### *4/7/25 2.5hrs*
+
+- kept aspect ratio of panel imgs (dfImg)
+- pressing "=" does random cycle of courses (all for now, TODO fall)
+- changed search visibility check
+- removed search box and buttons, replaced with magnifying glass and bottom border
+- adjusted css and positions of search, semester, and keyword Divs
+- added "filter by semester" text to modePanel
+- removed bg color from modePanel
+- fixed "OCCASIONAL" logic bug
+- moved semester panel, changed toggles to dropdown
+- moved keyword panel down, adjusted height
+- extended range of click reset so that clicking words resets also (`titleSize * 1.2`)
+
+#### *3/30/25 45 mins*
+
+- boundary size changes b/c UI? no, kept same for now
+- pulled to glitch, TODO way of keeping env between versions
+
 ### v0.3.4
 
 #### *3/29/25 5hrs*

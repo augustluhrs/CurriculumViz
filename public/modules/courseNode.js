@@ -262,7 +262,7 @@ class CNode { //courseNode
     if (this.pos.x > width - (this.size / 2)) {this.acc.add(createVector(-defaults.boundaryForce, 0))}
     if (this.pos.x < (this.size / 2)) {this.acc.add(createVector(defaults.boundaryForce, 0))}
     if (this.pos.y > height - (this.size / 2)) {this.acc.add(createVector(0, -defaults.boundaryForce))}
-    if (this.pos.y < (this.size / 2)) {this.acc.add(createVector(0, defaults.boundaryForce))}
+    if (this.pos.y < (this.size / 2)) {this.acc.add(createVector(0, defaults.boundaryForce))} //top boundary bigger b/c mode UI?
     
     if (options.isShowingPanel) {
       if (this.pos.x > panelLeftEdge - (this.size / 2)) {
@@ -540,7 +540,7 @@ class CNode { //courseNode
     this.generateFamilyReunion();
   }
 
-  //MARK: checkVis
+  //MARK: checkVisib
   checkVisibility(){
     //TODO refactor, semester toggle hack
     /** 
@@ -550,6 +550,45 @@ class CNode { //courseNode
      * 3) cluster, no keywords = visible if area
      * 4) keywords and cluster = visible if keywords selected,match, and area
     */
+    //v0.3.5 starting to make this more modular and not stupid
+    //edit: jk still stupid, TODO refactor plz
+    if (nodesMatchingSearch.length > 0){
+      this.isVisible = false;
+      this.hasCollisions = false;
+      this.color.setAlpha(defaults.fadeAlpha);
+      this.button.html('');
+      //soul stroke quick fix
+      if (this.area == "SOUL"){
+        this.button.style("border", "none");
+      }
+      if (this.area == "CORE" || this.area == "SOUL"){
+        this.color2.setAlpha(defaults.fadeAlpha);
+        this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
+      } else {
+        this.button.elt.style.background = this.color;
+      }
+      for (let result of nodesMatchingSearch){
+        if (result[0].course == this.course){
+          this.isVisible = true;
+          this.hasCollisions = true;
+          this.color.setAlpha(1);
+          this.button.html(this.course);
+          this.button.elt.style.color = color(0, 0, 0); //...... um
+          //soul stroke quick fix
+          if (this.area == "SOUL"){
+            this.button.style("border", "2px solid black");
+          }
+          if (this.area == "CORE" || this.area == "SOUL"){
+            this.color2.setAlpha(1);
+            this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
+          } else {
+            this.button.elt.style.background = this.color;
+          }
+          break;
+        }
+      }
+    }
+
     if ((options.isShowingKeywords && !this.fitsKeywords && state.selectedCluster == null)
       || (!options.isShowingKeywords && state.selectedCluster !== null && (this.area !== state.selectedCluster || (this.area == "SOUL" && state.selectedCluster !== "CORE")))
       || ((options.isShowingKeywords && !this.fitsKeywords) || (state.selectedCluster !== null && (this.area !== state.selectedCluster || (this.area == "SOUL" && state.selectedCluster !== "CORE"))))
@@ -570,7 +609,8 @@ class CNode { //courseNode
       }
     } else if (state.semester != "ALL" && 
               state.semester != this.semester && 
-              (state.semester != "OCCASIONAL" && this.semester != "BOTH")) { //weird BOTH hack 
+              ((state.semester != "OCCASIONAL" && this.semester != "BOTH") ||
+                (state.semester == "OCCASIONAL"))) { //weird BOTH hack 
       //TODO refactor, semester toggle hack
       this.isVisible = false;
       this.hasCollisions = false;
@@ -588,6 +628,8 @@ class CNode { //courseNode
         this.button.elt.style.background = this.color;
       }
     } else { //default
+      //have to do dumb search check here
+      if (nodesMatchingSearch.length > 0) {return;}
       this.isVisible = true;
       this.hasCollisions = true;
       this.color.setAlpha(1);
@@ -772,11 +814,13 @@ class CNode { //courseNode
 
       if (this.course == state.selectedCourse){
         for (let sibling of this.links.siblings){
+          if (!sibling.isVisible){continue;}
           strokeWeight(4);
           stroke(180, 80, 90);
           line(this.pos.x, this.pos.y, sibling.pos.x, sibling.pos.y);
         }
         for (let cousin of this.links.cousins){
+          if (!cousin.isVisible){continue;}
           strokeWeight(2);
           stroke(330, 40, 90);
           line(this.pos.x, this.pos.y, cousin.pos.x, cousin.pos.y);
