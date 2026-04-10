@@ -72,42 +72,6 @@ class CNode { //courseNode
     this.maxSpeed = 1; //speed of movement
     this.maxForce = .2; //speed of change to movement
     this.friction = 0.9; //drags to stop
-
-    //MARK:construct
-    //animations
-    this.rainbowOffset = 0; //for selection animation
-    this.outlineOffset = 0;
-    this.blob = [];
-    this.initBlob();
-
-    //for keyword/panel modes
-    this.isVisible = true;
-    this.isSelected = false;
-    this.fitsKeywords = true;
-    this.haveKeywordsChanged = false;
-    this.hasClusterSelectionChanged = false;
-    this.keyArr = this.keywords.split(",");
-    this.hasCollisions = true; //for ignoring other nodes
-    this.shouldCheckCollision = false; //so the collision only gets turned off once per big event, to prevent edge bugs
-
-    //should use this for a check for anything that needs updating TODO
-    this.needsUpdate = false;
-
-    //family reunion keyword mode
-    this.familyMember = null; //the focus of the family reunion
-    this.orbit = 0;
-    this.relationships = {
-      tally: {},//holds the number of similar keywords by course
-      unsorted: [],
-      sorted: [],
-      siblings: [],
-      cousins: [],
-      relatives: [], //the "others"
-    };
-    this.links = {siblings: [], cousins: []}
-    // this.springs = []; // the reunion spacing forces
-    this.orbitSlot; //the sibling/cousin spot around the orbit for springs
-    this.familySpot = createVector(0, 0); //the spot around the orbit they want to be in (just siblings/cousins)
     
     //MARK:construct
     //animations
@@ -560,6 +524,11 @@ class CNode { //courseNode
       this.hasCollisions = false;
       this.color.setAlpha(defaults.fadeAlpha);
       this.button.html('');
+      //4-10-26
+      if (this.area == "SOUL"){
+        this.button.elt.style.border = "none"
+      }
+      //
       if (this.area == "CORE" || this.area == "SOUL"){
         this.color2.setAlpha(defaults.fadeAlpha);
         this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;
@@ -571,6 +540,11 @@ class CNode { //courseNode
       this.hasCollisions = true;
       this.color.setAlpha(1);
       this.button.html(this.course);
+      //4-10-26
+      if (this.area == "SOUL"){
+        this.button.elt.style.border = "2px solid black"
+      }
+      //
       if (this.area == "CORE" || this.area == "SOUL"){
         this.color2.setAlpha(1);
         this.button.elt.style.background = `radial-gradient(${this.color} 25%, ${this.color2}, ${this.color})`;

@@ -1,24 +1,11 @@
 /* 
 *
-*   STYLEEEEE I HATE CSS
-*
+*   STYLEEEEE
 */
 
 @font-face {
   font-family: 'tiltneon';
-  src: url('https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662') format('truetype');
-}
-@font-face {
-  font-family: 'yk_med';
-  src: url('assets/fonts/fontTests/yk_med.ttf') format('truetype');
-}
-@font-face {
-  font-family: 'ibmPlex_sans_med';
-  src: url('assets/fonts/fontTests/ibmPlex_sans_med.ttf') format('truetype');
-}
-@font-face {
-  font-family: 'ibmPlex_mono_med';
-  src: url('assets/fonts/fontTests/ibmPlex_mono_med.ttf') format('truetype');
+  src: './assets/fonts/tiltneon.ttf', format('truetype');
 }
 
 
@@ -40,7 +27,7 @@ canvas {
 
 html, body, a, button, input {
   /* for custom cursor */
-  cursor: url('https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_cursor.png?v=1730229446948'), auto;
+  cursor: 'assets/brand/ca_cursor.png', auto;
 }
 
 /* Style for the custom cursor */
@@ -48,7 +35,7 @@ html, body, a, button, input {
   position: absolute;
   width: 80px;
   height: 80px;
-  background-image: url('https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_cursor.png?v=1730229446948'); /* Your cursor image */
+  background-image: 'assets/brand/ca_cursor.png'; /* Your cursor image */
   background-size: contain;
   pointer-events: none; /* So it doesn't block other elements */
   transform: translate(-35%, 0%); 

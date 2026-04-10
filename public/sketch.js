@@ -107,40 +107,12 @@ let state = { //need to refactor this vs options
 }
 
 function preload(){  
-  masterSheet = loadTable(`${pagePrefix}data/master_12-15.csv`, "csv", "header");
+  masterSheet = loadTable(`./data/master_12-15.csv`, "csv", "header");
   // title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
-  title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_pink_logo.png?v=1730229378674");
-  font = loadFont("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662");
+  title = loadImage(`./assets/brand/ca_title.png`);
+  font = loadFont(`./assets/fonts/tiltneon.ttf`);
 
-  // title = loadImage(`${pagePrefix}assets/brand/ca_title.png`);
-  fonts["tiltneon"] = {name: "tiltneon", font: loadFont(`${pagePrefix}assets/fonts/fontTests/tiltneon.ttf`)};
-  fonts["yk_med"] = {name: "yk_med", font: loadFont(`${pagePrefix}assets/fonts/fontTests/yk_med.ttf`)};
-  fonts["ibmPlex_sans_med"] = {name: "ibmPlex_sans_med", font: loadFont(`${pagePrefix}assets/fonts/fontTests/ibmPlex_sans_med.ttf`)};
-  fonts["ibmPlex_mono_med"] = {name: "ibmPlex_mono_med", font: loadFont(`${pagePrefix}assets/fonts/fontTests/ibmPlex_mono_med.ttf`)};
 }
-
-/*
-function preload(){
-  masterSheet = loadTable(`${pagePrefix}data/master_5-1.csv`, "csv", "header");
-  title = loadImage(`${pagePrefix}assets/brand/ca_title.png`);
-  fonts["tiltneon"] = {name: "tiltneon", font: loadFont(`${pagePrefix}assets/fonts/fontTests/tiltneon.ttf`)};
-  fonts["yk_med"] = {name: "yk_med", font: loadFont(`${pagePrefix}assets/fonts/fontTests/yk_med.ttf`)};
-  fonts["ibmPlex_sans_med"] = {name: "ibmPlex_sans_med", font: loadFont(`${pagePrefix}assets/fonts/fontTests/ibmPlex_sans_med.ttf`)};
-  fonts["ibmPlex_mono_med"] = {name: "ibmPlex_mono_med", font: loadFont(`${pagePrefix}assets/fonts/fontTests/ibmPlex_mono_med.ttf`)};
-}
-
-function preload(){
-  masterSheet = loadTable("data/master_5-1.csv", "csv", "header");
-  title = loadImage("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/ca_title.png?v=1712723968514");
-  font = loadFont("https://cdn.glitch.global/119042a0-d196-484e-b4d0-393548c41275/tiltneon.ttf?v=1712723959662");
-
-  // title = loadImage("assets/brand/ca_title.png");
-  fonts["tiltneon"] = {name: "tiltneon", font: loadFont("assets/fonts/fontTests/tiltneon.ttf")};
-  fonts["yk_med"] = {name: "yk_med", font: loadFont("assets/fonts/fontTests/yk_med.ttf")};
-  fonts["ibmPlex_sans_med"] = {name: "ibmPlex_sans_med", font: loadFont("assets/fonts/fontTests/ibmPlex_sans_med.ttf")};
-  fonts["ibmPlex_mono_med"] = {name: "ibmPlex_mono_med", font: loadFont("assets/fonts/fontTests/ibmPlex_mono_med.ttf")};
-}
-*/
 
 /**
  * 
@@ -154,7 +126,7 @@ function setup() {
   canvas.parent("mainContainer");
   textAlign(CENTER, CENTER);
   textWrap(WORD);
-  textFont(fonts[defaults.fontName].font); //default
+  textFont(font); //default
   ellipseMode(CENTER);
   rectMode(CENTER);
   angleMode(DEGREES); //just for 360/7 areas
@@ -177,11 +149,6 @@ function setup() {
   //title logo
   defaults.titleSize = width/8;
   defaults.titleRatio = title.height / title.width;
-
-  //mobile warning
-  if (width < height){
-    warningText = "NOT READY FOR MOBILE, PLEASE CHECK THIS OUT ON A COMPUTER";
-  }
 
   //setup the css element properties
   //get the relative node size
